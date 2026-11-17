@@ -41,8 +41,8 @@ def get_base_dir() -> str:
 
 def find_7z_binary() -> Optional[str]:
     base_dir = get_base_dir()
-    # 1. 번들 바이너리 우선 확인 (Windows / Linux / macOS)
-    bundled_names = ["7z.exe", "7zz", "7z", "7za"]
+    is_win = sys.platform == "win32"
+    bundled_names = ["7z.exe"] if is_win else ["7zz", "7z", "7za"]
     for name in bundled_names:
         p = os.path.join(base_dir, "tools", "7z", name)
         if os.path.isfile(p):
@@ -52,27 +52,30 @@ def find_7z_binary() -> Optional[str]:
             if os.path.isfile(exe_side):
                 return exe_side
 
-    # 2. PATH 및 시스템 표준 경로 탐색
-    candidates = [
-        shutil.which("7zz"),
-        shutil.which("7z"),
-        shutil.which("7za"),
-        # Windows 경로
-        r"C:\Program Files\7-Zip\7z.exe",
-        r"C:\Program Files (x86)\7-Zip\7z.exe",
-        os.path.expanduser(r"~\AppData\Local\Programs\7-Zip\7z.exe"),
-        # Linux / Debian 경로
-        "/usr/bin/7zz",
-        "/usr/bin/7z",
-        "/usr/bin/7za",
-        "/usr/local/bin/7zz",
-        "/usr/local/bin/7z",
-        # macOS (Homebrew / MacPorts) 경로
-        "/opt/homebrew/bin/7zz",
-        "/opt/homebrew/bin/7z",
-        "/opt/local/bin/7zz",
-        "/opt/local/bin/7z",
-    ]
+    # PATH 및 시스템 표준 경로 탐색
+    if is_win:
+        candidates = [
+            shutil.which("7z.exe"),
+            shutil.which("7z"),
+            r"C:\Program Files\7-Zip\7z.exe",
+            r"C:\Program Files (x86)\7-Zip\7z.exe",
+            os.path.expanduser(r"~\AppData\Local\Programs\7-Zip\7z.exe"),
+        ]
+    else:
+        candidates = [
+            shutil.which("7zz"),
+            shutil.which("7z"),
+            shutil.which("7za"),
+            "/usr/bin/7zz",
+            "/usr/bin/7z",
+            "/usr/bin/7za",
+            "/usr/local/bin/7zz",
+            "/usr/local/bin/7z",
+            "/opt/homebrew/bin/7zz",
+            "/opt/homebrew/bin/7z",
+            "/opt/local/bin/7zz",
+            "/opt/local/bin/7z",
+        ]
     for c in candidates:
         if c and os.path.isfile(c):
             return c
@@ -81,7 +84,8 @@ def find_7z_binary() -> Optional[str]:
 
 def find_lz4_binary() -> Optional[str]:
     base_dir = get_base_dir()
-    bundled_names = ["lz4.exe", "lz4"]
+    is_win = sys.platform == "win32"
+    bundled_names = ["lz4.exe"] if is_win else ["lz4"]
     for name in bundled_names:
         p = os.path.join(base_dir, "tools", "lz4", name)
         if os.path.isfile(p):
@@ -91,13 +95,19 @@ def find_lz4_binary() -> Optional[str]:
             if os.path.isfile(exe_side):
                 return exe_side
 
-    candidates = [
-        shutil.which("lz4"),
-        "/usr/bin/lz4",
-        "/usr/local/bin/lz4",
-        "/opt/homebrew/bin/lz4",
-        "/opt/local/bin/lz4",
-    ]
+    if is_win:
+        candidates = [
+            shutil.which("lz4.exe"),
+            shutil.which("lz4"),
+        ]
+    else:
+        candidates = [
+            shutil.which("lz4"),
+            "/usr/bin/lz4",
+            "/usr/local/bin/lz4",
+            "/opt/homebrew/bin/lz4",
+            "/opt/local/bin/lz4",
+        ]
     for c in candidates:
         if c and os.path.isfile(c):
             return c
@@ -106,7 +116,8 @@ def find_lz4_binary() -> Optional[str]:
 
 def find_zstd_binary() -> Optional[str]:
     base_dir = get_base_dir()
-    bundled_names = ["zstd.exe", "zstd"]
+    is_win = sys.platform == "win32"
+    bundled_names = ["zstd.exe"] if is_win else ["zstd"]
     for name in bundled_names:
         p = os.path.join(base_dir, "tools", "zstd", name)
         if os.path.isfile(p):
@@ -116,13 +127,19 @@ def find_zstd_binary() -> Optional[str]:
             if os.path.isfile(exe_side):
                 return exe_side
 
-    candidates = [
-        shutil.which("zstd"),
-        "/usr/bin/zstd",
-        "/usr/local/bin/zstd",
-        "/opt/homebrew/bin/zstd",
-        "/opt/local/bin/zstd",
-    ]
+    if is_win:
+        candidates = [
+            shutil.which("zstd.exe"),
+            shutil.which("zstd"),
+        ]
+    else:
+        candidates = [
+            shutil.which("zstd"),
+            "/usr/bin/zstd",
+            "/usr/local/bin/zstd",
+            "/opt/homebrew/bin/zstd",
+            "/opt/local/bin/zstd",
+        ]
     for c in candidates:
         if c and os.path.isfile(c):
             return c
