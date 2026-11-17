@@ -14,7 +14,7 @@
 **Ultra-Lightweight & Blazing-Fast Cross-Platform Archiver powered by Native C/C++ Engines**  
 *Compact bundle, Zstandard / LZ4 / LZMA2 multi-core compression, and modern Windows 11 shell integration.*
 
-[Screenshots](#-screenshots) • [Key Features](#-key-features) • [Quick Install](#-quick-install--run) • [Sponsor](#-support--sponsorship) • [License](#-license)
+[Screenshots](#-screenshots) • [Key Features](#-key-features) • [Quick Install](#-quick-install--run) • [FAQ](#-faq--troubleshooting) • [Sponsor](#-support--sponsorship) • [License](#-license)
 
 </div>
 
@@ -137,6 +137,20 @@ Install and run zipper9 via a single command in your terminal across all support
   open -a zipper9
   ```
 - **Direct DMG Installation**: Download `zipper9-v1.0.0-macos.dmg` from [GitHub Releases](https://github.com/smin987/zipper9/releases) and drag `zipper9.app` to `/Applications`.
+
+---
+
+## ❓ FAQ & Troubleshooting
+
+### Q. [Windows] I deleted the portable `zipper9.exe` file directly, but the context menu items still appear.
+**A.** This occurs because the shell extension was registered with the modern Windows 11 package and user registry.  
+Even if you have already deleted the executable, open **PowerShell** and run the following single-line command to completely clean up all context menu entries and package registrations:
+
+```powershell
+Get-AppxPackage *zipper9* | Remove-AppxPackage -ErrorAction SilentlyContinue; Remove-Item -Path "HKCU:\Software\Classes\*\shell\zipper9_compress", "HKCU:\Software\Classes\Directory\shell\zipper9_compress", "HKCU:\Software\Classes\Directory\Background\shell\zipper9_open", "HKCU:\Software\zipper9" -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+> *💡 On macOS and Linux, this issue does not occur as the OS automatically cleans up associations upon moving `zipper9.app` to Trash or uninstalling via `apt remove`.*
 
 ---
 

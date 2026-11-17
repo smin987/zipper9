@@ -14,7 +14,7 @@
 **Python Fluent UI와 고성능 C/C++ 네이티브 멀티코어 엔진이 결합된 크로스 플랫폼 초경량·초고속 압축기**  
 *초경량 번들, Zstandard / LZ4 / LZMA2 알고리즘, Windows 11 모던 우클릭 메뉴 완벽 지원*
 
-[스크린샷](#-스크린샷) • [주요 특징](#-주요-특징) • [설치 가이드](#-빠른-설치-및-실행-가이드-quick-install--run) • [후원하기](#-개발자-후원하기-sponsor) • [라이선스](#-라이선스-license)
+[스크린샷](#-스크린샷) • [주요 특징](#-주요-특징) • [설치 가이드](#-빠른-설치-및-실행-가이드-quick-install--run) • [FAQ / 문제 해결](#-자주-묻는-질문-및-문제-해결-faq) • [후원하기](#-개발자-후원하기-sponsor) • [라이선스](#-라이선스-license)
 
 </div>
 
@@ -137,6 +137,20 @@ zipper9/
   open -a zipper9
   ```
 - **DMG 직접 설치**: [GitHub Releases](https://github.com/smin987/zipper9/releases)에서 `zipper9-v1.0.0-macos.dmg`를 다운로드하여 `/Applications`로 드래그 & 드롭.
+
+---
+
+## ❓ 자주 묻는 질문 및 문제 해결 (FAQ)
+
+### Q. [Windows] `zipper9.exe` 포터블 파일을 직접 삭제했는데 우클릭 메뉴가 여전히 남아있습니다.
+**A.** Windows 탐색기(모던 1단계 패키지 및 사용자 레지스트리)에 등록된 쉘 확장 설정 때문입니다.  
+프로그램 파일을 이미 삭제하셨더라도 **PowerShell**을 열고 아래 명령어를 복사하여 실행하시면 등록된 모든 패키지와 레지스트리 잔재가 즉시 깨끗하게 제거됩니다:
+
+```powershell
+Get-AppxPackage *zipper9* | Remove-AppxPackage -ErrorAction SilentlyContinue; Remove-Item -Path "HKCU:\Software\Classes\*\shell\zipper9_compress", "HKCU:\Software\Classes\Directory\shell\zipper9_compress", "HKCU:\Software\Classes\Directory\Background\shell\zipper9_open", "HKCU:\Software\zipper9" -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+> *💡 macOS와 Linux 환경은 앱(`zipper9.app`)을 휴지통에 넣거나 패키지(`apt remove`) 삭제 시 운영체제가 잔재를 자동으로 정리하므로 해당되지 않습니다.*
 
 ---
 
