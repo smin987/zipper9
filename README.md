@@ -142,19 +142,14 @@ Install and run zipper9 via a single command in your terminal across all support
 
 ## 💖 Support & Sponsorship
 
-**zipper9** is free software distributed under the **[Source-Available Freeware License](LICENSE)**.  
-If you find this project valuable, please consider sponsoring the developer. Your support directly helps maintain the project, cover infrastructure costs, improve performance, and build new features! ☕✨
+`zipper9` is free software distributed under the **[Source-Available Freeware License](LICENSE)**.  
+If you find this project valuable and wish to support its ongoing development and maintenance, consider buying me a coffee! Your support and encouragement are always greatly appreciated. ☕✨
 
 <div align="center">
 
 [![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/smin987)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/smin987)
 [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/smin987)
-
-> **💖 Sponsor Perks & Appreciation**:
-> - 🎖️ Listed on the official **Backers & Sponsors** honor roll in README and release notes
-> - 🚀 High priority review for bug reports and feature requests
-> - 💬 Direct communication and early access to experimental updates
 
 </div>
 

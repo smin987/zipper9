@@ -143,18 +143,13 @@ zipper9/
 ## 💖 개발자 후원하기 (Sponsor)
 
 **zipper9**은 누구나 자유롭게 사용할 수 있는 **무료 소프트웨어(Source-Available Freeware)**입니다.  
-이 프로그램이 유용하셨거나 지속적인 기능 업데이트, 성능 개선, 신규 포맷 및 멀티플랫폼 지원을 응원하고 싶으시다면 커피 한 잔의 따뜻한 후원을 부탁드립니다! 여러분의 따뜻한 후원은 프로젝트를 유지하고 발전시키는 데 매우 큰 힘이 됩니다. ☕✨
+프로그램이 유용하셨거나 지속적인 개발과 유지보수를 응원하고 싶으시다면 커피 한 잔의 따뜻한 후원을 부탁드립니다! 여러분의 따뜻한 응원은 프로젝트를 유지하고 발전시키는 데 매우 큰 힘이 됩니다. ☕✨
 
 <div align="center">
 
 [![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/smin987)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/smin987)
 [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/smin987)
-
-> **💖 후원자 혜택**:
-> - 🎖️ README 및 릴리즈 노트의 공식 후원자(Backers / Sponsors) 명단 등재
-> - 🚀 버그 리포트 및 신규 기능 요청(Feature Request) 우선 검토
-> - 💬 신규 실험 기능 우선 체험 및 개발자와의 직접 소통
 
 </div>
 
