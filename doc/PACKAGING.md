@@ -9,7 +9,7 @@
 | 플랫폼 | 지원 아키텍처 | 배포 포맷 | 내장/요구 네이티브 엔진 | 데스크톱 통합 방식 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Windows 11 / 10** | x86_64 | `zipper9.exe` (독립 실행파일)<br>`zipper9_shell.msix` (확장 패키지) | `tools/` 번들 (`7z.exe`, `lz4.exe`, `zstd.exe`) | Win11 모던 1단계 우클릭 (`IExplorerCommand` Rust COM)<br>클래식 우클릭 & 확장자 연결 |
-| **Debian / Ubuntu** | amd64, arm64 | `zipper9_1.0.0_amd64.deb`<br>`zipper9-1.0.0-x86_64.AppImage` | 시스템 패키지 (`7zip` / `p7zip-full`, `lz4`, `zstd`) | XDG `.desktop` (`/usr/share/applications/`)<br>Nautilus / Nemo / Thunar 컨텍스트 스크립트 |
+| **Debian / Ubuntu / Raspberry Pi** | amd64, arm64 (aarch64) | `zipper9_1.0.0_amd64.deb`<br>`zipper9_1.0.0_arm64.deb`<br>`zipper9-v1.0.0-linux-*.tar.gz` | 시스템 패키지 (`7zip` / `p7zip-full`, `lz4`, `zstd`) | XDG `.desktop` (`/usr/share/applications/`)<br>단독 실행 바이너리 & XDG 데스크톱 통합 |
 | **macOS** | Universal (Apple Silicon & Intel) | `zipper9-1.0.0.dmg`<br>`zipper9.app` (애플리케이션 번들) | Homebrew (`7zz`, `lz4`, `zstd`) 또는 번들 내장 | `/Applications` 드래그 설치<br>Finder 빠른 동작(Quick Actions) / Services |
 
 ---
@@ -43,56 +43,73 @@ powershell -ExecutionPolicy Bypass -File tools\build_msix.ps1
 
 ---
 
-## 2. Debian Linux 배포 (`.deb` 패키지)
+## 2. Debian / Ubuntu / Raspberry Pi 배포 (`.deb` & 포터블 바이너리)
+
+zipper9은 **amd64 (x86_64)**뿐만 아니라 **arm64 (aarch64, Raspberry Pi 4/5, AWS Graviton, Apple Silicon Linux VM)** 아키텍처를 네이티브 지원합니다.
 
 ### 2.1 사전 필수 패키지
-Debian 11/12 및 Ubuntu 22.04/24.04 LTS 환경:
 ```bash
 sudo apt update
-sudo apt install -y python3 python3-tk python3-pip 7zip lz4 zstd
-pip3 install customtkinter darkdetect
+sudo apt install -y dpkg-dev 7zip lz4 zstd python3-tk
 ```
 
-### 2.2 `.deb` 패키지 디렉터리 구조
+### 2.2 독립 실행 바이너리 빌드 (PyInstaller)
+파이썬 런타임 및 GUI 라이브러리가 내장된 완전 독립 실행 바이너리를 빌드합니다:
+```bash
+pip install -r requirements.txt pyinstaller
+pyinstaller \
+  --name="zipper9" \
+  --onefile \
+  --noconfirm \
+  --add-data="assets:assets" \
+  --collect-all="customtkinter" \
+  --collect-all="zipper9_ui" \
+  --hidden-import="darkdetect" \
+  main.py
+```
+- 결과물: `dist/zipper9` (단독 실행 바이너리)
+
+### 2.3 `.deb` 패키지 디렉터리 구조 (`amd64` / `arm64`)
 ```text
-zipper9_1.0.0_amd64/
+zipper9_1.0.0_<arch>/
 ├── DEBIAN/
-│   ├── control                 # 패키지 메타데이터 및 의존성
-│   └── postinst                # 설치 후 아이콘 캐시 갱신 스크립트
+│   └── control                 # 패키지 메타데이터 및 압축 엔진 의존성
 ├── usr/
 │   ├── bin/
-│   │   └── zipper9             # 실행 래퍼 스크립트
-│   ├── share/
-│   │   ├── applications/
-│   │   │   └── zipper9.desktop # 앱 런처 및 파일 확장자 연결
-│   │   ├── icons/hicolor/256x256/apps/
-│   │   │   └── zipper9.png     # 애플리케이션 아이콘
-│   │   └── zipper9/            # Python 소스코드 번들
-│   │       ├── main.py
-│   │       └── zipper9_ui/
+│   │   └── zipper9 -> /opt/zipper9/zipper9  # 심볼릭 링크
+│   └── share/
+│       ├── applications/
+│       │   └── zipper9.desktop # 앱 런처 및 파일 확장자 연결
+│       └── icons/hicolor/256x256/apps/
+│           └── zipper9.png     # 애플리케이션 아이콘
+└── opt/
+    └── zipper9/
+        ├── zipper9             # 독립 실행 바이너리 (Executable)
+        ├── LICENSE
+        └── README.md
 ```
 
-### 2.3 `DEBIAN/control` 명세 예시
+### 2.4 `DEBIAN/control` 명세 예시 (arm64 예시)
 ```control
 Package: zipper9
 Version: 1.0.0
 Section: utils
 Priority: optional
-Architecture: amd64
+Architecture: arm64
 Maintainer: smin987 <developer@zipper9.org>
-Depends: python3 (>= 3.10), python3-tk, 7zip | p7zip-full, lz4, zstd
+Depends: 7zip | p7zip-full, lz4, zstd
 Description: Ultra-lightweight and high-speed multi-core archiver
  zipper9 combines modern Fluent GUI with native multi-core compression
  engines (7-Zip, LZ4, Zstandard) supporting ZIP, 7z, TAR, and RAR.
 ```
 
-### 2.4 빌드 및 패키징 명령어
+### 2.5 빌드 및 설치 명령어
 ```bash
-# deb 패키지 빌드
-dpkg-deb --build zipper9_1.0.0_amd64
+# deb 패키지 빌드 (amd64 또는 arm64)
+dpkg-deb --build --root-owner-group zipper9_1.0.0_arm64
 
 # 설치 테스트
-sudo dpkg -i zipper9_1.0.0_amd64.deb
+sudo dpkg -i zipper9_1.0.0_arm64.deb
 ```
 
 ---

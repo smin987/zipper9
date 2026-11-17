@@ -62,7 +62,7 @@ For technical packaging specifications and build steps, please refer to **[doc/P
 | Operating System | Package Format | Highlights & Integrations |
 | :--- | :--- | :--- |
 | **Windows 11 / 10** | `zipper9.exe`<br>`zipper9_shell.msix` | • Portable standalone binary (18MB, no installation required)<br>• Windows 11 modern top-level 1-click context menu (Rust COM DLL)<br>• Windows 10 classic context menu & file association icon binding |
-| **Debian / Ubuntu** | `zipper9_1.0.0_amd64.deb`<br>`AppImage` | • Native 1-click `.deb` installation (`sudo apt install ./...`)<br>• Seamless integration with system packages (`7zip`, `lz4`, `zstd`)<br>• XDG desktop app launcher & file manager (Nautilus) integration |
+| **Debian / Ubuntu / Raspberry Pi** | `zipper9_1.0.0_amd64.deb`<br>`zipper9_1.0.0_arm64.deb`<br>`zipper9-v1.0.0-linux-*.tar.gz` | • Native 64-bit x86_64 (`amd64`) and ARM64 (`arm64`, Raspberry Pi 4/5, Graviton) support<br>• 1-click `.deb` installation & standalone portable binaries<br>• Seamless integration with system packages (`7zip`, `lz4`, `zstd`)<br>• XDG desktop app launcher & file manager (Nautilus) integration |
 | **macOS** | `zipper9-v1.0.0-macos.dmg`<br>`zipper9.app` | • Universal binary for Apple Silicon (M1~M4) & Intel Macs<br>• Standard `/Applications` drag & drop `.dmg` installer<br>• Homebrew Cask standalone recipe (`zipper9.rb`) support |
 
 ---
@@ -112,11 +112,16 @@ Install and run zipper9 via a single command in your terminal across all support
   ```
 - **Portable Binary**: Download `zipper9.exe` directly from [GitHub Releases](https://github.com/smin987/zipper9/releases) and double-click to run.
 
-### 2. Debian / Ubuntu Linux
-- **APT One-Line Install**:
+### 2. Debian / Ubuntu / Raspberry Pi
+- **APT One-Line Install (amd64)**:
   ```bash
   curl -sLO https://github.com/smin987/zipper9/releases/download/v1.0.0/zipper9_1.0.0_amd64.deb && sudo apt install -y ./zipper9_1.0.0_amd64.deb && rm zipper9_1.0.0_amd64.deb
   ```
+- **APT One-Line Install (arm64 - Raspberry Pi 4/5, Graviton, Apple Silicon Linux VM)**:
+  ```bash
+  curl -sLO https://github.com/smin987/zipper9/releases/download/v1.0.0/zipper9_1.0.0_arm64.deb && sudo apt install -y ./zipper9_1.0.0_arm64.deb && rm zipper9_1.0.0_arm64.deb
+  ```
+- **Portable Binary (.tar.gz)**: Download architecture-specific `zipper9-v1.0.0-linux-*.tar.gz` from [GitHub Releases](https://github.com/smin987/zipper9/releases), extract and run `./zipper9` directly.
 - **CLI Terminal Launch (Opens GUI Window)**:
   ```bash
   zipper9
