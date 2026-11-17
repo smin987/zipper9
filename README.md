@@ -16,7 +16,6 @@
 
 | Light Mode | Dark Mode |
 | :---: | :---: |
-| ![Light Mode](images/korean_normal.png) | ![Dark Mode](images/korean_dark.png) |
 | ![English Light](images/english_normal.png) | ![English Dark](images/english_dark.png) |
 
 1. **Ultra-Lightweight Modern UI (CustomTkinter)**:

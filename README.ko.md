@@ -12,12 +12,11 @@ Python(CustomTkinter UI)과 고성능 C/C++ 네이티브 멀티코어 엔진(7-Z
 
 ## 🌟 주요 특징
 
-### 🖥️ 스크린샷 (Screenshots)
+### 🖥️ 스크린샷
 
 | 라이트 모드 (Light Mode) | 다크 모드 (Dark Mode) |
 | :---: | :---: |
-| ![Light Mode](images/korean_normal.png) | ![Dark Mode](images/korean_dark.png) |
-| ![English Light](images/english_normal.png) | ![English Dark](images/english_dark.png) |
+| ![라이트 모드](images/korean_normal.png) | ![다크 모드](images/korean_dark.png) |
 
 1. **초경량 모던 UI (CustomTkinter)**:
    - 20MB 내외의 가벼운 번들 크기, 즉각적인 반응 속도, 세련된 다크/라이트 테마.
