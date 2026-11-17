@@ -49,7 +49,7 @@ def find_modern_msix_path() -> Optional[str]:
             return cand2
 
     # 프로젝트 개발 루트 기준
-    dev_path = r"D:\mirror\dev\MyPython\Toy_Projects\zipper9\tools\zipper9_shell.msix"
+    dev_path = r"D:\mirror\dev\MyPython\in_service\zipper9\tools\zipper9_shell.msix"
     if os.path.isfile(dev_path):
         return dev_path
 

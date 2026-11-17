@@ -58,6 +58,7 @@ const SIGDN_FILESYSPATH: u32 = 0x80058000;
 const E_NOINTERFACE: HRESULT = -2147467262; // 0x80004002
 const E_NOTIMPL: HRESULT = -2147467263; // 0x80004001
 const E_POINTER: HRESULT = -2147467261; // 0x80004003
+const E_FAIL: HRESULT = -2147467259; // 0x80004005
 
 static OBJECT_COUNT: AtomicU32 = AtomicU32::new(0);
 
@@ -177,6 +178,9 @@ fn get_all_item_paths(psiItemArray: *mut c_void) -> Vec<PathBuf> {
     }
     unsafe {
         let vtbl_ptr = *(psiItemArray as *const *const IShellItemArray_Vtbl);
+        if vtbl_ptr.is_null() {
+            return paths;
+        }
         let mut count: u32 = 0;
         let hr_count = ((*vtbl_ptr).GetCount)(psiItemArray, &mut count);
         if hr_count != S_OK || count == 0 {
@@ -188,20 +192,24 @@ fn get_all_item_paths(psiItemArray: *mut c_void) -> Vec<PathBuf> {
             let hr_item = ((*vtbl_ptr).GetItemAt)(psiItemArray, i, &mut item);
             if hr_item == S_OK && !item.is_null() {
                 let item_vtbl = *(item as *const *const IShellItem_Vtbl);
-                let mut name_ptr: *mut u16 = std::ptr::null_mut();
-                let res = ((*item_vtbl).GetDisplayName)(item, SIGDN_FILESYSPATH, &mut name_ptr);
-                ((*item_vtbl).Release)(item);
+                if !item_vtbl.is_null() {
+                    let mut name_ptr: *mut u16 = std::ptr::null_mut();
+                    let res = ((*item_vtbl).GetDisplayName)(item, SIGDN_FILESYSPATH, &mut name_ptr);
+                    ((*item_vtbl).Release)(item);
 
-                if res == S_OK && !name_ptr.is_null() {
-                    let mut len = 0;
-                    while *name_ptr.add(len) != 0 {
-                        len += 1;
+                    if res == S_OK && !name_ptr.is_null() {
+                        let mut len = 0;
+                        while *name_ptr.add(len) != 0 {
+                            len += 1;
+                        }
+                        let slice = std::slice::from_raw_parts(name_ptr, len);
+                        use std::os::windows::ffi::OsStringExt;
+                        let os_str = std::ffi::OsString::from_wide(slice);
+                        windows_sys::Win32::System::Com::CoTaskMemFree(name_ptr as *mut _);
+                        paths.push(PathBuf::from(os_str));
                     }
-                    let slice = std::slice::from_raw_parts(name_ptr, len);
-                    use std::os::windows::ffi::OsStringExt;
-                    let os_str = std::ffi::OsString::from_wide(slice);
-                    windows_sys::Win32::System::Com::CoTaskMemFree(name_ptr as *mut _);
-                    paths.push(PathBuf::from(os_str));
+                } else {
+                    ((*item_vtbl).Release)(item);
                 }
             }
         }
@@ -227,17 +235,33 @@ fn find_zipper9_exe() -> Option<PathBuf> {
                 let actual_len = buf[..len].iter().position(|&c| c == 0).unwrap_or(len);
                 use std::os::windows::ffi::OsStringExt;
                 let p = PathBuf::from(std::ffi::OsString::from_wide(&buf[..actual_len]));
-                if p.exists() {
+                if p.is_file() {
                     return Some(p);
                 }
             }
         }
     }
 
-    // 2. 개발 루트 dist/zipper9.exe
-    let dev_exe = PathBuf::from(r"D:\mirror\dev\MyPython\Toy_Projects\zipper9\dist\zipper9.exe");
-    if dev_exe.exists() {
-        return Some(dev_exe);
+    // 2. 개발 및 배포 루트 dist/zipper9.exe
+    let cand_dist = PathBuf::from(r"D:\mirror\dev\MyPython\in_service\zipper9\dist\zipper9.exe");
+    if cand_dist.is_file() {
+        return Some(cand_dist);
+    }
+
+    // 3. AppData 설치 경로
+    if let Ok(local_appdata) = std::env::var("LOCALAPPDATA") {
+        let p = PathBuf::from(local_appdata).join(r"Programs\zipper9\zipper9.exe");
+        if p.is_file() {
+            return Some(p);
+        }
+    }
+
+    // 4. Program Files 설치 경로
+    if let Ok(prog_files) = std::env::var("ProgramFiles") {
+        let p = PathBuf::from(prog_files).join(r"zipper9\zipper9.exe");
+        if p.is_file() {
+            return Some(p);
+        }
     }
 
     None
@@ -352,7 +376,14 @@ unsafe extern "system" fn Command_GetTitle(
     let first_item = get_first_item_path(psiItemArray);
     log_debug(&format!("Command_GetTitle: is_bg={}, first_item={:?}", is_bg, first_item));
 
-    let title = if is_bg {
+    let is_desktop_dir = if let Some(ref path) = first_item {
+        let s = path.to_string_lossy().to_lowercase();
+        s.ends_with(r"\desktop") || s.ends_with(r"\바탕 화면") || s.ends_with(r"\바탕화면")
+    } else {
+        false
+    };
+
+    let title = if is_bg || is_desktop_dir {
         cmd.is_open_mode.store(true, Ordering::SeqCst);
         "⚡ zipper9 열기"
     } else if let Some(ref path) = first_item {
@@ -371,10 +402,11 @@ unsafe extern "system" fn Command_GetTitle(
 
     log_debug(&format!("Command_GetTitle title decided: '{}'", title));
 
-    *ppszName = alloc_cotask_str(title);
-    if (*ppszName).is_null() {
+    let ptr = alloc_cotask_str(title);
+    if ptr.is_null() {
         E_POINTER
     } else {
+        *ppszName = ptr;
         S_OK
     }
 }
@@ -388,21 +420,28 @@ unsafe extern "system" fn Command_GetIcon(
     if ppszIcon.is_null() {
         return E_POINTER;
     }
+    *ppszIcon = std::ptr::null_mut();
+
     if let Some(exe_path) = find_zipper9_exe() {
         let icon_spec = format!("{},0", exe_path.to_string_lossy());
-        *ppszIcon = alloc_cotask_str(&icon_spec);
-        if !(*ppszIcon).is_null() {
+        let ptr = alloc_cotask_str(&icon_spec);
+        if !ptr.is_null() {
+            *ppszIcon = ptr;
+            log_debug(&format!("Command_GetIcon returning icon: {}", icon_spec));
             return S_OK;
         }
     }
-    *ppszIcon = std::ptr::null_mut();
-    S_FALSE
+
+    // 아이콘이 없거나 실패 시 절대 S_FALSE를 반환하지 않는다!
+    // S_FALSE는 SUCCEEDED()로 판정되어 Windows.UI.FileExplorer.dll이 null 포인터를 참조해 0xc0000005 크래시 발생!
+    E_NOTIMPL
 }
 
 unsafe extern "system" fn Command_GetToolTip(_this: *mut c_void, _psi: *mut c_void, ppszToolTip: *mut *mut u16) -> HRESULT {
-    if !ppszToolTip.is_null() {
-        *ppszToolTip = std::ptr::null_mut();
+    if ppszToolTip.is_null() {
+        return E_POINTER;
     }
+    *ppszToolTip = std::ptr::null_mut();
     E_NOTIMPL
 }
 
@@ -544,9 +583,10 @@ unsafe extern "system" fn Command_GetFlags(_this: *mut c_void, pFlags: *mut u32)
 
 unsafe extern "system" fn Command_EnumSubCommands(_this: *mut c_void, ppEnum: *mut *mut c_void) -> HRESULT {
     log_debug("Command_EnumSubCommands called");
-    if !ppEnum.is_null() {
-        *ppEnum = std::ptr::null_mut();
+    if ppEnum.is_null() {
+        return E_POINTER;
     }
+    *ppEnum = std::ptr::null_mut();
     E_NOTIMPL
 }
 
@@ -611,10 +651,11 @@ unsafe extern "system" fn Site_SetSite(_this: *mut c_void, _pUnkSite: *mut c_voi
 }
 
 unsafe extern "system" fn Site_GetSite(_this: *mut c_void, _riid: *const GUID, ppvSite: *mut *mut c_void) -> HRESULT {
-    if !ppvSite.is_null() {
-        *ppvSite = std::ptr::null_mut();
+    if ppvSite.is_null() {
+        return E_POINTER;
     }
-    E_NOINTERFACE
+    *ppvSite = std::ptr::null_mut();
+    E_FAIL
 }
 
 // --- IClassFactory 구현체 ---
