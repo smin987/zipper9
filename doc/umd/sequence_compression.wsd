@@ -1,0 +1,59 @@
+@startuml zipper9_sequence_compression
+!theme plain
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Malgun Gothic"
+autonumber "<b>[00]</b>"
+
+title 파일 압축 실행 시퀀스 다이어그램 (Compression Flow)
+
+actor "사용자 (User)" as User
+participant "Zipper9App\n(Main UI Thread)" as UI
+participant "CompressionWorker\n(Background Thread)" as Worker
+participant "Native C/C++ Engine\n(7z / lz4 / zstd)" as Engine
+participant "File System\n(Storage / Disk)" as FS
+
+== 1. 압축 대상 지정 및 옵션 선택 ==
+User -> UI : 1) 파일/폴더 드래그 & 드롭 또는 추가 버튼 클릭
+UI -> FS : 파일 선택 대화상자 (또는 드롭 이벤트 수신)
+FS --> UI : 대상 경로 목록 반환
+UI -> UI : 메트릭 카드 및 목록 뷰 갱신
+
+User -> UI : 2) 압축 알고리즘 선택 (ZIP / 7z / LZ4 / Zstd / TAR)
+User -> UI : 3) 분할 압축 및 암호화(선택사항) 설정 후 '압축 시작' 클릭
+
+alt 모든 대상 파일이 동일 폴더에 위치 (기본값)
+    UI -> UI : 현재 부모 디렉터리에 고유 파일명 자동 생성\n[파일명 중복 시 (1), (2) 자동 넘버링]
+else 서로 다른 폴더의 파일들이 혼합된 경우 (또는 '위치 지정' 클릭 시)
+    UI -> FS : 저장할 파일 경로 지정 대화상자 (FileDialog)
+    FS --> UI : 사용자 지정 출력 파일 경로 반환
+end
+
+== 2. 비동기 작업 시작 ==
+UI -> Worker : compress_async(sources, out_path, format, level, password, split, callbacks)
+activate Worker
+Worker -> Worker : 백그라운드 스레드 생성 (threading.Thread)
+UI --> User : 프로그레스 바 초기화 (UI 완전 논블로킹 응답성 유지)
+
+== 3. 네이티브 엔진 멀티코어 실행 ==
+Worker -> Engine : subprocess.Popen 실행 (-mmt=on 멀티스레드 파라미터 주입)
+activate Engine
+
+loop 실시간 콘솔 출력 파싱 루프
+    Engine -> FS : 멀티스레드 청크 I/O (Read / Compress / Write)
+    Engine --> Worker : 표준 출력(stdout) 진행률 라인 스트리밍
+    Worker -> UI : on_progress() 이벤트 디스패치 (root.after 스케줄링)
+    UI -> UI : 프로그레스 바, 속도(MB/s), 경과시간 라벨 갱신
+end
+
+Engine --> Worker : 프로세스 정상 종료 (returncode == 0)
+deactivate Engine
+
+Worker -> UI : on_finish(완료 메시지, 출력 파일 경로)
+deactivate Worker
+
+== 4. 완료 처리 ==
+UI -> FS : 압축 결과물 확인 (파일 크기 및 유효성)
+UI --> User : 완료 알림창 표출 및 [압축 파일 열기 / 폴더 열기] 제공
+
+@enduml

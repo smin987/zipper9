@@ -1,0 +1,4 @@
+# zipper9 Python Dependencies
+customtkinter>=5.2.0
+windnd>=1.0.7
+darkdetect>=0.8.0

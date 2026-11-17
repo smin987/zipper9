@@ -1,0 +1,34 @@
+# Private folders (User only)
+_private/
+.private/
+
+# Python Virtual Environment & Cache
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# PyInstaller Build Artifacts
+build/
+dist/
+*.spec.bak
+
+# Rust build target
+target/
+Cargo.lock
+
+# Certificates & Private Keys (NEVER commit to GitHub!)
+*.pfx
+*.cer
+*.key
+*.pem
+tools/*.pfx
+tools/*.cer
+tools/*.msix
+
+# Local Settings & Temporary Files
+zipper9_settings.json
+test_*.txt
+temp_*/
+*.tmp
+*.tar

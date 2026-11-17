@@ -1,0 +1,104 @@
+@startuml zipper9_class_diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Malgun Gothic"
+
+title zipper9 클래스 다이어그램 (Class Diagram)
+
+package "zipper9_ui" {
+    class Zipper9App {
+        - worker: CompressionWorker
+        - selected_sources: List[str]
+        - selected_archive_for_extract: str
+        - tabview: CTkTabview
+        - progress_bar: CTkProgressBar
+        - lbl_status: CTkLabel
+        + __init__()
+        - _build_ui(): void
+        - _setup_compress_tab(): void
+        - _setup_extract_tab(): void
+        - _setup_progress_bar(): void
+        - _toggle_theme(): void
+        - _set_language(lang_code): void
+        - _refresh_ui_language(): void
+        - _add_files(): void
+        - _add_directory(): void
+        - _clear_sources(): void
+        - _start_compression(): void
+        - _start_extraction(): void
+        - _setup_drag_and_drop(): void
+        - _on_drop_files(file_paths): void
+    }
+}
+
+package "zipper9_ui.bridge" {
+    class CompressionWorker {
+        - _thread: Optional[Thread]
+        - _is_running: bool
+        + is_busy(): bool
+        + compress_async(source_paths, output_path, format, level, password, split_size, on_progress, on_finish, on_error): void
+        + extract_async(archive_path, output_dir, password, overwrite_mode, on_progress, on_finish, on_error): void
+        + cancel(): void
+    }
+
+    class ContextMenuManager <<module>> {
+        + register_context_menu(): bool
+        + unregister_context_menu(): bool
+        + is_context_menu_registered(): bool
+        + register_modern_package(): bool
+        + unregister_modern_package(): bool
+    }
+
+    class FileAssociationManager <<module>> {
+        + register_file_associations(): bool
+        + unregister_file_associations(): bool
+        + is_file_associations_registered(): bool
+    }
+
+    class I18nManager <<module>> {
+        + t(key: str, **kwargs): str
+        + set_language(lang: str): void
+        + get_language(): str
+    }
+
+    class SettingsManager <<module>> {
+        + load_settings(): dict
+        + save_settings(settings: dict): void
+    }
+}
+
+package "Native C/C++ Engines (tools/)" #FDF6E2 {
+    class SevenZipEngine <<Executable>> {
+        + 7z.exe -mmt=on
+        + 7z.dll
+        + compress(zip, 7z, tar)
+        + extract(zip, 7z, rar, tar, dmg, pkg)
+    }
+
+    class LZ4Engine <<Executable>> {
+        + lz4.exe
+        + compress_stream()
+        + decompress_stream()
+    }
+
+    class ZstdEngine <<Executable>> {
+        + zstd.exe -T0
+        + ultra_fast_compress()
+        + ultra_fast_decompress()
+    }
+}
+
+' Relations
+Zipper9App *-- CompressionWorker : 비동기 압축/해제 위임
+Zipper9App ..> ContextMenuManager : 우클릭 메뉴 설정
+Zipper9App ..> FileAssociationManager : 확장자 연결
+Zipper9App ..> I18nManager : 다국어 텍스트 매핑
+Zipper9App ..> SettingsManager : 사용자 설정 영구 보존
+
+CompressionWorker ..> SevenZipEngine : Subprocess IPC
+CompressionWorker ..> LZ4Engine : Subprocess IPC
+CompressionWorker ..> ZstdEngine : Subprocess IPC
+
+@enduml

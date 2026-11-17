@@ -1,0 +1,220 @@
+name: Build & Release Multi-Platform Binaries
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows 11/10 Binary
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies & PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build Standalone Executable with Spec
+        run: |
+          pyinstaller zipper9.spec --noconfirm
+
+      - name: Package Windows Artifacts
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}"
+          if (-not $ver) { $ver = "v1.0.0" }
+          New-Item -ItemType Directory -Force -Path "release_win"
+          Copy-Item "dist\zipper9.exe" "release_win\"
+          if (Test-Path "tools\zipper9_shell.msix") {
+              Copy-Item "tools\zipper9_shell.msix" "release_win\"
+          }
+          Copy-Item "LICENSE" "release_win\"
+          Copy-Item "README.md" "release_win\"
+          Compress-Archive -Path "release_win\*" -DestinationPath "zipper9-$ver-windows-x64.zip"
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binary
+          path: zipper9-*-windows-x64.zip
+
+  build-linux:
+    name: Build Debian/Linux Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Build Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev 7zip lz4 zstd
+
+      - name: Build Debian .deb Package
+        run: |
+          VER="${{ github.ref_name }}"
+          VER="${VER#v}"
+          if [ -z "$VER" ]; then VER="1.0.0"; fi
+          PKG="zipper9_${VER}_amd64"
+          
+          mkdir -p "$PKG/DEBIAN"
+          mkdir -p "$PKG/usr/bin"
+          mkdir -p "$PKG/usr/share/applications"
+          mkdir -p "$PKG/usr/share/icons/hicolor/256x256/apps"
+          mkdir -p "$PKG/opt/zipper9"
+
+          cat <<EOF > "$PKG/DEBIAN/control"
+          Package: zipper9
+          Version: $VER
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Maintainer: smin987 <developer@zipper9.org>
+          Depends: python3 (>= 3.10), python3-tk, 7zip | p7zip-full, lz4, zstd
+          Description: Ultra-lightweight and high-speed multi-core archiver
+           zipper9 combines modern Fluent GUI with native multi-core compression
+           engines (7-Zip, LZ4, Zstandard) supporting ZIP, 7z, TAR, and RAR.
+          EOF
+
+          # Copy application sources
+          cp -r zipper9_ui "$PKG/opt/zipper9/"
+          cp main.py "$PKG/opt/zipper9/"
+          cp LICENSE "$PKG/opt/zipper9/"
+          cp assets/zipper9.png "$PKG/usr/share/icons/hicolor/256x256/apps/zipper9.png"
+
+          # Create executable launcher
+          cat <<'EOF' > "$PKG/usr/bin/zipper9"
+          #!/usr/bin/env bash
+          exec /usr/bin/python3 /opt/zipper9/main.py "$@"
+          EOF
+          chmod +x "$PKG/usr/bin/zipper9"
+
+          # Create desktop shortcut
+          cat <<EOF > "$PKG/usr/share/applications/zipper9.desktop"
+          [Desktop Entry]
+          Name=zipper9
+          Comment=Ultra-lightweight multi-core archiver
+          Exec=zipper9 %F
+          Icon=zipper9
+          Terminal=false
+          Type=Application
+          Categories=Utility;Archiving;Compression;
+          MimeType=application/zip;application/x-7z-compressed;application/x-tar;application/x-rar;
+          EOF
+
+          dpkg-deb --build --root-owner-group "$PKG"
+          tar -czvf "zipper9-v${VER}-linux-x86_64.tar.gz" -C "$PKG/opt" zipper9
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            *.deb
+            *.tar.gz
+
+  build-macos:
+    name: Build macOS Universal Bundle
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies & create-dmg
+        run: |
+          brew install 7-zip lz4 zstd create-dmg
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build macOS .app with PyInstaller
+        run: |
+          pyinstaller \
+            --name="zipper9" \
+            --windowed \
+            --noconfirm \
+            --add-data="assets:assets" \
+            --hidden-import="customtkinter" \
+            --hidden-import="darkdetect" \
+            main.py
+
+      - name: Build .dmg Image
+        run: |
+          VER="${{ github.ref_name }}"
+          if [ -z "$VER" ]; then VER="v1.0.0"; fi
+          test -f "dist/zipper9.app/Contents/MacOS/zipper9"
+          create-dmg \
+            --volname "zipper9-$VER" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "zipper9.app" 175 120 \
+            --hide-extension "zipper9.app" \
+            --app-drop-link 425 120 \
+            "zipper9-$VER-macos.dmg" \
+            "dist/zipper9.app" || true
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-binary
+          path: |
+            *.dmg
+            dist/*.app
+
+  publish-release:
+    name: Publish Official GitHub Release
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-binary
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-packages
+
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-binary
+
+      - name: Create Official Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            *.zip
+            *.deb
+            *.tar.gz
+            *.dmg

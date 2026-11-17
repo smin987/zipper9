@@ -1,0 +1,69 @@
+@startuml zipper9_sequence_extraction
+!theme plain
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Malgun Gothic"
+autonumber "<b>[00]</b>"
+
+title 파일 압축 해제 실행 시퀀스 다이어그램 (Extraction Flow)
+
+actor "사용자 (User)" as User
+participant "Zipper9App\n(Main UI Thread)" as UI
+participant "CompressionWorker\n(Background Thread)" as Worker
+participant "Native Engine\n(7z / LZ4 / C++ Core)" as Core
+participant "File System\n(Storage / Disk)" as FS
+
+== 1. 아카이브 로드 및 내부 미리보기 ==
+User -> UI : 1) 아카이브 파일 드래그 앤 드롭 또는 '파일 열기...'
+UI -> Core : list_archive_entries(archive_path)
+Core -> FS : 아카이브 헤더 초고속 파싱
+FS --> Core : 엔트리 메타데이터
+Core --> UI : 파일 목록, 압축 크기, 원본 크기 반환
+UI -> UI : 내부 파일 목록 및 총 절감률(%) 출력
+UI -> UI : 대상 폴더 자동 계산 (현재 위치/<파일명>/) 및 버튼 라벨 갱신
+
+== 2. 압축 해제 위치 결정 ==
+alt 기본: '⚡ 압축 풀기' 클릭 (원클릭 자동)
+    User -> UI : '⚡ 압축 풀기 (<파일명>/에 생성)' 클릭
+    UI -> UI : out_dir = archive_dir / folder_name 자동 계산
+else 위치 지정: '위치 지정...' 클릭
+    User -> UI : '위치 지정...' 클릭
+    UI -> FS : 폴더 선택 대화상자 (askdirectory)
+    FS --> UI : 사용자 지정 출력 경로 (out_dir)
+end
+
+UI -> FS : 대상 디렉터리 생성 (os.makedirs)
+
+== 3. 비동기 압축 해제 파이프라인 ==
+UI -> Worker : extract_async(archive_path, out_dir, callbacks)
+activate Worker
+Worker -> Worker : 백그라운드 스레드 생성
+
+alt 복합 아카이브 (.tar.gz, .tar.xz, .tar.bz2, .tar.lz4)
+    Worker -> Core : 1단계 스트림 해제 (gz/xz/bz2/lz4 -> temp.tar)
+    Worker -> Core : 2단계 네이티브 멀티스레드 해제 (temp.tar -> out_dir)
+else 일반 아카이브 (.zip, .7z, .rar, .dmg, .pkg, .tar)
+    Worker -> Core : 7z 네이티브 멀티스레드 해제 (-mmt=on)
+end
+
+activate Core
+loop 진행률 스트리밍
+    Core -> Worker : 진행률 및 해제 파일명 바이트 스트림 파싱
+    Worker -> UI : on_progress(percentage, file, elapsed)
+    UI -> UI : 프로그레스 바 및 상태 라벨 실시간 갱신
+end
+Core --> Worker : 해제 완료
+deactivate Core
+
+== 4. 해제 완료 및 탐색기 연동 ==
+Worker -> UI : on_finish("압축 해제 완료")
+deactivate Worker
+
+UI -> UI : 프로그레스 바 100% 완료 처리
+UI -> User : 완료 확인 팝업 ("해당 폴더를 탐색기에서 여시겠습니까?")
+opt 사용자가 '예' 선택 시
+    User -> UI : '예' 클릭
+    UI -> FS : os.startfile(out_dir)로 탐색기 즉시 실행
+end
+
+@enduml
