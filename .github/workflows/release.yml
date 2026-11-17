@@ -50,7 +50,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-binary
-          path: zipper9-*-windows-x64.zip
+          path: |
+            zipper9-*-windows-x64.zip
+            dist/zipper9.exe
 
   build-linux:
     name: Build Debian/Linux Packages
@@ -215,6 +217,7 @@ jobs:
           generate_release_notes: true
           files: |
             *.zip
+            *.exe
             *.deb
             *.tar.gz
             *.dmg
