@@ -84,23 +84,6 @@ zipper9/
 
 ---
 
-## 🔮 zipper9 Pro Roadmap
-
-The future zipper9 Pro edition will bring advanced tools for power users, developers, and DevOps automation:
-
-1. **CLI Command Interface**:
-   - Headless CLI commands for terminals, PowerShell, bash, and CI/CD automation (`zipper9 c ...`, `zipper9 x ...`, `zipper9 l ...`).
-2. **Developer & Runtime Package Formats**:
-   - `CAB` (Windows Cabinet)
-   - `JAR`, `WAR` (Java / Web Application Archive)
-   - `APK` (Android), `IPA` (iOS) mobile app packages
-   - `XPI` (Firefox Add-on), `ASAR` (Electron desktop resources)
-   - `DEB` (Debian / Ubuntu packages)
-3. **Virtual Disk & Optical Media Images**:
-   - `ISO`, `IMG`, `BIN` CD/DVD disk image browsing and lossless file extraction.
-
----
-
 ## 🚀 Quick Install & Run
 
 Install and run zipper9 via a single command in your terminal across all supported operating systems.

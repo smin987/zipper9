@@ -84,23 +84,6 @@ zipper9/
 
 ---
 
-## 🔮 zipper9 Pro (지원 예정 로드맵)
-
-zipper9 Pro 버전에서는 파워 유저 및 개발자를 위한 고급 기능과 전문 포맷이 추가 지원될 예정입니다.
-
-1. **CLI 명령 인터페이스 (Command Line Interface)**:
-   - GUI 없이 터미널, PowerShell, 배치 파일, CI/CD 환경에서 초고속 압축/해제 자동화 지원 (`zipper9 c ...`, `zipper9 x ...`, `zipper9 l ...`)
-2. **개발자 & 시스템 패키지 아카이브 확장 지원**:
-   - `CAB` (Windows Cabinet)
-   - `JAR`, `WAR` (Java / Web Application Archive)
-   - `APK` (Android), `IPA` (iOS) 모바일 앱 패키지
-   - `XPI` (Firefox Add-on), `ASAR` (Electron 데스크톱 리소스)
-   - `DEB` (Debian / Ubuntu 패키지)
-3. **가상 디스크 및 CD/DVD 이미지 포맷 지원**:
-   - `ISO`, `IMG`, `BIN` 광학 미디어 이미지 직접 탐색 및 무손실 파일 추출
-
----
-
 ## 🚀 빠른 설치 및 실행 가이드 (Quick Install & Run)
 
 각 운영체제 터미널(CLI)에서 명령어 한 줄로 설치하거나 실행할 수 있습니다.
