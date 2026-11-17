@@ -140,8 +140,8 @@ Install and run zipper9 via a single command in your terminal across all support
   - Individual developers may freely inspect, study, and modify the source code locally for research, bug fixing, and submitting Pull Requests to the [official repository](https://github.com/smin987/zipper9).
 - **No Competing Products**:
   - You may not use this source code or its derivatives to build, release, or distribute competing archiving/compression utility software or services.
-- **No Corporate Modification**:
-  - Corporations and commercial entities may not modify the source code for internal redistribution or derivative forks (use official compiled binaries).
+- **No Modification by Commercial / Corporate Users**:
+  - For-profit organizations, commercial entities, corporations, and enterprise users are strictly prohibited from modifying, altering, or patching the source code (commercial environments must strictly use official compiled binaries).
 - **No Commercial Redistribution**:
   - You may not sell, rent, license, or commercially redistribute this software for profit.
 
