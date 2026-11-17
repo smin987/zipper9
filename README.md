@@ -1,12 +1,22 @@
 # zipper9 (Ultra-Lightweight Multi-Format Archiver) - v1.0.0
 
-<p align="center">
-  <b>English</b> | <b><a href="README.ko.md">한국어</a></b>
+<div align="center">
+
+<p>
+  <b>English</b> • <a href="README.ko.md"><b>한국어 (Korean)</b></a>
 </p>
 
-`zipper9` is an ultra-lightweight, high-speed lossless compression and decompression utility that combines a modern Fluent GUI (CustomTkinter) with high-performance native multi-core C/C++ engines (7-Zip, LZ4, Zstandard).  
-**Official binary distributions are provided for Windows 11 / 10, Debian Linux, and macOS.**  
-**Seamlessly supports ZIP, 7-Zip (`.7z`), RAR, and major Linux/Unix archive formats (`.tar.gz`, `.tar.xz`, `.tar.bz2`, `.tar.lz4`, `.tar`).**
+[![License](https://img.shields.io/badge/License-Fair--code-blue.svg)](LICENSE)
+[![Source](https://img.shields.io/badge/Source-Available-orange.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](#-quick-install--run)
+[![Sponsor](https://img.shields.io/badge/Sponsor-💖-ff69b4.svg)](#-support--sponsorship)
+
+**Ultra-Lightweight & Blazing-Fast Cross-Platform Archiver powered by Native C/C++ Engines**  
+*Compact bundle, Zstandard / LZ4 / LZMA2 multi-core compression, and modern Windows 11 shell integration.*
+
+[Screenshots](#-screenshots) • [Key Features](#-key-features) • [Quick Install](#-quick-install--run) • [Sponsor](#-support--sponsorship) • [License](#-license)
+
+</div>
 
 ---
 
@@ -127,6 +137,26 @@ Install and run zipper9 via a single command in your terminal across all support
   open -a zipper9
   ```
 - **Direct DMG Installation**: Download `zipper9-v1.0.0-macos.dmg` from [GitHub Releases](https://github.com/smin987/zipper9/releases) and drag `zipper9.app` to `/Applications`.
+
+---
+
+## 💖 Support & Sponsorship
+
+**zipper9** is free software distributed under the **[Source-Available Freeware License](LICENSE)**.  
+If you find this project valuable, please consider sponsoring the developer. Your support directly helps maintain the project, cover infrastructure costs, improve performance, and build new features! ☕✨
+
+<div align="center">
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/smin987)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/smin987)
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/smin987)
+
+> **💖 Sponsor Perks & Appreciation**:
+> - 🎖️ Listed on the official **Backers & Sponsors** honor roll in README and release notes
+> - 🚀 High priority review for bug reports and feature requests
+> - 💬 Direct communication and early access to experimental updates
+
+</div>
 
 ---
 

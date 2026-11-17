@@ -1,12 +1,22 @@
 # zipper9 (초경량 다중 포맷 압축/해제기) - v1.0.0
 
-<p align="center">
-  <b><a href="README.md">English</a></b> | <b>한국어</b>
+<div align="center">
+
+<p>
+  <b><a href="README.md">English</a></b> • <b>한국어 (Korean)</b>
 </p>
 
-Python(CustomTkinter UI)과 고성능 C/C++ 네이티브 멀티코어 엔진(7-Zip, LZ4, Zstandard)을 결합한 초경량·초고속 무손실 압축 유틸리티입니다.  
-**Windows 11, Debian Linux, macOS 3대 데스크톱 플랫폼 바이너리 배포를 공식 지원합니다.**  
-**ZIP, 7-Zip(`.7z`), RAR, 그리고 리눅스/유닉스 주요 압축 포맷(`.tar.gz`, `.tar.xz`, `.tar.bz2`, `.tar.lz4`, `.tar`)을 완벽 지원합니다.**
+[![License](https://img.shields.io/badge/License-Fair--code-blue.svg)](LICENSE)
+[![Source](https://img.shields.io/badge/Source-Available-orange.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](#-빠른-설치-및-실행-가이드-quick-install--run)
+[![Sponsor](https://img.shields.io/badge/Sponsor-💖-ff69b4.svg)](#-개발자-후원하기-sponsor)
+
+**Python Fluent UI와 고성능 C/C++ 네이티브 멀티코어 엔진이 결합된 크로스 플랫폼 초경량·초고속 압축기**  
+*초경량 번들, Zstandard / LZ4 / LZMA2 알고리즘, Windows 11 모던 우클릭 메뉴 완벽 지원*
+
+[스크린샷](#-스크린샷) • [주요 특징](#-주요-특징) • [설치 가이드](#-빠른-설치-및-실행-가이드-quick-install--run) • [후원하기](#-개발자-후원하기-sponsor) • [라이선스](#-라이선스-license)
+
+</div>
 
 ---
 
@@ -127,6 +137,26 @@ zipper9/
   open -a zipper9
   ```
 - **DMG 직접 설치**: [GitHub Releases](https://github.com/smin987/zipper9/releases)에서 `zipper9-v1.0.0-macos.dmg`를 다운로드하여 `/Applications`로 드래그 & 드롭.
+
+---
+
+## 💖 개발자 후원하기 (Sponsor)
+
+**zipper9**은 누구나 자유롭게 사용할 수 있는 **무료 소프트웨어(Source-Available Freeware)**입니다.  
+이 프로그램이 유용하셨거나 지속적인 기능 업데이트, 성능 개선, 신규 포맷 및 멀티플랫폼 지원을 응원하고 싶으시다면 커피 한 잔의 따뜻한 후원을 부탁드립니다! 여러분의 따뜻한 후원은 프로젝트를 유지하고 발전시키는 데 매우 큰 힘이 됩니다. ☕✨
+
+<div align="center">
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/smin987)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/smin987)
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/smin987)
+
+> **💖 후원자 혜택**:
+> - 🎖️ README 및 릴리즈 노트의 공식 후원자(Backers / Sponsors) 명단 등재
+> - 🚀 버그 리포트 및 신규 기능 요청(Feature Request) 우선 검토
+> - 💬 신규 실험 기능 우선 체험 및 개발자와의 직접 소통
+
+</div>
 
 ---
 
