@@ -701,6 +701,8 @@ class Zipper9App(ctk.CTk):
         )
         if is_context_menu_registered():
             self.context_menu_switch.select()
+            # 기존 우클릭 메뉴가 켜져 있던 경우 새 바이너리/위치로 자동 경로 동기화
+            threading.Thread(target=register_context_menu, daemon=True).start()
         else:
             self.context_menu_switch.deselect()
         self.context_menu_switch.pack(side="left", padx=(0, 16))
