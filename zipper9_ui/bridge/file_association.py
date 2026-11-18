@@ -15,8 +15,8 @@ else:
     winreg = None
     ctypes = None
 
-# 시스템 보호형 확장자 연동 목록 (총 37종)
-# (※ .msi, .msp, .vhd, .vhdx, .vmdk, .vdi, .qcow2 등 시스템 인스톨러/가상디스크 마운트 전용 포맷과
+# 시스템 보호형 확장자 연동 목록 (총 36종)
+# (※ .iso, .msi, .msp, .vhd, .vhdx, .vmdk, .vdi, .qcow2 등 디스크 마운트/시스템 인스톨러/가상디스크 전용 포맷과
 #    시스템 실행파일(.sfx.exe)은 Windows 고유 기능 보존을 위해 파일 아이콘/더블클릭 연결에서 제외)
 SUPPORTED_ARCHIVE_EXTS = [
     # 표준 압축 포맷
@@ -46,8 +46,7 @@ SUPPORTED_ARCHIVE_EXTS = [
     ".rpm",
     ".cpio",
     ".arj",
-    # 광학 디스크 및 미디어 아카이브 이미지
-    ".iso",
+    # 미디어 아카이브 이미지 (.iso는 Windows 디스크 탑재 기능 보존을 위해 제외)
     ".img",
     ".bin",
     ".udf",
@@ -61,6 +60,20 @@ SUPPORTED_ARCHIVE_EXTS = [
     # 초고속 현대 알고리즘
     ".lz4",
     ".zst",
+]
+
+# 시스템 기본 기능(디스크 마운트, 프로그램 설치 등) 보존을 위해 파일 아이콘 및 더블클릭 연결에서 명시적 제외되는 포맷
+SYSTEM_PROTECTED_EXTS = [
+    ".iso",      # Windows 탐색기 디스크 이미지 탑재(마운트) 보존
+    ".msi",      # Windows Installer 설치 프로그램
+    ".msp",
+    ".msm",
+    ".vhd",      # 가상 하드디스크 드라이브 마운트
+    ".vhdx",
+    ".vmdk",     # 가상머신 디스크 이미지
+    ".vdi",
+    ".qcow2",
+    ".sfx.exe",  # 전체 실행 바이너리(.exe) 시스템 연결 보호
 ]
 
 PROGID = "zipper9.Archive"
@@ -137,6 +150,37 @@ def _delete_key_tree(root, subkey):
         pass
 
 
+def _cleanup_system_protected_exts():
+    """시스템 보호 대상 포맷(ISO, MSI, VHD 등)이 HKCU에 등록되어 있는 경우 삭제 및 Windows 기본값으로 원복"""
+    if not winreg:
+        return
+    for ext in SYSTEM_PROTECTED_EXTS:
+        try:
+            winreg.DeleteKey(winreg.HKEY_CURRENT_USER, rf"Software\Classes\{ext}\DefaultIcon")
+        except OSError:
+            pass
+        try:
+            with winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                rf"Software\Classes\{ext}",
+                0,
+                winreg.KEY_READ | winreg.KEY_WRITE,
+            ) as key:
+                try:
+                    cur_val, _ = winreg.QueryValueEx(key, "")
+                    if cur_val == PROGID:
+                        try:
+                            backup, _ = winreg.QueryValueEx(key, "zipper9_backup_progid")
+                            winreg.SetValueEx(key, "", 0, winreg.REG_SZ, backup)
+                            winreg.DeleteValue(key, "zipper9_backup_progid")
+                        except OSError:
+                            winreg.DeleteValue(key, "")
+                except OSError:
+                    pass
+        except OSError:
+            pass
+
+
 def register_file_associations(icon_path: str | None = None) -> bool:
     """압축 파일 확장자들에 대해 zipper9 전용 압축 아이콘 연결 등록"""
     if not winreg:
@@ -147,6 +191,9 @@ def register_file_associations(icon_path: str | None = None) -> bool:
         return False
 
     try:
+        # 0. 시스템 보호 대상 포맷(ISO, MSI, VHD 등)은 만약 등록되어 있다면 확실히 원복 정리
+        _cleanup_system_protected_exts()
+
         # 1. HKCU\Software\Classes\zipper9.Archive 등록
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"Software\Classes\{PROGID}") as key:
             winreg.SetValueEx(key, "", 0, winreg.REG_SZ, PROGID_NAME)
@@ -187,6 +234,9 @@ def unregister_file_associations() -> bool:
     if not winreg:
         return False
     try:
+        # 0. 시스템 보호 대상 포맷 정리
+        _cleanup_system_protected_exts()
+
         # 1. 각 확장자에서 복원 또는 삭제
         for ext in SUPPORTED_ARCHIVE_EXTS:
             try:
