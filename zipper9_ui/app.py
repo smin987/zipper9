@@ -725,9 +725,10 @@ class Zipper9App(ctk.CTk):
             progress_color="#4dabf7",
             text_color=("#495057", "#f1f5f9"),
         )
-        if is_context_menu_registered():
+        should_enable_context_menu = bool(self.user_settings.get("context_menu", True))
+        if should_enable_context_menu:
             self.context_menu_switch.select()
-            # 기존 우클릭 메뉴가 켜져 있던 경우 새 바이너리/위치로 자동 경로 동기화
+            # 기본값 ON 또는 저장된 설정이 ON인 경우 새 바이너리/위치로 자동 등록 및 경로 동기화
             threading.Thread(target=register_context_menu, daemon=True).start()
         else:
             self.context_menu_switch.deselect()
@@ -2252,6 +2253,8 @@ class Zipper9App(ctk.CTk):
                 self.user_settings["verify_integrity"] = bool(self.chk_verify_integrity.get())
             if hasattr(self, "settings_expanded"):
                 self.user_settings["settings_expanded"] = bool(self.settings_expanded)
+            if hasattr(self, "context_menu_switch"):
+                self.user_settings["context_menu"] = bool(self.context_menu_switch.get())
 
             # 최대화(zoomed) 상태가 아닐 때의 논리 크기(DPI 배율 보정) 영구 저장
             is_zoomed = False

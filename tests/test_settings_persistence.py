@@ -32,10 +32,12 @@ class TestSettingsPersistence(unittest.TestCase):
     def test_save_and_load_settings(self):
         """기본 설정 저장 및 로드 파일 I/O 검증"""
         with patch("zipper9_ui.bridge.settings.get_settings_file_path", return_value=self.mock_settings_file):
-            # 1. 파일 없을 때 기본값 로드
+            # 1. 파일 없을 때 기본값 로드 (기본 언어 EN, 우클릭 메뉴 기본값 True)
             loaded = load_settings()
             self.assertEqual(loaded["theme"], "Dark")
             self.assertEqual(loaded["selected_algo"], "zstd")
+            self.assertEqual(loaded["lang"], "EN")
+            self.assertTrue(loaded["context_menu"])
 
             # 2. 새 설정 저장
             new_data = dict(DEFAULT_SETTINGS)

@@ -11,13 +11,14 @@ from typing import Any, Dict
 
 DEFAULT_SETTINGS: Dict[str, Any] = {
     "theme": "Dark",
-    "lang": "KO",
+    "lang": "EN",
     "selected_algo": "zstd",
-    "extra_algo": "다른 압축 알고리즘 선택...",
-    "split_preset": "분할 안 함 (기본)",
+    "extra_algo": "Choose other compression algorithms...",
+    "split_preset": "No Splitting (Default)",
     "encrypt_filenames": False,
     "settings_expanded": False,
     "window_geometry": "760x580",
+    "context_menu": True,
 }
 
 
