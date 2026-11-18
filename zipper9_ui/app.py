@@ -434,26 +434,36 @@ class Zipper9App(ctk.CTk):
 
         # 0. 마지막 사용자 설정값 로드
         self.user_settings = load_settings()
+        self.settings_expanded = bool(self.user_settings.get("settings_expanded", True))
+        self._settings_delta_h = 244
 
         # 0-1. 다국어(i18n) 설정 초기화
         self.current_lang = self.user_settings.get("lang", "KO")
         set_language(self.current_lang)
 
-        # 1. 윈도우 기본 설정 (사용자 맞춤 콤팩트 크기 760x540 또는 저장된 마지막 크기)
+        # 1. 윈도우 기본 설정 (설정 접힘 시 760x536, 펼침 시 760x780 또는 저장된 마지막 크기)
         self.title(t("app_title"))
-        geom = self.user_settings.get("window_geometry", "760x540")
+        default_geom = "760x780" if self.settings_expanded else "760x536"
+        geom = self.user_settings.get("window_geometry", default_geom)
         
-        # High-DPI 배율 중복 누적으로 지나치게 커진 과거 설정값(>1000) 자동 정규화
+        # High-DPI 배율 중복 누적으로 지나치게 커진 과거 설정값 자동 정규화
         try:
             m = re.match(r"^(\d+)x(\d+)", str(geom))
-            if m and (int(m.group(1)) > 1000 or int(m.group(2)) > 800):
-                geom = "760x540"
-                self.user_settings["window_geometry"] = geom
+            if m:
+                w, h = int(m.group(1)), int(m.group(2))
+                if w > 2560 or h > 1600 or w < 600 or h < 300:
+                    geom = default_geom
+                    self.user_settings["window_geometry"] = geom
+            else:
+                geom = default_geom
         except Exception:
-            geom = "760x540"
+            geom = default_geom
 
         self.geometry(geom)
-        self.minsize(660, 460)
+        if self.settings_expanded:
+            self.minsize(660, 660)
+        else:
+            self.minsize(660, 420)
 
         # 2. 테마 설정 (저장된 마지막 테마 모드)
         saved_theme = self.user_settings.get("theme", "Dark")
@@ -472,7 +482,6 @@ class Zipper9App(ctk.CTk):
 
         # 알고리즘 선택 상태 (저장된 마지막 알고리즘 복원)
         self.selected_algo = self.user_settings.get("selected_algo", "zstd")
-        self.settings_expanded = bool(self.user_settings.get("settings_expanded", True))
         self.algo_cards = {}
 
         # 4. UI 빌드
@@ -1009,17 +1018,54 @@ class Zipper9App(ctk.CTk):
         self.lbl_settings_summary_badge.bind("<Leave>", _on_leave)
 
     def _toggle_settings_panel(self):
-        """설정 아코디언 패널 접기/펼치기 토글"""
+        """설정 아코디언 패널 접기/펼치기 토글 (창 하단 크기 동적 조절 - B안)"""
         self.settings_expanded = not self.settings_expanded
         self.user_settings["settings_expanded"] = self.settings_expanded
-        self.save_current_settings()
+
+        # 윈도우 스케일 배율 및 현재 geometry 파싱
+        scale = ctk.ScalingTracker.get_window_scaling(self) or 1.0
+        geom_str = str(self.geometry())
+        m = re.match(r"^(\d+)x(\d+)(?:([+-]\d+))?(?:([+-]\d+))?", geom_str)
+        cur_w = int(m.group(1)) if m else 760
+        cur_h = int(m.group(2)) if m else (780 if self.settings_expanded else 536)
+        pos_x = m.group(3) if (m and m.group(3)) else ""
+        pos_y = m.group(4) if (m and m.group(4)) else ""
 
         if self.settings_expanded:
+            # [펼치기]: 하단으로 창 높이 확장 및 설정 컨테이너 표출
+            delta_h = getattr(self, "_settings_delta_h", 244)
+            if delta_h < 150:
+                delta_h = 244
+            self.minsize(660, 660)
+            new_h = cur_h + delta_h
+            if pos_x and pos_y:
+                self.geometry(f"{cur_w}x{new_h}{pos_x}{pos_y}")
+            else:
+                self.geometry(f"{cur_w}x{new_h}")
             self.settings_container.pack(fill="x", padx=0, pady=(0, 2))
         else:
+            # [접기]: 설정 컨테이너 높이 측정 후 숨김 및 하단 창 높이 축소
+            measured_h = int(self.settings_container.winfo_height() / scale)
+            if measured_h < 150:
+                measured_h = int(self.settings_container.winfo_reqheight() / scale)
+            if measured_h >= 150:
+                self._settings_delta_h = measured_h
+            else:
+                self._settings_delta_h = 244
+
+            delta_h = self._settings_delta_h
             self.settings_container.pack_forget()
+            self.minsize(660, 420)
+            new_h = max(420, cur_h - delta_h)
+            if pos_x and pos_y:
+                self.geometry(f"{cur_w}x{new_h}{pos_x}{pos_y}")
+            else:
+                self.geometry(f"{cur_w}x{new_h}")
 
         self._update_settings_toggle_ui()
+        self.update_idletasks()
+        self.user_settings["window_geometry"] = f"{cur_w}x{new_h}"
+        self.save_current_settings()
 
     def _update_settings_toggle_ui(self):
         """설정 토글 바 제목 및 요약 뱃지 갱신"""
