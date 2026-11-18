@@ -25,7 +25,7 @@ ARCHIVE_EXTENSIONS: List[str] = [
     ".zip", ".7z", ".rar", ".tar", ".gz", ".tgz",
     ".bz2", ".tbz2", ".xz", ".txz", ".zst", ".lz4",
     ".iso", ".cab", ".wim", ".alz", ".egg", ".001",
-    ".z01", ".part1.rar"
+    ".z01", ".part1.rar", ".dmg", ".pkg", ".xip",
 ]
 
 
