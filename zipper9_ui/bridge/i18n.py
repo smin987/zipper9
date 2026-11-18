@@ -149,6 +149,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "KO": "TAR: .tar (무압축 Tarball)",
         "EN": "TAR: .tar (Tarball · Uncompressed)",
     },
+    "algo_extra_iso": {
+        "KO": "ISO: .iso (UDF · 광학 디스크 이미지)",
+        "EN": "ISO: .iso (UDF · Optical Disc Image)",
+    },
 
     # 설정 접이식 패널 (Collapsible Settings)
     "settings_title_expanded": {
@@ -454,6 +458,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "KO": "압축 진행 중...",
         "EN": "Compressing in progress...",
     },
+    "status_iso_creating": {
+        "KO": "ISO (UDF) 디스크 이미지 생성 중...",
+        "EN": "Creating ISO (UDF) disc image...",
+    },
     "status_extracting": {
         "KO": "압축 해제 진행 중...",
         "EN": "Extracting in progress...",
@@ -499,6 +507,14 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     "msg_encrypt_header_only_7z": {
         "KO": "파일명 암호화(목록 숨김)는 7z 포맷에서만 지원됩니다.\n선택하신 알고리즘으로 변경되면서 '7z 파일명 암호화' 체크가 해제되었습니다.",
         "EN": "File name encryption is only supported in 7z format.\n'Encrypt 7z file names' has been unchecked.",
+    },
+    "msg_iso_no_password": {
+        "KO": "ISO 디스크 이미지는 비밀번호 암호화를 지원하지 않습니다.\n암호 설정을 해제하고 계속 진행합니다.",
+        "EN": "ISO disc images do not support password encryption.\nProceeding without encryption.",
+    },
+    "msg_iso_no_split": {
+        "KO": "ISO 디스크 이미지는 분할 압축을 지원하지 않습니다.\n분할 설정을 해제하고 계속 진행합니다.",
+        "EN": "ISO disc images do not support volume splitting.\nProceeding without volume splitting.",
     },
     "err_no_source": {
         "KO": "압축할 파일이나 폴더를 먼저 추가해 주세요.",

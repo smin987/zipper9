@@ -34,9 +34,11 @@ hiddenimports = [
     'zipper9_ui.bridge.instant_ops',
     'zipper9_ui.bridge.settings',
     'zipper9_ui.bridge.i18n',
+    'pycdlib',
 ]
 hiddenimports += collect_submodules('customtkinter')
 hiddenimports += collect_submodules('zipper9_ui')
+hiddenimports += collect_submodules('pycdlib')
 
 root_dir = os.path.abspath('.')
 

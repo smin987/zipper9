@@ -120,6 +120,7 @@ class ModernSegmentedButton(ctk.CTkSegmentedButton):
 
 EXTRA_ALGO_KEYS = [
     "algo_extra_store",
+    "algo_extra_iso",
     "algo_extra_tarxz",
     "algo_extra_tarbz2",
     "algo_extra_tar",
@@ -1115,6 +1116,8 @@ class Zipper9App(ctk.CTk):
             extra_val = self.combo_extra_algo.get()
             if "Store" in extra_val:
                 algo_disp = "ZIP (Store)"
+            elif "iso" in extra_val.lower():
+                algo_disp = "ISO (UDF)"
             elif ".tar.xz" in extra_val:
                 algo_disp = "TAR (.tar.xz)"
             elif ".tar.bz2" in extra_val:
@@ -2555,6 +2558,11 @@ class Zipper9App(ctk.CTk):
                 filetypes = [(f"ZIP {archive_label}", "*.zip"), (all_files_label, "*.*")]
                 fmt_type = "zip"
                 zip_method = "store"
+            elif "iso" in extra_val.lower():
+                ext = ".iso"
+                filetypes = [(f"ISO {archive_label}", "*.iso"), (all_files_label, "*.*")]
+                fmt_type = "iso"
+                zip_method = "udf"
             elif ".tar.xz" in extra_val:
                 ext = ".tar.xz"
                 filetypes = [(f"XZ TAR {archive_label}", "*.tar.xz;*.txz"), (all_files_label, "*.*")]
@@ -2646,6 +2654,18 @@ class Zipper9App(ctk.CTk):
         split_val = parse_split_size(self.combo_split.get()) if hasattr(self, "combo_split") else None
         encrypt_hdr = bool(self.chk_encrypt_header.get()) if hasattr(self, "chk_encrypt_header") else False
         verify_integ = bool(self.chk_verify_integrity.get()) if hasattr(self, "chk_verify_integrity") else False
+
+        if fmt_type == "iso":
+            if pwd_val:
+                messagebox.showinfo(t("dialog_info"), t("msg_iso_no_password"))
+                pwd_val = None
+                if hasattr(self, "entry_password"):
+                    self.entry_password.delete(0, "end")
+            if split_val:
+                messagebox.showinfo(t("dialog_info"), t("msg_iso_no_split"))
+                split_val = None
+                if hasattr(self, "combo_split"):
+                    self.combo_split.set(t("split_preset_none"))
 
         self.worker.compress_async(
             source_paths=self.selected_sources,

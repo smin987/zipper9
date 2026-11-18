@@ -310,6 +310,13 @@ class CompressionWorker:
             )
         elif fmt == "tar.lz4":
             self._compress_tar_lz4_native(source_paths, output_archive_path, on_progress, start_time)
+        elif fmt == "iso":
+            self._compress_iso_udf_native(
+                source_paths,
+                output_archive_path,
+                on_progress,
+                start_time,
+            )
         elif fmt.startswith("tar"):
             self._compress_tar_native(
                 source_paths,
@@ -786,6 +793,146 @@ class CompressionWorker:
                     os.remove(temp_tar)
                 except Exception:
                     pass
+
+    # --- 4-1. ISO (UDF) 디스크 이미지 생성 (Universal Disk Format 2.60) ---
+    def _compress_iso_udf_native(
+        self,
+        source_paths: List[str],
+        output_path: str,
+        on_progress,
+        start_time: float,
+    ):
+        try:
+            import pycdlib
+        except ImportError:
+            raise RuntimeError("ISO 이미지 생성 라이브러리(pycdlib)를 불러올 수 없습니다.")
+
+        abs_output_path = os.path.abspath(output_path)
+        out_dir = os.path.dirname(abs_output_path)
+        if out_dir and not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+
+        # 1. 대상 파일 및 폴더 목록 수집
+        base_dir, target_paths = _prepare_archive_sources(source_paths)
+
+        items_to_add = []  # (real_path, rel_udf_path)
+        dirs_to_add = []   # rel_udf_dir
+
+        if base_dir:
+            for rel in target_paths:
+                full = os.path.join(base_dir, rel)
+                if os.path.isdir(full):
+                    dirs_to_add.append(rel)
+                    for root, dirs, files in os.walk(full):
+                        rel_root = os.path.relpath(root, base_dir)
+                        for d in dirs:
+                            dirs_to_add.append(os.path.join(rel_root, d))
+                        for f in files:
+                            rf = os.path.join(root, f)
+                            items_to_add.append((rf, os.path.join(rel_root, f)))
+                elif os.path.isfile(full):
+                    items_to_add.append((full, rel))
+        else:
+            for p in target_paths:
+                if os.path.isdir(p):
+                    bname = os.path.basename(p.rstrip(r"\/"))
+                    dirs_to_add.append(bname)
+                    for root, dirs, files in os.walk(p):
+                        rel_root = os.path.relpath(root, os.path.dirname(p))
+                        for d in dirs:
+                            dirs_to_add.append(os.path.join(rel_root, d))
+                        for f in files:
+                            rf = os.path.join(root, f)
+                            items_to_add.append((rf, os.path.join(rel_root, f)))
+                elif os.path.isfile(p):
+                    bname = os.path.basename(p)
+                    items_to_add.append((p, bname))
+
+        # 디렉터리 중복 제거 및 상위 디렉터리부터 정렬
+        seen_dirs = set()
+        clean_dirs = []
+        for d in dirs_to_add:
+            norm_d = d.replace("\\", "/").strip("/")
+            if norm_d and norm_d not in seen_dirs:
+                parts = norm_d.split("/")
+                for i in range(1, len(parts) + 1):
+                    sub = "/".join(parts[:i])
+                    if sub not in seen_dirs:
+                        seen_dirs.add(sub)
+                        clean_dirs.append(sub)
+
+        clean_dirs.sort(key=lambda x: (x.count("/"), x))
+
+        total_files = len(items_to_add)
+
+        if on_progress:
+            on_progress({
+                "file": t("status_iso_creating"),
+                "processed": 0,
+                "total": max(1, total_files),
+                "percentage": 0.0,
+                "elapsed": time.time() - start_time,
+            })
+
+        iso = pycdlib.PyCdlib()
+        iso.new(udf='2.60')
+
+        try:
+            # 2. 디렉터리 추가 (ISO 9660 레벨1 제약 방지를 위해 ISO 경로는 루트 아래 고유 D0000001 등으로 매핑)
+            for idx, d in enumerate(clean_dirs, 1):
+                if self._cancelled:
+                    raise RuntimeError("작업이 취소되었습니다.")
+                iso_d = f"/D{idx:07d}"
+                udf_d = "/" + d
+                iso.add_directory(iso_d, udf_path=udf_d)
+
+            # 3. 파일 추가
+            for idx, (real_path, rel_udf) in enumerate(items_to_add, 1):
+                if self._cancelled:
+                    raise RuntimeError("작업이 취소되었습니다.")
+
+                norm_rel = rel_udf.replace("\\", "/").strip("/")
+                udf_p = "/" + norm_rel
+                iso_f = f"/F{idx:07d}.DAT;1"
+
+                iso.add_file(real_path, iso_path=iso_f, udf_path=udf_p)
+
+                if on_progress:
+                    pct = (idx / total_files) * 85.0 if total_files > 0 else 50.0
+                    on_progress({
+                        "file": os.path.basename(real_path),
+                        "processed": idx,
+                        "total": total_files,
+                        "percentage": pct,
+                        "elapsed": time.time() - start_time,
+                    })
+
+            # 4. ISO 이미지 디스크 쓰기
+            if self._cancelled:
+                raise RuntimeError("작업이 취소되었습니다.")
+
+            if on_progress:
+                on_progress({
+                    "file": "ISO 이미지 디스크 기록 중...",
+                    "processed": total_files,
+                    "total": max(1, total_files),
+                    "percentage": 90.0,
+                    "elapsed": time.time() - start_time,
+                })
+
+            iso.write(abs_output_path)
+
+            if on_progress:
+                on_progress({
+                    "file": "완료",
+                    "processed": total_files,
+                    "total": max(1, total_files),
+                    "percentage": 100.0,
+                    "elapsed": time.time() - start_time,
+                })
+
+        finally:
+            iso.close()
 
     # --- 5. 네이티브 TAR.LZ4 해제 ---
     def _extract_tar_lz4_native(self, archive_path: str, output_dir: str, on_progress, start_time: float, password: Optional[str] = None):
