@@ -201,10 +201,11 @@ If you find this project valuable and wish to support its ongoing development an
 
 ---
 
-## 📜 License
+## 📜 License & Third-Party Legal Notices
 
 `zipper9` is distributed under the **[zipper9 Fair-Code License Agreement](LICENSE)** (Source-Available & Freeware Software License).
 
+### 1. zipper9 Software Licensing Policy
 - **Compiled Binaries**:
   - **100% Free** for personal, educational, non-profit, and **commercial / enterprise use**.
 - **Individual Research & Contributions**:
@@ -216,5 +217,25 @@ If you find this project valuable and wish to support its ongoing development an
 - **No Commercial Redistribution**:
   - You may not sell, rent, license, or commercially redistribute this software for profit.
 
-For third-party open-source licenses (7-Zip, unRAR, LZ4, Zstandard), please refer to **[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)**.
-- **RAR Format Notice**: `zipper9` does not create proprietary RAR archives; it only provides safe **extraction (decompression)** via the bundled 7-Zip engine.
+### 2. Format Compliance & Third-Party Licensing Principles
+`zipper9` enforces strict legal compliance to ensure zero intellectual property risk for personal and corporate users:
+
+- **ALZ Format Support & unalz License (Enterprise Safe & 100% Free)**:
+  - Decompression of the ALZip proprietary ALZ format (`.alz`, `.a00`) is powered by Kippler's independent open-source engine **`unalz` (zlib/libpng License)**.
+  - The zlib/libpng License allows unrestricted commercial use and redistribution, guaranteeing that **corporate and enterprise environments can extract ALZ files completely free of charge without licensing audit risks**.
+- **Exclusion of EGG Format (Zero Legal Risk Principle)**:
+  - The ESTsoft EGG format (`.egg`) is subject to restrictive proprietary licensing terms that limit commercial implementation and redistribution. To safeguard our enterprise users against potential intellectual property claims, **EGG is permanently excluded from zipper9's supported formats**.
+- **Proprietary RAR Format Compliance**:
+  - In compliance with Alexander Roshal's proprietary license terms, `zipper9` does not implement proprietary RAR compression algorithms; it only provides safe **read-only decompression** via the bundled 7-Zip UnRAR engine.
+
+### 3. Bundled Third-Party Open Source Components
+| Component | Binary / Module | Author / Project | License | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **7-Zip & unRAR** | `tools/7z/7z.exe`, `7z.dll` | Igor Pavlov, Alexander Roshal | GNU LGPL v2.1+ (unRAR restriction) | Multi-core native archive engine |
+| **unalz** | `tools/unalz/unalz.exe` | Kippler | **zlib/libpng License** | Open-source ALZ decompression engine |
+| **LZ4** | `tools/lz4/lz4.exe` | Yann Collet | BSD 2-Clause (lib) / GNU GPL v2.0 (CLI) | External CLI IPC streaming decompressor |
+| **Zstandard** | `tools/zstd/zstd.exe` | Meta Platforms, Inc. | BSD 3-Clause License | Multi-threaded ultra-fast compressor |
+| **CustomTkinter** | Python GUI Framework | Tom Schimansky | CC0 1.0 Universal / MIT License | Modern Fluent GUI framework |
+| **Rust Crates** | `zipper9_shell.dll` | The Rust Project Contributors | MIT License / Apache License 2.0 | Windows 11 context menu COM extension |
+
+For full license texts and legal notices of all third-party components, please refer to **[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)**.

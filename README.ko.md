@@ -202,10 +202,11 @@ Get-AppxPackage *zipper9* | Remove-AppxPackage -ErrorAction SilentlyContinue; Re
 
 ---
 
-## 📜 라이선스 (License)
+## 📜 라이선스 및 제3자 오픈소스 고지 (License & Legal)
 
 본 프로젝트(`zipper9`)는 **[zipper9 Fair-Code License Agreement](LICENSE)** (Source-Available & Freeware Software License)에 따라 배포됩니다.
 
+### 1. zipper9 소프트웨어 라이선스 정책
 - **바이너리 파일 (Compiled Binaries)**:
   - 개인, 학교/교육기관, 비영리단체 및 **기업(상업적 업무 환경 포함) 모두 완전 무료**로 영구 사용하실 수 있습니다.
 - **개인 연구 및 기여 (Individual Research & PRs)**:
@@ -217,5 +218,25 @@ Get-AppxPackage *zipper9* | Remove-AppxPackage -ErrorAction SilentlyContinue; Re
 - **영리 목적의 배포 및 재판매 금지 (No Commercial Distribution)**:
   - 본 소프트웨어를 유료로 판매, 대여하거나 상업적 이익을 목적으로 배포할 수 없습니다.
 
-내장 및 연동된 외부 도구(7-Zip, unRAR, LZ4, Zstandard 등)의 오픈소스 저작권 및 라이선스 고지는 **[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)** 문서를 참조해 주시기 바랍니다.
-- **RAR 포맷 지원 안내**: `zipper9`은 독점 특허 포맷인 RAR의 "압축 생성"을 지원하지 않으며, 오직 7-Zip 엔진을 통한 **압축 해제(Decompression)** 기능만 안전하게 제공합니다.
+### 2. 주요 아카이브 포맷 및 제3자 라이선스 준수 원칙
+`zipper9`은 사용자와 기업 고객의 법적 안전성을 최우선으로 고려하여 철저한 라이선스 준수 원칙을 적용하고 있습니다:
+
+- **ALZ 포맷 지원 및 unalz 라이선스 (기업 및 공공기관 100% 무료 보증)**:
+  - 알집(ALZip) 독자 규격인 ALZ(`.alz`, `.a00`) 아카이브 해제는 Kippler 님이 개발한 100% 순수 오픈소스 엔진인 **`unalz` (zlib/libpng 라이선스)**를 기반으로 작동합니다.
+  - zlib/libpng 라이선스는 상업적 업무 환경을 포함하여 어떠한 제약 없이 자유롭게 사용 및 재배포가 가능하므로, **기업체, 공공기관 및 관공서에서도 알툴즈 라이선스 단속이나 저작권 침해 우려 없이 완전 무료**로 안전하게 사용할 수 있습니다.
+- **EGG 포맷 배제 사유 (Legal Risk Zero 원칙)**:
+  - 알집의 EGG 포맷(`.egg`)은 제작사(이스트소프트)의 독점 라이선스(상업적 목적의 무단 구현 및 재배포 제한 조항)로 인해, 기업 사용자의 잠재적 저작권 분쟁 및 컴플라이언스 리스크를 원천 차단하기 위해 **zipper9의 지원 대상에서 영구 배제**되었습니다.
+- **독점 포맷(RAR)의 압축 생성 미지원 원칙**:
+  - RAR 포맷은 Alexander Roshal의 상용 독점 지적재산권이 적용되므로, 독점 압축 생성 알고리즘은 일절 구현하지 않으며 7-Zip의 오픈소스 UnRAR 모듈을 통한 **읽기 전용 압축 해제(Decompression)** 기능만 안전하게 제공합니다.
+
+### 3. 번들된 제3자 오픈소스 소프트웨어 라이선스 요약
+| 컴포넌트 | 경로 및 모듈 | 저작권자 / 프로젝트 | 적용 라이선스 | 비고 |
+| :--- | :--- | :--- | :--- | :--- |
+| **7-Zip & unRAR** | `tools/7z/7z.exe`, `7z.dll` | Igor Pavlov, Alexander Roshal | GNU LGPL v2.1+ (unRAR restriction) | 멀티스레드 네이티브 아카이브 엔진 |
+| **unalz** | `tools/unalz/unalz.exe` | Kippler | **zlib/libpng License** | ALZ 전용 완전 자유 오픈소스 해제 엔진 |
+| **LZ4** | `tools/lz4/lz4.exe` | Yann Collet | BSD 2-Clause (lib) / GNU GPL v2.0 (CLI) | 독립 프로세스 IPC 연동 초고속 스트림 |
+| **Zstandard** | `tools/zstd/zstd.exe` | Meta Platforms, Inc. | BSD 3-Clause License | 초고속 멀티스레드 압축 엔진 |
+| **CustomTkinter** | Python GUI Framework | Tom Schimansky | CC0 1.0 Universal / MIT License | 모던 Fluent GUI 프레임워크 |
+| **Rust Crates** | `zipper9_shell.dll` | The Rust Project Contributors | MIT License / Apache License 2.0 | Windows 11 모던 쉘 확장 모듈 |
+
+각 외부 도구의 상세 라이선스 원문 전문은 **[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)** 문서를 참조해 주시기 바랍니다.
