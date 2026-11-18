@@ -302,9 +302,16 @@ class CompressionWorker:
         if proc and proc.poll() is None:
             try:
                 proc.terminate()
-                time.sleep(0.05)
+                try:
+                    proc.wait(timeout=0.2)
+                except Exception:
+                    pass
                 if proc.poll() is None:
                     proc.kill()
+                    try:
+                        proc.wait(timeout=0.5)
+                    except Exception:
+                        pass
             except Exception:
                 pass
 
@@ -1318,8 +1325,26 @@ class CompressionWorker:
                 pass
 
     def _cleanup_corrupted_extractions(self, output_dir: str, archive_path: str, password: Optional[str] = None):
-        """압축 해제 실패(비밀번호 오류, CRC 손상 등) 시 디스크에 남겨진 0바이트 빈 파일 및 빈 디렉터리 안전 롤백"""
+        """압축 해제 실패(취소, 비밀번호 오류, CRC 손상 등) 시 디스크에 남겨진 불완전 파일 및 빈 디렉터리 안전 롤백"""
         try:
+            # 1. 프로세스가 아직 돌고 있다면 확실히 정리 대기
+            self.cancel()
+            time.sleep(0.1)
+
+            # 안전 삭제 헬퍼 함수 (Windows 파일 잠금 해제 재시도 포함)
+            def safe_remove_file(file_path: str):
+                if not os.path.isfile(file_path):
+                    return
+                for _ in range(5):
+                    try:
+                        os.remove(file_path)
+                        return
+                    except PermissionError:
+                        time.sleep(0.1)
+                    except Exception:
+                        break
+
+            # 2. 아카이브 내 파일 목록 조회
             try:
                 entries = list_archive_entries(archive_path, password=password)
             except Exception:
@@ -1331,22 +1356,15 @@ class CompressionWorker:
                     if not rel_name:
                         continue
                     fp = os.path.join(output_dir, rel_name)
-                    try:
-                        if os.path.isfile(fp) and os.path.getsize(fp) == 0:
-                            os.remove(fp)
-                    except Exception:
-                        pass
+                    safe_remove_file(fp)
             else:
+                # 목록을 조회할 수 없는 경우 output_dir 하위의 모든 불완전 파일 정리
                 for root, dirs, files in os.walk(output_dir, topdown=False):
                     for f in files:
                         fp = os.path.join(root, f)
-                        try:
-                            if os.path.isfile(fp) and os.path.getsize(fp) == 0:
-                                os.remove(fp)
-                        except Exception:
-                            pass
+                        safe_remove_file(fp)
 
-            # 비어있는 디렉터리 정리
+            # 3. 비어있는 디렉터리 정리
             for root, dirs, _ in os.walk(output_dir, topdown=False):
                 for d in dirs:
                     dp = os.path.join(root, d)
@@ -1355,6 +1373,7 @@ class CompressionWorker:
                     except Exception:
                         pass
 
+            # 4. output_dir 자체가 비어있으면 폴더 자체도 삭제
             if os.path.isdir(output_dir) and not os.listdir(output_dir):
                 try:
                     os.rmdir(output_dir)

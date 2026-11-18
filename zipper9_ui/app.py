@@ -2467,7 +2467,9 @@ class Zipper9App(ctk.CTk):
             self.lbl_status.configure(text=t("status_ready", lang=lang))
 
     def _on_window_close(self):
-        """창 종료 시 현재 설정 저장 후 안전하게 파괴"""
+        """창 종료 시 진행 중 작업 안전 취소 및 현재 설정 저장 후 파괴"""
+        if hasattr(self, "worker") and self.worker.is_busy():
+            self.worker.cancel()
         self.save_current_settings()
         self.destroy()
 
