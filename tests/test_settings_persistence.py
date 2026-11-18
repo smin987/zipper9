@@ -55,7 +55,8 @@ class TestSettingsPersistence(unittest.TestCase):
             self.assertTrue(reloaded["encrypt_filenames"])
             print("Settings file I/O test passed successfully!")
 
-    def test_app_settings_restoration(self):
+    @patch("tkinter.messagebox.showinfo")
+    def test_app_settings_restoration(self, mock_showinfo):
         """Zipper9App GUI 인스턴스에서 설정 복원 및 저장 동작 검증"""
         with patch("zipper9_ui.bridge.settings.get_settings_file_path", return_value=self.mock_settings_file):
             # 사전에 저장된 커스텀 설정 준비
