@@ -146,13 +146,49 @@ def find_zstd_binary() -> Optional[str]:
     return None
 
 
+def find_unalz_binary() -> Optional[str]:
+    base_dir = get_base_dir()
+    is_win = sys.platform == "win32"
+    bundled_names = ["unalz.exe"] if is_win else ["unalz"]
+    for name in bundled_names:
+        p = os.path.join(base_dir, "tools", "unalz", name)
+        if os.path.isfile(p):
+            return p
+        if getattr(sys, "frozen", False):
+            exe_side = os.path.join(os.path.dirname(sys.executable), "tools", "unalz", name)
+            if os.path.isfile(exe_side):
+                return exe_side
+
+    if is_win:
+        candidates = [
+            shutil.which("unalz.exe"),
+            shutil.which("unalz"),
+        ]
+    else:
+        candidates = [
+            shutil.which("unalz"),
+            "/usr/bin/unalz",
+            "/usr/local/bin/unalz",
+            "/opt/homebrew/bin/unalz",
+        ]
+    for c in candidates:
+        if c and os.path.isfile(c):
+            return c
+    return None
+
+
 SEVEN_ZIP_PATH = find_7z_binary()
 LZ4_PATH = find_lz4_binary()
 ZSTD_PATH = find_zstd_binary()
+UNALZ_PATH = find_unalz_binary()
 
 
 def is_native_engine_active() -> bool:
     return SEVEN_ZIP_PATH is not None and LZ4_PATH is not None
+
+
+def is_unalz_available() -> bool:
+    return UNALZ_PATH is not None
 
 
 def is_7z_available() -> bool:
@@ -388,7 +424,9 @@ class CompressionWorker:
         compound_tar_exts = (".tar.gz", ".tgz", ".tar.xz", ".txz", ".tar.bz2", ".tbz2")
 
         try:
-            if lower_name.endswith(".tar.lz4") or lower_name.endswith(".lz4"):
+            if lower_name.endswith(".alz"):
+                self._extract_alz_native(archive_path, output_dir, on_progress, start_time, password=password)
+            elif lower_name.endswith(".tar.lz4") or lower_name.endswith(".lz4"):
                 self._extract_tar_lz4_native(archive_path, output_dir, on_progress, start_time, password=password)
             elif any(lower_name.endswith(ext) for ext in compound_tar_exts):
                 self._extract_compound_tar_native(archive_path, output_dir, on_progress, start_time, password=password)
@@ -978,6 +1016,131 @@ class CompressionWorker:
             self._cleanup_corrupted_extractions(output_dir, archive_path, password)
             raise e
 
+    def _extract_alz_native(
+        self,
+        archive_path: str,
+        output_dir: str,
+        on_progress,
+        start_time: float,
+        password: Optional[str] = None,
+    ):
+        """unalz 네이티브 엔진을 사용한 ALZ/분할ALZ(.alz, .a00) 초고속 압축 해제"""
+        if not UNALZ_PATH:
+            raise RuntimeError("unalz 엔진을 찾을 수 없습니다. tools/unalz/unalz.exe 파일이 필요합니다.")
+
+        abs_out_dir = os.path.abspath(output_dir)
+        os.makedirs(abs_out_dir, exist_ok=True)
+
+        cmd = [UNALZ_PATH, "-d", abs_out_dir]
+        if password:
+            cmd.extend(["-pwd", password])
+        cmd.append(os.path.abspath(archive_path))
+
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=0,
+            creationflags=SUBPROCESS_FLAGS,
+            startupinfo=STARTUP_INFO,
+        )
+        self._current_process = process
+
+        buffer = b""
+        cur_file = "ALZ 아카이브 해제 중..."
+        last_callback_time = 0.0
+
+        try:
+            while True:
+                if self._cancelled:
+                    try:
+                        process.terminate()
+                        process.kill()
+                    except Exception:
+                        pass
+                    raise RuntimeError("작업이 사용자에 의해 취소되었습니다.")
+
+                chunk = process.stdout.read(64)
+                if not chunk:
+                    if process.poll() is not None:
+                        break
+                    time.sleep(0.01)
+                    continue
+
+                buffer += chunk
+                while b"\r" in buffer or b"\n" in buffer:
+                    idx_r = buffer.find(b"\r")
+                    idx_n = buffer.find(b"\n")
+                    if idx_r != -1 and (idx_n == -1 or idx_r < idx_n):
+                        split_idx = idx_r
+                    else:
+                        split_idx = idx_n
+
+                    raw_line = buffer[:split_idx]
+                    buffer = buffer[split_idx + 1:]
+
+                    line_str = safe_decode_output(raw_line).strip()
+                    if not line_str:
+                        continue
+
+                    # unalz 출력 예: "unalziiiing : data.txt (5bytes) .."
+                    if "unalziiiing :" in line_str:
+                        try:
+                            f_part = line_str.split("unalziiiing :")[1].strip()
+                            if "(" in f_part:
+                                cur_file = f_part.split("(")[0].strip()
+                            else:
+                                cur_file = f_part
+                        except Exception:
+                            pass
+
+                    now = time.time()
+                    if on_progress and (now - last_callback_time >= 0.04):
+                        last_callback_time = now
+                        on_progress({
+                            "file": cur_file,
+                            "processed": 50,
+                            "total": 100,
+                            "percentage": 50.0,
+                            "elapsed": now - start_time,
+                        })
+
+            process.wait()
+            if self._cancelled:
+                raise RuntimeError("작업이 사용자에 의해 취소되었습니다.")
+
+            err_raw = process.stderr.read()
+            out_rest = buffer + process.stdout.read()
+            combined_msg = safe_decode_output(out_rest) + "\n" + safe_decode_output(err_raw)
+
+            lower_comb = combined_msg.lower()
+            if "invalid password" in lower_comb or "err code(28)" in lower_comb:
+                raise PermissionError("PASSWORD_REQUIRED: 비밀번호가 일치하지 않거나 암호가 필요합니다.")
+
+            if process.returncode != 0 or "failed" in lower_comb:
+                if "err code(" in lower_comb:
+                    raise RuntimeError(f"ALZ 압축 해제 오류: {combined_msg.strip()}")
+                elif process.returncode != 0:
+                    raise RuntimeError(f"ALZ 압축 해제 실패 (종료 코드 {process.returncode})")
+
+            if on_progress:
+                on_progress({
+                    "file": "완료",
+                    "processed": 100,
+                    "total": 100,
+                    "percentage": 100.0,
+                    "elapsed": time.time() - start_time,
+                })
+        finally:
+            self._current_process = None
+            try:
+                if process.stdout:
+                    process.stdout.close()
+                if process.stderr:
+                    process.stderr.close()
+            except Exception:
+                pass
+
     def _cleanup_corrupted_extractions(self, output_dir: str, archive_path: str, password: Optional[str] = None):
         """압축 해제 실패(비밀번호 오류, CRC 손상 등) 시 디스크에 남겨진 0바이트 빈 파일 및 빈 디렉터리 안전 롤백"""
         try:
@@ -1025,9 +1188,68 @@ class CompressionWorker:
             pass
 
 
+def _list_alz_entries(archive_path: str, password: Optional[str] = None) -> List[dict]:
+    """unalz를 사용한 ALZ/분할ALZ 내부 파일 목록 조회"""
+    if not UNALZ_PATH:
+        return [{"name": "unalz 엔진이 없습니다.", "uncompressed_size": 0, "compressed_size": 0, "is_dir": False}]
+
+    cmd = [UNALZ_PATH, "-l"]
+    if password:
+        cmd.extend(["-pwd", password])
+    cmd.append(archive_path)
+
+    res = subprocess.run(
+        cmd,
+        capture_output=True,
+        creationflags=SUBPROCESS_FLAGS,
+        startupinfo=STARTUP_INFO,
+    )
+    text_out = safe_decode_output(res.stdout)
+    err_out = safe_decode_output(res.stderr)
+    combined = (err_out + "\n" + text_out).lower()
+
+    if "invalid password" in combined or "err code(28)" in combined:
+        raise PermissionError("PASSWORD_REQUIRED: 비밀번호가 일치하지 않거나 암호가 필요합니다.")
+
+    results = []
+    lines = text_out.splitlines()
+    in_table = False
+
+    for line in lines:
+        line_strip = line.strip()
+        if line_strip.startswith("---- ------------ ------------"):
+            in_table = not in_table
+            continue
+        if not in_table or not line_strip:
+            continue
+        if "Total" in line_strip and "file" in line_strip:
+            continue
+
+        # Attr  Uncomp Size    Comp Size Date & Time & File Name
+        # A___            5            7 2025-12-10  07:18:00  data.txt*
+        m = re.match(r"^([A-Z_]{4})\s+(\d+)\s+(\d+)\s+(.+?)\s{2,}(.+)$", line_strip)
+        if m:
+            attr, uncomp_s, comp_s, dt, fname = m.groups()
+            is_enc = fname.endswith("*")
+            if is_enc:
+                fname = fname[:-1]
+            is_d = "D" in attr or fname.endswith("/") or fname.endswith("\\")
+            results.append({
+                "name": fname,
+                "uncompressed_size": int(uncomp_s),
+                "compressed_size": int(comp_s),
+                "is_dir": is_d,
+                "is_encrypted": is_enc,
+            })
+    return results
+
+
 def list_archive_entries(archive_path: str, password: Optional[str] = None) -> List[dict]:
     """아카이브 내부 파일 목록 조회 (100% 네이티브 엔진, 암호화 아카이브 지원)"""
     lower = archive_path.lower()
+
+    if lower.endswith(".alz"):
+        return _list_alz_entries(archive_path, password=password)
 
     if lower.endswith(".tar.lz4") or lower.endswith(".lz4"):
         if not LZ4_PATH:

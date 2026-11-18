@@ -21,7 +21,7 @@ from zipper9_ui.bridge.instant_ops import (
     run_instant_extract,
     is_archive_password_protected,
 )
-from zipper9_ui.bridge.worker import CompressionWorker, find_7z_binary
+from zipper9_ui.bridge.worker import CompressionWorker, find_7z_binary, list_archive_entries
 
 
 class TestContextMenuAndInstant(unittest.TestCase):
@@ -114,6 +114,31 @@ class TestContextMenuAndInstant(unittest.TestCase):
         action = run_instant_extract(pwd_7z_path)
         self.assertEqual(action, "LAUNCH_GUI", "암호화 파일에 대해 LAUNCH_GUI를 반환하지 않았습니다!")
         print("Instant extract password-protected -> LAUNCH_GUI trigger verified successfully!")
+
+    @patch("zipper9_ui.bridge.instant_ops.show_native_notification")
+    def test_instant_extract_alz(self, mock_notify):
+        """ALZ(.alz) 아카이브 우클릭 즉시 해제 및 파일 검증"""
+        import base64
+        # 62바이트짜리 유효한 테스트용 ALZ 아카이브 (내부에 data.txt -> 'unalz')
+        SAMPLE_ALZ_B64 = "QUxaAQoAAABCTFoBCAAgQJqKWyAAAgAMBWQcBwAFAGRhdGEudHh0K81LzKkCAENMWgEAAAAAAAAAAENMWgI="
+        alz_path = os.path.join(self.temp_dir, "test_archive.alz")
+        with open(alz_path, "wb") as f:
+            f.write(base64.b64decode(SAMPLE_ALZ_B64))
+
+        # 내부 엔트리 목록 검사
+        entries = list_archive_entries(alz_path)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["name"], "data.txt")
+
+        # 즉시 해제 실행
+        res = run_instant_extract(alz_path)
+        self.assertEqual(res, "SUCCESS")
+
+        extracted_file = os.path.join(self.temp_dir, "test_archive", "data.txt")
+        self.assertTrue(os.path.isfile(extracted_file), f"해제된 파일 미발견: {extracted_file}")
+        with open(extracted_file, "r") as f:
+            self.assertEqual(f.read().strip(), "unalz")
+        print("ALZ instant extract test passed successfully!")
 
 
 if __name__ == "__main__":

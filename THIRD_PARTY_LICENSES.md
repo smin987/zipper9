@@ -73,3 +73,13 @@ Distribution of modified unRAR source code in separate form is strictly prohibit
 ## 7. Rust Crates
 
 All Rust dependencies utilized in `zipper9_core` and `zipper9_shell` (`pyo3`, `flate2`, `zstd`, `rayon`, `thiserror`, `zip`, `windows-sys`, `walkdir`) are licensed under standard permissive licenses (**MIT License** and/or **Apache License 2.0**).
+
+---
+
+## 8. unalz
+
+- **Component**: `tools/unalz/unalz.exe`
+- **Author**: Kippler (kippler@gmail.com)
+- **Website**: http://www.kippler.com/win/unalz/
+- **License**: zlib/libpng License
+- **Permitted Use**: Freely usable and redistributable for any purpose, including commercial applications.
