@@ -370,12 +370,16 @@ class CompressionWorker:
         lower_name = archive_path.lower()
         compound_tar_exts = (".tar.gz", ".tgz", ".tar.xz", ".txz", ".tar.bz2", ".tbz2")
 
-        if lower_name.endswith(".tar.lz4") or lower_name.endswith(".lz4"):
-            self._extract_tar_lz4_native(archive_path, output_dir, on_progress, start_time, password=password)
-        elif any(lower_name.endswith(ext) for ext in compound_tar_exts):
-            self._extract_compound_tar_native(archive_path, output_dir, on_progress, start_time, password=password)
-        else:
-            self._extract_via_7z(archive_path, output_dir, on_progress, start_time, password=password)
+        try:
+            if lower_name.endswith(".tar.lz4") or lower_name.endswith(".lz4"):
+                self._extract_tar_lz4_native(archive_path, output_dir, on_progress, start_time, password=password)
+            elif any(lower_name.endswith(ext) for ext in compound_tar_exts):
+                self._extract_compound_tar_native(archive_path, output_dir, on_progress, start_time, password=password)
+            else:
+                self._extract_via_7z(archive_path, output_dir, on_progress, start_time, password=password)
+        except Exception as e:
+            self._cleanup_corrupted_extractions(output_dir, archive_path, password)
+            raise e
 
     def compress_async(
         self,
@@ -938,7 +942,57 @@ class CompressionWorker:
             archive_path,
         ])
 
-        self._execute_with_progress(cmd, on_progress, start_time, default_title="네이티브 압축 해제 중...")
+        try:
+            self._execute_with_progress(cmd, on_progress, start_time, default_title="네이티브 압축 해제 중...")
+        except Exception as e:
+            self._cleanup_corrupted_extractions(output_dir, archive_path, password)
+            raise e
+
+    def _cleanup_corrupted_extractions(self, output_dir: str, archive_path: str, password: Optional[str] = None):
+        """압축 해제 실패(비밀번호 오류, CRC 손상 등) 시 디스크에 남겨진 0바이트 빈 파일 및 빈 디렉터리 안전 롤백"""
+        try:
+            try:
+                entries = list_archive_entries(archive_path, password=password)
+            except Exception:
+                entries = []
+
+            if entries:
+                for e in entries:
+                    rel_name = e.get("name", "")
+                    if not rel_name:
+                        continue
+                    fp = os.path.join(output_dir, rel_name)
+                    try:
+                        if os.path.isfile(fp) and os.path.getsize(fp) == 0:
+                            os.remove(fp)
+                    except Exception:
+                        pass
+            else:
+                for root, dirs, files in os.walk(output_dir, topdown=False):
+                    for f in files:
+                        fp = os.path.join(root, f)
+                        try:
+                            if os.path.isfile(fp) and os.path.getsize(fp) == 0:
+                                os.remove(fp)
+                        except Exception:
+                            pass
+
+            # 비어있는 디렉터리 정리
+            for root, dirs, _ in os.walk(output_dir, topdown=False):
+                for d in dirs:
+                    dp = os.path.join(root, d)
+                    try:
+                        os.rmdir(dp)
+                    except Exception:
+                        pass
+
+            if os.path.isdir(output_dir) and not os.listdir(output_dir):
+                try:
+                    os.rmdir(output_dir)
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
 
 def list_archive_entries(archive_path: str, password: Optional[str] = None) -> List[dict]:
