@@ -1,6 +1,7 @@
 # Private folders & Core Sources (Local Only)
 _private/
 .private/
+docs/
 doc/
 crates/
 Cargo.toml
