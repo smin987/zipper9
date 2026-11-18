@@ -1527,7 +1527,7 @@ class Zipper9App(ctk.CTk):
             text_color=("#212529", "#f1f5f9"),
         )
         self.entry_extract_password.pack(side="left", padx=(0, 4))
-        self.entry_extract_password.bind("<Return>", lambda e: self._start_decompression())
+        self.entry_extract_password.bind("<Return>", lambda e: self._start_extraction(force_prompt=False))
 
         self.btn_show_extract_pwd = ctk.CTkButton(
             pwd_row,
