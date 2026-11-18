@@ -1686,6 +1686,8 @@ class Zipper9App(ctk.CTk):
             border_width=1,
             border_color=("#e9ecef", "#2c2e35"),
             text_color=("#212529", "#f1f5f9"),
+            spacing1=3,
+            spacing3=3,
         )
         self.extract_preview.pack(fill="both", expand=True, padx=0, pady=(4, 4))
         self.extract_preview.configure(state="disabled")
