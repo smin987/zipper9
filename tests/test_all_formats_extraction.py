@@ -12,6 +12,7 @@ if _root not in sys.path:
 from zipper9_ui.bridge.worker import SUPPORTED_EXTRACT_EXTS, CompressionWorker
 from zipper9_ui.app import is_archive_file
 from zipper9_ui.bridge.context_menu import ARCHIVE_EXTENSIONS
+from zipper9_ui.bridge.file_association import SUPPORTED_ARCHIVE_EXTS
 
 
 class TestAllFormatsExtraction(unittest.TestCase):
@@ -53,6 +54,24 @@ class TestAllFormatsExtraction(unittest.TestCase):
         """우클릭 메뉴 확장자 목록에 신규 포맷이 등록되어 있는지 검증"""
         for ext in [".zipx", ".deb", ".iso", ".dmg", ".img", ".vhd", ".vmdk", ".msi", ".lha", ".lzh"]:
             self.assertIn(ext, ARCHIVE_EXTENSIONS, f"Missing {ext} in context menu ARCHIVE_EXTENSIONS")
+
+    def test_file_association_system_protection_coverage(self):
+        """아이콘 파일 연결 목록(SUPPORTED_ARCHIVE_EXTS): 순수 아카이브 37종 포함 및 시스템 포맷(MSI/VHD 등) 안전 제외 검증"""
+        # 1. 순수 아카이브 및 패키지 37종 대폭 확장 포함 확인
+        expected_archive_exts = [
+            ".zip", ".zipx", ".7z", ".rar", ".tar", ".cab", ".wim", ".sfx",
+            ".gz", ".tgz", ".bz", ".bz2", ".tbz", ".tbz2", ".xz", ".txz",
+            ".lzma", ".tlz", ".z", ".taz", ".deb", ".udeb", ".rpm", ".cpio", ".arj",
+            ".iso", ".img", ".bin", ".udf", ".dmg", ".pkg", ".xip",
+            ".lha", ".lzh", ".alz", ".lz4", ".zst"
+        ]
+        for ext in expected_archive_exts:
+            self.assertIn(ext, SUPPORTED_ARCHIVE_EXTS, f"Missing {ext} in SUPPORTED_ARCHIVE_EXTS")
+
+        # 2. 시스템 인스톨러/가상디스크 마운트 전용 포맷 안전 제외 확인
+        system_protected_exts = [".msi", ".msp", ".msm", ".vhd", ".vhdx", ".vmdk", ".vdi", ".qcow2", ".sfx.exe"]
+        for ext in system_protected_exts:
+            self.assertNotIn(ext, SUPPORTED_ARCHIVE_EXTS, f"{ext} must NOT be in SUPPORTED_ARCHIVE_EXTS for system safety")
 
 
 if __name__ == "__main__":

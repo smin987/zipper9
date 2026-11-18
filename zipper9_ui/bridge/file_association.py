@@ -15,21 +15,52 @@ else:
     winreg = None
     ctypes = None
 
+# 시스템 보호형 확장자 연동 목록 (총 37종)
+# (※ .msi, .msp, .vhd, .vhdx, .vmdk, .vdi, .qcow2 등 시스템 인스톨러/가상디스크 마운트 전용 포맷과
+#    시스템 실행파일(.sfx.exe)은 Windows 고유 기능 보존을 위해 파일 아이콘/더블클릭 연결에서 제외)
 SUPPORTED_ARCHIVE_EXTS = [
+    # 표준 압축 포맷
     ".zip",
     ".zipx",
     ".7z",
     ".rar",
     ".tar",
+    ".cab",
+    ".wim",
+    ".sfx",
+    # Unix / Linux 계열 아카이브 및 패키지
     ".gz",
-    ".xz",
+    ".tgz",
+    ".bz",
     ".bz2",
+    ".tbz",
+    ".tbz2",
+    ".xz",
+    ".txz",
+    ".lzma",
+    ".tlz",
+    ".z",
+    ".taz",
+    ".deb",
+    ".udeb",
+    ".rpm",
+    ".cpio",
+    ".arj",
+    # 광학 디스크 및 미디어 아카이브 이미지
+    ".iso",
+    ".img",
+    ".bin",
+    ".udf",
+    ".dmg",
+    ".pkg",
+    ".xip",
+    # 구형 레거시 아카이브
+    ".lha",
+    ".lzh",
+    ".alz",
+    # 초고속 현대 알고리즘
     ".lz4",
     ".zst",
-    ".tgz",
-    ".iso",
-    ".dmg",
-    ".alz",
 ]
 
 PROGID = "zipper9.Archive"
