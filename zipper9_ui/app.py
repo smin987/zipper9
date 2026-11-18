@@ -472,6 +472,7 @@ class Zipper9App(ctk.CTk):
 
         # 알고리즘 선택 상태 (저장된 마지막 알고리즘 복원)
         self.selected_algo = self.user_settings.get("selected_algo", "zstd")
+        self.settings_expanded = bool(self.user_settings.get("settings_expanded", True))
         self.algo_cards = {}
 
         # 4. UI 빌드
@@ -902,11 +903,17 @@ class Zipper9App(ctk.CTk):
         # 초기 드롭 뷰 갱신
         self._update_sources_view()
 
-        # 4. 알고리즘 비주얼 카드 선택기
-        self._build_algo_card_selector()
+        # 4. 설정(Settings) 아코디언 토글 바
+        self._build_settings_toggle_bar()
 
-        # 5. 고급 압축 옵션 (암호 설정 & 분할 압축)
-        self._build_advanced_options()
+        # 5. 설정(Settings) 하위 접이식 컨테이너 (알고리즘 프리셋 전체 + 보안 비밀번호 + 분할 압축 + 7z 파일명 암호화)
+        self.settings_container = ctk.CTkFrame(self.page_compress, fg_color="transparent")
+        self._build_algo_card_selector(parent=self.settings_container)
+        self._build_advanced_options(parent=self.settings_container)
+
+        if self.settings_expanded:
+            self.settings_container.pack(fill="x", padx=0, pady=(0, 2))
+        self._update_settings_toggle_ui()
 
     def _map_extra_algo_text(self, text: str, target_lang: str) -> str:
         """언어 전환 시 추가 알고리즘 드롭다운 텍스트를 대상 언어로 매핑"""
@@ -948,10 +955,144 @@ class Zipper9App(ctk.CTk):
                 return t(k, lang=target_lang)
         return text
 
-    def _build_algo_card_selector(self):
+    def _build_settings_toggle_bar(self):
+        """설정(Settings) 아코디언 토글 바"""
+        lang = getattr(self, "current_lang", "KO")
+        bar = ctk.CTkFrame(
+            self.page_compress,
+            corner_radius=8,
+            fg_color=("#ffffff", "#1e2024"),
+            border_width=1,
+            border_color=("#e9ecef", "#2c2e35"),
+            height=36,
+        )
+        bar.pack(fill="x", padx=0, pady=(3, 3))
+        self.settings_toggle_bar = bar
+
+        # 좌측: 아이콘 + 제목 라벨
+        self.lbl_settings_toggle_title = ctk.CTkLabel(
+            bar,
+            text=t("settings_toggle_title", lang=lang),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=("#212529", "gray90"),
+            cursor="hand2",
+        )
+        self.lbl_settings_toggle_title.pack(side="left", padx=(12, 8), pady=6)
+
+        # 중앙: 현재 설정 요약 배지 (접혀있을 때 표출)
+        self.lbl_settings_summary_badge = ctk.CTkLabel(
+            bar,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color=("#1971c2", "#74c0fc"),
+            cursor="hand2",
+        )
+        self.lbl_settings_summary_badge.pack(side="left", padx=4, pady=6)
+
+        # 우측: 접기/펼치기 토글 버튼
+        btn_text = (
+            t("settings_toggle_collapse", lang=lang)
+            if self.settings_expanded
+            else t("settings_toggle_expand", lang=lang)
+        )
+        self.btn_settings_toggle = ctk.CTkButton(
+            bar,
+            text=btn_text,
+            width=80,
+            height=26,
+            corner_radius=6,
+            fg_color=("#f1f3f9", "#2c3036"),
+            hover_color=("#e5e8f0", "#3a3f47"),
+            text_color=("#495057", "#e2e8f0"),
+            border_width=1,
+            border_color=("#dce2ee", "#3a3f47"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+            command=self._toggle_settings_panel,
+        )
+        self.btn_settings_toggle.pack(side="right", padx=(4, 10), pady=5)
+
+        # 바 전체 및 라벨 클릭 시에도 토글 동작
+        bar.bind("<Button-1>", lambda e: self._toggle_settings_panel())
+        self.lbl_settings_toggle_title.bind("<Button-1>", lambda e: self._toggle_settings_panel())
+        self.lbl_settings_summary_badge.bind("<Button-1>", lambda e: self._toggle_settings_panel())
+
+    def _toggle_settings_panel(self):
+        """설정 아코디언 패널 접기/펼치기 토글"""
+        self.settings_expanded = not self.settings_expanded
+        self.user_settings["settings_expanded"] = self.settings_expanded
+        self.save_current_settings()
+
+        if self.settings_expanded:
+            self.settings_container.pack(fill="x", padx=0, pady=(0, 2))
+        else:
+            self.settings_container.pack_forget()
+
+        self._update_settings_toggle_ui()
+
+    def _update_settings_toggle_ui(self):
+        """설정 토글 바 버튼 텍스트 및 요약 뱃지 갱신"""
+        lang = getattr(self, "current_lang", "KO")
+        if not hasattr(self, "btn_settings_toggle"):
+            return
+
+        if self.settings_expanded:
+            self.btn_settings_toggle.configure(text=t("settings_toggle_collapse", lang=lang))
+            if hasattr(self, "lbl_settings_summary_badge"):
+                self.lbl_settings_summary_badge.configure(text="")
+        else:
+            self.btn_settings_toggle.configure(text=t("settings_toggle_expand", lang=lang))
+            self._update_settings_summary_badge()
+
+    def _update_settings_summary_badge(self):
+        """설정 패널이 접혀 있을 때 현재 설정 요약 배지 텍스트 갱신"""
+        if not hasattr(self, "lbl_settings_summary_badge") or self.settings_expanded:
+            return
+
+        lang = getattr(self, "current_lang", "KO")
+        algo_names = {
+            "zstd": "ZIP (Zstandard)",
+            "7z": "7z (LZMA2)",
+            "lz4": "TAR (LZ4)",
+            "targz": "TAR (Gzip)",
+        }
+        algo_disp = algo_names.get(self.selected_algo, "ZIP")
+        if self.selected_algo == "extra" and hasattr(self, "combo_extra_algo"):
+            extra_val = self.combo_extra_algo.get()
+            if "Store" in extra_val:
+                algo_disp = "ZIP (Store)"
+            elif ".tar.xz" in extra_val:
+                algo_disp = "TAR (.tar.xz)"
+            elif ".tar.bz2" in extra_val:
+                algo_disp = "TAR (.tar.bz2)"
+            elif ".tar" in extra_val:
+                algo_disp = "TAR (.tar)"
+
+        tags = [f"[ 📦 {algo_disp} ]"]
+
+        # 비밀번호 설정 여부
+        if hasattr(self, "entry_password"):
+            pwd = self.entry_password.get().strip()
+            if pwd:
+                tags.append("🔒 " + ("Encrypted" if lang == "EN" else "암호 설정됨"))
+
+        # 분할 압축 설정 여부
+        if hasattr(self, "combo_split"):
+            split = self.combo_split.get()
+            if split and not any(k in split for k in ["분할 안 함", "No Split", "None"]):
+                clean_split = split.split("(")[0].strip()
+                tags.append(f"✂️ {clean_split}")
+
+        # 7z 헤더 암호화 여부
+        if hasattr(self, "chk_encrypt_header") and self.chk_encrypt_header.get():
+            tags.append("🛡️ " + ("Header Encrypted" if lang == "EN" else "헤더 암호화"))
+
+        self.lbl_settings_summary_badge.configure(text="  ".join(tags))
+
+    def _build_algo_card_selector(self, parent=None):
         """4개의 세련된 가로형 알고리즘 카드 선택기"""
-        algo_container = ctk.CTkFrame(self.page_compress, fg_color="transparent")
-        algo_container.pack(fill="x", padx=0, pady=(4, 4))
+        container_parent = parent if parent is not None else self.page_compress
+        algo_container = ctk.CTkFrame(container_parent, fg_color="transparent")
+        algo_container.pack(fill="x", padx=0, pady=(2, 4))
 
         # 섹션 라벨 + 추가 포맷 드롭다운
         top_line = ctk.CTkFrame(algo_container, fg_color="transparent")
@@ -1122,6 +1263,7 @@ class Zipper9App(ctk.CTk):
         self.combo_extra_algo.set(t("algo_extra_placeholder"))
         self._refresh_algo_card_styles()
         self.save_current_settings()
+        self._update_settings_summary_badge()
 
     def _on_extra_algo_selected(self, choice: str):
         if hasattr(self, "chk_encrypt_header") and self.chk_encrypt_header.get():
@@ -1133,6 +1275,7 @@ class Zipper9App(ctk.CTk):
         self.selected_algo = "extra"
         self._refresh_algo_card_styles()
         self.save_current_settings()
+        self._update_settings_summary_badge()
 
     def _on_encrypt_header_toggle(self):
         """7z 파일명 암호화 체크 토글 핸들러: 체크 시 자동으로 7z 알고리즘 선택"""
@@ -1146,6 +1289,7 @@ class Zipper9App(ctk.CTk):
                 if hasattr(self, "lbl_status"):
                     self.lbl_status.configure(text=t("status_auto_selected_7z"))
         self.save_current_settings()
+        self._update_settings_summary_badge()
 
     def _refresh_algo_card_styles(self):
         for key, widgets in self.algo_cards.items():
@@ -1161,16 +1305,17 @@ class Zipper9App(ctk.CTk):
                     fg_color=("#ffffff", "#1e2024"),
                 )
 
-    def _build_advanced_options(self):
+    def _build_advanced_options(self, parent=None):
         """암호 설정 및 분할 압축 고급 옵션 프레임 (2단 줄바꿈 레이아웃)"""
+        container_parent = parent if parent is not None else self.page_compress
         opt_box = ctk.CTkFrame(
-            self.page_compress,
+            container_parent,
             corner_radius=8,
             fg_color=("#ffffff", "#1e2024"),
             border_width=1,
             border_color=("#e9ecef", "#2c2e35"),
         )
-        opt_box.pack(fill="x", padx=0, pady=(4, 4))
+        opt_box.pack(fill="x", padx=0, pady=(2, 4))
 
         # 1행: 암호 설정 영역
         row1 = ctk.CTkFrame(opt_box, fg_color="transparent")
@@ -1196,6 +1341,7 @@ class Zipper9App(ctk.CTk):
             text_color=("#212529", "#f1f5f9"),
         )
         self.entry_password.pack(side="left", padx=(0, 4))
+        self.entry_password.bind("<KeyRelease>", lambda e: self._update_settings_summary_badge())
 
         self.btn_show_pwd = ctk.CTkButton(
             row1,
@@ -1235,7 +1381,7 @@ class Zipper9App(ctk.CTk):
             fg_color=("#ffffff", "#2a2d34"),
             border_color=("#dee2e6", "#3a3f47"),
             text_color=("#212529", "#f1f5f9"),
-            command=lambda choice: self.save_current_settings(),
+            command=self._on_split_combo_selected,
         )
         saved_split = self.user_settings.get("split_preset", t("split_preset_none", lang=lang))
         self.combo_split.set(self._map_split_preset_text(saved_split, lang))
@@ -1262,6 +1408,10 @@ class Zipper9App(ctk.CTk):
         else:
             self.chk_encrypt_header.deselect()
         self.chk_encrypt_header.pack(side="right", padx=0)
+
+    def _on_split_combo_selected(self, choice: str):
+        self.save_current_settings()
+        self._update_settings_summary_badge()
 
     def _toggle_pwd_visibility(self):
         cur = self.entry_password.cget("show")
@@ -2062,6 +2212,8 @@ class Zipper9App(ctk.CTk):
                 self.user_settings["encrypt_filenames"] = bool(self.chk_encrypt_header.get())
             if hasattr(self, "chk_verify_integrity"):
                 self.user_settings["verify_integrity"] = bool(self.chk_verify_integrity.get())
+            if hasattr(self, "settings_expanded"):
+                self.user_settings["settings_expanded"] = bool(self.settings_expanded)
 
             # 최대화(zoomed) 상태가 아닐 때의 논리 크기(DPI 배율 보정) 영구 저장
             is_zoomed = False
@@ -2141,6 +2293,12 @@ class Zipper9App(ctk.CTk):
             self.btn_clear.configure(text=t("btn_clear_all", lang=lang))
         if hasattr(self, "chk_verify_integrity"):
             self.chk_verify_integrity.configure(text=t("chk_verify_integrity", lang=lang))
+
+        # 4-1. 설정 아코디언 토글 바
+        if hasattr(self, "lbl_settings_toggle_title"):
+            self.lbl_settings_toggle_title.configure(text=t("settings_toggle_title", lang=lang))
+        if hasattr(self, "_update_settings_toggle_ui"):
+            self._update_settings_toggle_ui()
 
         # 5. 알고리즘 프리셋 헤더 및 4종 카드
         if hasattr(self, "lbl_algo_preset_title"):
