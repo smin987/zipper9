@@ -54,6 +54,38 @@
 
 ---
 
+## 📊 지원 포맷 요약 (Supported Formats)
+
+`zipper9`은 초고속 현대 압축 알고리즘부터 가상 디스크 이미지, 리눅스 시스템 패키지까지 광범위한 포맷을 지원합니다.
+
+### 1. 압축하기 (Creation / Compression) 지원 포맷
+
+| 포맷 및 규격 | 확장자 | 압축 엔진 및 주요 특징 | 지원 옵션 |
+| :--- | :--- | :--- | :--- |
+| **ZIP (Zstandard)** | `.zip` | Meta Zstandard 네이티브 멀티스레드 압축 (표준 대비 압축 3~5배, 해제 5~10배 빠름, **기본값**) | 암호화(AES-256), 분할 압축, 무결성 검증 |
+| **ZIP (Store)** | `.zip` | 무압축 고속 패키징 (이미 압축된 동영상/사진 수 초 내 초고속 묶기) | 암호화(AES-256), 분할 압축, 무결성 검증 |
+| **7-Zip (LZMA2)** | `.7z` | 7-Zip C++ 멀티코어 표준 고압축 엔진 | 암호화(AES-256), **파일명 암호화(헤더 숨김)**, 분할 압축, 무결성 검증 |
+| **TAR (LZ4 Ultra)** | `.tar.lz4` | RAM 버스 대역폭 급 초고속 압축 (대용량 백업 및 게임 에셋 최적화) | 무결성 검증 (`lz4 -t`) |
+| **TAR (Gzip)** | `.tar.gz`, `.tgz` | Unix / Linux / macOS 범용 표준 배포판 포맷 | 암호화, 분할 압축, 무결성 검증 |
+| **TAR (XZ)** | `.tar.xz`, `.txz` | 최신 리눅스 커널 및 배포판 패키지 표준 고압축 포맷 | 암호화, 분할 압축, 무결성 검증 |
+| **TAR (Bzip2)** | `.tar.bz2`, `.tbz2` | 전통 유닉스 고압축 포맷 | 암호화, 분할 압축, 무결성 검증 |
+| **TAR (Raw)** | `.tar` | 무압축 Tarball 패키징 | 암호화, 분할 압축, 무결성 검증 |
+| **ISO (UDF 2.60)** | `.iso` | 광학/가상 디스크 이미지 (UDF 2.60 마스터링, 4GB+ 대용량 파일 및 유니코드 보존) | 무결성 검증 (`7z t`), 탐색기 즉시 마운트 |
+
+### 2. 압축풀기 (Extraction / Decompression) 지원 포맷 (총 46종)
+
+| 분류 | 지원 포맷 | 지원 확장자 | 특징 및 설명 |
+| :--- | :--- | :--- | :--- |
+| **표준 압축** | `ZIP`, `ZIPX`, `7Z`, `RAR`, `RAR5`, `TAR`, `CAB`, `WIM`, `SFX(EXE)` | `.zip`, `.zipx`, `.7z`, `.rar`, `.tar`, `.cab`, `.wim`, `.sfx`, `.sfx.exe` | WinZip 고압축 ZIPX, RAR/RAR5, 윈도우 WIM/CAB, 자동 풀림 SFX 등 완전 지원 |
+| **Unix / Linux 계열** | `GZ`, `TGZ`, `BZ`, `BZ2`, `TBZ`, `TBZ2`, `XZ`, `TXZ`, `LZMA`, `TLZ`, `Z`, `TAZ`, `DEB`, `UDEB`, `RPM`, `CPIO`, `ARJ` | `.gz`, `.tgz`, `.bz`, `.bz2`, `.tbz`, `.tbz2`, `.xz`, `.txz`, `.lzma`, `.tlz`, `.z`, `.taz`, `.deb`, `.udeb`, `.rpm`, `.cpio`, `.arj` | Debian/Ubuntu `.deb`, RedHat `.rpm`, 전통 Unix `.z`/`.arj` 등 리눅스 패키지 및 스트림 원클릭 해제 |
+| **가상 디스크 이미지** | `ISO`, `IMG`, `BIN`, `UDF`, `DMG`, `PKG`, `XIP`, `VHD`, `VHDX`, `VMDK`, `VDI`, `QCOW2` | `.iso`, `.img`, `.bin`, `.udf`, `.dmg`, `.pkg`, `.xip`, `.vhd`, `.vhdx`, `.vmdk`, `.vdi`, `.qcow2` | ISO 9660/Joliet/UDF, Apple DMG/PKG, Hyper-V, VMware, VirtualBox, QEMU 가상머신 디스크 이미지 무마찰 파일 추출 |
+| **인스톨러 / 시스템** | `Compound (MSI, MSP, MSM)`, `NSIS`, `PE` | `.msi`, `.msp`, `.msm`, `.nsis`, `.exe` | Windows Installer 설치 패키지 및 Nullsoft 인스톨러 내부 리소스 무손실 추출 |
+| **구형 아카이브** | `LHA`, `LZH`, `ALZ` | `.lha`, `.lzh`, `.alz` | 고전 일본 LHA/LZH 및 알집 ALZ (100% 오픈소스 `unalz` 탑재로 기업에서도 안전) |
+| **초고속 현대 알고리즘** | `ZSTD`, `LZ4` | `.zst`, `.tar.zst`, `.lz4`, `.tar.lz4` | RAM 대역폭 속도의 초고속 멀티스레드 스트림 해제 |
+| **❌ 미지원 포맷 안내** | `EGG` | `.egg` | **이스트소프트(ESTsoft)의 독점 라이선스(상업적 재배포 제한) 이슈로 지원 대상에서 배제** |
+
+---
+
 ## 📦 멀티플랫폼 바이너리 배포 지원 (Multi-Platform Binaries)
 
 `zipper9`은 사용자의 데스크톱 환경에 맞춘 공식 바이너리 배포 패키지를 제공합니다.  

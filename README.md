@@ -54,6 +54,38 @@
 
 ---
 
+## 📊 Supported Formats (Compression & Decompression)
+
+`zipper9` delivers enterprise-grade multi-format capability spanning high-speed modern codecs, virtual disk images, and system packages.
+
+### 1. Creation (Compression) Supported Formats
+
+| Format & Standard | Extension | Compression Engine & Core Highlights | Supported Options |
+| :--- | :--- | :--- | :--- |
+| **ZIP (Zstandard)** | `.zip` | Meta Zstandard native multi-core engine (3-5x faster compression, 5-10x faster decompression than Deflate, **Default**) | Encryption (AES-256), Volume Splitting, Integrity Verification |
+| **ZIP (Store)** | `.zip` | Raw uncompressed packaging (Instant multi-gigabyte bundling for pre-compressed videos and photos) | Encryption (AES-256), Volume Splitting, Integrity Verification |
+| **7-Zip (LZMA2)** | `.7z` | Native 7-Zip C++ multi-threaded high-ratio compression | Encryption (AES-256), **Header Encryption (Hide filenames)**, Volume Splitting, Integrity Verification |
+| **TAR (LZ4 Ultra)** | `.tar.lz4` | RAM-bus bandwidth streaming compression (Tailored for large backups and game assets) | Integrity Verification (`lz4 -t`) |
+| **TAR (Gzip)** | `.tar.gz`, `.tgz` | Universal standard tarball distribution across Unix, Linux, and macOS | Encryption, Volume Splitting, Integrity Verification |
+| **TAR (XZ)** | `.tar.xz`, `.txz` | Modern Linux kernel and packaging standard (XZ / LZMA2) | Encryption, Volume Splitting, Integrity Verification |
+| **TAR (Bzip2)** | `.tar.bz2`, `.tbz2` | Classic Unix high-ratio archive format | Encryption, Volume Splitting, Integrity Verification |
+| **TAR (Raw)** | `.tar` | Uncompressed standard POSIX tarball packaging | Encryption, Volume Splitting, Integrity Verification |
+| **ISO (UDF 2.60)** | `.iso` | Optical / virtual disk image (UDF 2.60 mastering, 4GB+ large file and Unicode support) | Integrity Verification (`7z t`), Instant OS Mount |
+
+### 2. Extraction (Decompression) Supported Formats (46 Formats)
+
+| Category | Formats | Supported Extensions | Description & Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Standard Archives** | `ZIP`, `ZIPX`, `7Z`, `RAR`, `RAR5`, `TAR`, `CAB`, `WIM`, `SFX(EXE)` | `.zip`, `.zipx`, `.7z`, `.rar`, `.tar`, `.cab`, `.wim`, `.sfx`, `.sfx.exe` | WinZip high-compression ZIPX, RAR/RAR5, Windows WIM/CAB, Self-Extracting SFX executables |
+| **Unix / Linux Packages** | `GZ`, `TGZ`, `BZ`, `BZ2`, `TBZ`, `TBZ2`, `XZ`, `TXZ`, `LZMA`, `TLZ`, `Z`, `TAZ`, `DEB`, `UDEB`, `RPM`, `CPIO`, `ARJ` | `.gz`, `.tgz`, `.bz`, `.bz2`, `.tbz`, `.tbz2`, `.xz`, `.txz`, `.lzma`, `.tlz`, `.z`, `.taz`, `.deb`, `.udeb`, `.rpm`, `.cpio`, `.arj` | Debian/Ubuntu `.deb`, RedHat `.rpm`, legacy Unix `.z`/`.arj`, and raw compression streams |
+| **Virtual Disk Images** | `ISO`, `IMG`, `BIN`, `UDF`, `DMG`, `PKG`, `XIP`, `VHD`, `VHDX`, `VMDK`, `VDI`, `QCOW2` | `.iso`, `.img`, `.bin`, `.udf`, `.dmg`, `.pkg`, `.xip`, `.vhd`, `.vhdx`, `.vmdk`, `.vdi`, `.qcow2` | ISO 9660/Joliet/UDF, Apple DMG/PKG, Hyper-V, VMware, VirtualBox, QEMU VM disk image inspection and extraction |
+| **Installer / System** | `Compound (MSI, MSP, MSM)`, `NSIS`, `PE` | `.msi`, `.msp`, `.msm`, `.nsis`, `.exe` | Windows Installer packages and Nullsoft installer resource extraction without installation |
+| **Legacy Archives** | `LHA`, `LZH`, `ALZ` | `.lha`, `.lzh`, `.alz` | Classic Japanese LHA/LZH and ALZip ALZ (Powered by 100% open-source `unalz`, safe for enterprise use) |
+| **Modern Ultra-Fast** | `ZSTD`, `LZ4` | `.zst`, `.tar.zst`, `.lz4`, `.tar.lz4` | Multi-core decompression at memory-bus speeds |
+| **❌ Excluded Format** | `EGG` | `.egg` | **Intentionally excluded due to ESTsoft's proprietary restrictive license (commercial redistribution ban)** |
+
+---
+
 ## 📦 Multi-Platform Binaries
 
 `zipper9` provides pre-built, ready-to-use binaries tailored for each desktop operating system.  
