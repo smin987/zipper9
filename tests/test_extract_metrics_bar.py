@@ -59,6 +59,16 @@ class TestExtractMetricsBar(unittest.TestCase):
             self.assertEqual(app.card_ratio["title"].cget("text"), "📉 압축 절감률")
             self.assertIn("%", app.card_ratio["value"].cget("text"))
 
+            # 제목: 검은색 굵은 글씨 검증
+            self.assertEqual(app.card_files["title"].cget("text_color"), ("#000000", "#f8f9fa"))
+            self.assertEqual(app.card_orig["title"].cget("text_color"), ("#000000", "#f8f9fa"))
+            self.assertEqual(app.card_ratio["title"].cget("text_color"), ("#000000", "#f8f9fa"))
+
+            # 결과값: 15.6%와 동일한 파스텔 민트색(#20c997) 적용 검증
+            self.assertEqual(app.card_files["value"].cget("text_color"), "#20c997")
+            self.assertEqual(app.card_orig["value"].cget("text_color"), "#20c997")
+            self.assertEqual(app.card_ratio["value"].cget("text_color"), "#20c997")
+
             # 하단 파일 목록 텍스트박스가 230 이상으로 확장되었는지 확인
             self.assertGreaterEqual(app.extract_preview.cget("height"), 230)
         finally:

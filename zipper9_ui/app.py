@@ -1929,13 +1929,13 @@ class Zipper9App(ctk.CTk):
 
         lang = getattr(self, "current_lang", "KO")
         unit = t("metric_unit_items", lang=lang)
-        # Card 1: 총 파일 수
+        # Card 1: 총 파일 수 (결과값 민트색 통일)
         self.card_files = self._create_stat_card(
-            metric_container, 0, t("card_total_files", lang=lang), f"-- {unit}"
+            metric_container, 0, t("card_total_files", lang=lang), f"-- {unit}", value_color="#20c997"
         )
-        # Card 2: 원본 용량
+        # Card 2: 원본 용량 (결과값 민트색 통일)
         self.card_orig = self._create_stat_card(
-            metric_container, 1, t("card_orig_size", lang=lang), "--"
+            metric_container, 1, t("card_orig_size", lang=lang), "--", value_color="#20c997"
         )
         # Card 3: 절감률 (파스텔 민트)
         self.card_ratio = self._create_stat_card(
@@ -1953,15 +1953,17 @@ class Zipper9App(ctk.CTk):
         )
         card.grid(row=0, column=col, padx=3, pady=1, sticky="nsew")
 
+        # 제목 라벨: 검은색 굵은 글씨 (다크 모드 시 밝은 화이트 호환)
         lbl_title = ctk.CTkLabel(
             card,
             text=title,
             font=ctk.CTkFont(size=11, weight="bold"),
-            text_color=("#868e96", "gray"),
+            text_color=("#000000", "#f8f9fa"),
         )
         lbl_title.pack(side="left", padx=(12, 4), pady=5)
 
-        val_color = value_color if value_color else ("#212529", "#f1f5f9")
+        # 결과값 라벨: 15.6%와 동일한 파스텔 민트색(#20c997) 적용
+        val_color = value_color if value_color else "#20c997"
         lbl_val = ctk.CTkLabel(
             card,
             text=initial_val,
