@@ -964,22 +964,24 @@ class Zipper9App(ctk.CTk):
             fg_color=("#ffffff", "#1e2024"),
             border_width=1,
             border_color=("#e9ecef", "#2c2e35"),
-            height=36,
+            height=34,
+            cursor="hand2",
         )
         bar.pack(fill="x", padx=0, pady=(3, 3))
         self.settings_toggle_bar = bar
 
-        # 좌측: 아이콘 + 제목 라벨
+        # 좌측: 화살표 기호 + 압축 상세 설정 제목 라벨 (동그라미 기호 없음)
+        title_key = "settings_title_expanded" if self.settings_expanded else "settings_title_collapsed"
         self.lbl_settings_toggle_title = ctk.CTkLabel(
             bar,
-            text=t("settings_toggle_title", lang=lang),
+            text=t(title_key, lang=lang),
             font=ctk.CTkFont(size=12, weight="bold"),
             text_color=("#212529", "gray90"),
             cursor="hand2",
         )
         self.lbl_settings_toggle_title.pack(side="left", padx=(12, 8), pady=6)
 
-        # 중앙: 현재 설정 요약 배지 (접혀있을 때 표출)
+        # 우측: 접혀 있을 때 현재 설정 요약 배지 표출
         self.lbl_settings_summary_badge = ctk.CTkLabel(
             bar,
             text="",
@@ -987,34 +989,24 @@ class Zipper9App(ctk.CTk):
             text_color=("#1971c2", "#74c0fc"),
             cursor="hand2",
         )
-        self.lbl_settings_summary_badge.pack(side="left", padx=4, pady=6)
+        self.lbl_settings_summary_badge.pack(side="right", padx=(4, 12), pady=6)
 
-        # 우측: 접기/펼치기 토글 버튼
-        btn_text = (
-            t("settings_toggle_collapse", lang=lang)
-            if self.settings_expanded
-            else t("settings_toggle_expand", lang=lang)
-        )
-        self.btn_settings_toggle = ctk.CTkButton(
-            bar,
-            text=btn_text,
-            width=80,
-            height=26,
-            corner_radius=6,
-            fg_color=("#f1f3f9", "#2c3036"),
-            hover_color=("#e5e8f0", "#3a3f47"),
-            text_color=("#495057", "#e2e8f0"),
-            border_width=1,
-            border_color=("#dce2ee", "#3a3f47"),
-            font=ctk.CTkFont(size=11, weight="bold"),
-            command=self._toggle_settings_panel,
-        )
-        self.btn_settings_toggle.pack(side="right", padx=(4, 10), pady=5)
+        # 마우스 클릭 토글 바인딩
+        for widget in [bar, self.lbl_settings_toggle_title, self.lbl_settings_summary_badge]:
+            widget.bind("<Button-1>", lambda e: self._toggle_settings_panel())
 
-        # 바 전체 및 라벨 클릭 시에도 토글 동작
-        bar.bind("<Button-1>", lambda e: self._toggle_settings_panel())
-        self.lbl_settings_toggle_title.bind("<Button-1>", lambda e: self._toggle_settings_panel())
-        self.lbl_settings_summary_badge.bind("<Button-1>", lambda e: self._toggle_settings_panel())
+        # 마우스 호버 효과
+        def _on_enter(e):
+            bar.configure(fg_color=("#f1f3f9", "#262930"))
+        def _on_leave(e):
+            bar.configure(fg_color=("#ffffff", "#1e2024"))
+
+        bar.bind("<Enter>", _on_enter)
+        bar.bind("<Leave>", _on_leave)
+        self.lbl_settings_toggle_title.bind("<Enter>", _on_enter)
+        self.lbl_settings_toggle_title.bind("<Leave>", _on_leave)
+        self.lbl_settings_summary_badge.bind("<Enter>", _on_enter)
+        self.lbl_settings_summary_badge.bind("<Leave>", _on_leave)
 
     def _toggle_settings_panel(self):
         """설정 아코디언 패널 접기/펼치기 토글"""
@@ -1030,17 +1022,18 @@ class Zipper9App(ctk.CTk):
         self._update_settings_toggle_ui()
 
     def _update_settings_toggle_ui(self):
-        """설정 토글 바 버튼 텍스트 및 요약 뱃지 갱신"""
+        """설정 토글 바 제목 및 요약 뱃지 갱신"""
         lang = getattr(self, "current_lang", "KO")
-        if not hasattr(self, "btn_settings_toggle"):
+        if not hasattr(self, "lbl_settings_toggle_title"):
             return
 
+        title_key = "settings_title_expanded" if self.settings_expanded else "settings_title_collapsed"
+        self.lbl_settings_toggle_title.configure(text=t(title_key, lang=lang))
+
         if self.settings_expanded:
-            self.btn_settings_toggle.configure(text=t("settings_toggle_collapse", lang=lang))
             if hasattr(self, "lbl_settings_summary_badge"):
                 self.lbl_settings_summary_badge.configure(text="")
         else:
-            self.btn_settings_toggle.configure(text=t("settings_toggle_expand", lang=lang))
             self._update_settings_summary_badge()
 
     def _update_settings_summary_badge(self):
@@ -2295,8 +2288,6 @@ class Zipper9App(ctk.CTk):
             self.chk_verify_integrity.configure(text=t("chk_verify_integrity", lang=lang))
 
         # 4-1. 설정 아코디언 토글 바
-        if hasattr(self, "lbl_settings_toggle_title"):
-            self.lbl_settings_toggle_title.configure(text=t("settings_toggle_title", lang=lang))
         if hasattr(self, "_update_settings_toggle_ui"):
             self._update_settings_toggle_ui()
 

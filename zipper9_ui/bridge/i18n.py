@@ -151,17 +151,13 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     },
 
     # 설정 접이식 패널 (Collapsible Settings)
-    "settings_toggle_title": {
-        "KO": "⚙️ 압축 상세 설정 (알고리즘 · 보안 암호 · 분할 압축)",
-        "EN": "⚙️ Compression Settings (Algorithm · Password · Split)",
+    "settings_title_expanded": {
+        "KO": "▼ 압축 상세 설정 (알고리즘, 보안 암호, 분할 압축)",
+        "EN": "▼ Compression Settings (Algorithm, Password, Split)",
     },
-    "settings_toggle_expand": {
-        "KO": "펼치기 ▼",
-        "EN": "Expand ▼",
-    },
-    "settings_toggle_collapse": {
-        "KO": "접기 ▲",
-        "EN": "Collapse ▲",
+    "settings_title_collapsed": {
+        "KO": "▶ 압축 상세 설정 (알고리즘, 보안 암호, 분할 압축)",
+        "EN": "▶ Compression Settings (Algorithm, Password, Split)",
     },
 
     # 고급 옵션
