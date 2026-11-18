@@ -1680,7 +1680,7 @@ class Zipper9App(ctk.CTk):
         self.extract_preview = ctk.CTkTextbox(
             self.extract_loaded_container,
             height=190,
-            font=ctk.CTkFont(family="Consolas", size=12),
+            font=ctk.CTkFont(family="Cascadia Mono", size=12),
             corner_radius=8,
             fg_color=("#ffffff", "#191a1d"),
             border_width=1,
