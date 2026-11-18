@@ -253,9 +253,77 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "KO": "대기 중",
         "EN": "Pending",
     },
+    "metric_unit_items": {
+        "KO": "개",
+        "EN": "items",
+    },
+    "metric_sub_total_files": {
+        "KO": "아카이브 내 총 파일",
+        "EN": "Total items in archive",
+    },
+    "metric_sub_compressed": {
+        "KO": "압축 크기: {size}",
+        "EN": "Compressed size: {size}",
+    },
+    "metric_sub_space_saved": {
+        "KO": "디스크 공간 절감",
+        "EN": "Disk space saved",
+    },
+    "tree_hdr_name": {
+        "KO": "항목명",
+        "EN": "Item Name",
+    },
+    "tree_hdr_orig_size": {
+        "KO": "원본 크기",
+        "EN": "Original Size",
+    },
+    "tree_hdr_comp_size": {
+        "KO": "압축 크기",
+        "EN": "Compressed",
+    },
+    "structure_single": {
+        "KO": " [구조: 단일 폴더 '{root}/']",
+        "EN": " [Structure: Single Root Folder '{root}/']",
+    },
+    "structure_multi": {
+        "KO": " [구조: 다중 파일/항목]",
+        "EN": " [Structure: Multi-item root]",
+    },
+    "selected_archive_text": {
+        "KO": "선택됨: {name}{enc} ({path})",
+        "EN": "Selected: {name}{enc} ({path})",
+    },
+    "encrypted_tag": {
+        "KO": "암호화 보호됨",
+        "EN": "Encrypted",
+    },
+    "status_archive_analyzed": {
+        "KO": "아카이브 분석 완료: {name} ({count}개 파일)",
+        "EN": "Archive analyzed: {name} ({count} files)",
+    },
+    "dialog_pwd_required": {
+        "KO": "🔒 암호 필요",
+        "EN": "🔒 Password Required",
+    },
+    "dialog_pwd_required_msg": {
+        "KO": "'{name}' 파일은 암호로 보호되어 있습니다.\n비밀번호를 입력하세요:",
+        "EN": "'{name}' is protected with a password.\nPlease enter password:",
+    },
+    "status_pwd_cancelled": {
+        "KO": "암호가 입력되지 않아 열람이 취소되었습니다: {name}",
+        "EN": "Preview cancelled: password not provided for {name}",
+    },
     "dialog_select_archive": {
         "KO": "압축된 파일 선택",
         "EN": "Select Archive File",
+    },
+    "dialog_select_files_to_compress": {
+        "KO": "압축할 파일 선택",
+        "EN": "Select Files to Compress",
+    },
+    "dialog_select_dir_to_compress": {
+        "KO": "압축할 폴더 선택",
+        "EN": "Select Folder to Compress",
     },
     "drop_extract_empty": {
         "KO": "📥 여기에 압축 파일을 끌어다 놓으세요 (.zip, .7z, .rar, .tar, .gz, .xz, .lz4...)",

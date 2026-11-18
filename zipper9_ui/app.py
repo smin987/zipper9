@@ -539,6 +539,7 @@ class Zipper9App(ctk.CTk):
             archive_found = find_primary_archive(normalized_paths)
 
             # 1. 압축 파일이 드롭된 경우 -> 사용자 편의를 위해 '스마트 압축해제' 화면으로 자동 전환 및 로드!
+            lang = getattr(self, "current_lang", "KO")
             if archive_found:
                 switched = (current_tab == "compress")
                 if switched:
@@ -546,7 +547,7 @@ class Zipper9App(ctk.CTk):
                 self._load_archive_for_extract(archive_found)
                 if switched:
                     self.lbl_status.configure(
-                        text=f"📍 압축 파일 감지: '스마트 압축해제' 화면으로 자동 전환되었습니다 ({os.path.basename(archive_found)})"
+                        text=t("status_archive_detected", lang=lang, name=os.path.basename(archive_found))
                     )
                 return
 
@@ -565,11 +566,11 @@ class Zipper9App(ctk.CTk):
                 self._update_sources_view()
                 if switched:
                     self.lbl_status.configure(
-                        text=f"📍 일반 파일 감지: '압축하기' 화면으로 자동 전환되어 {added_count}개 항목이 추가되었습니다."
+                        text=t("status_files_detected", lang=lang, count=added_count)
                     )
                 else:
                     self.lbl_status.configure(
-                        text=f"{added_count}개 항목이 추가되었습니다."
+                        text=t("status_files_added", lang=lang, count=added_count)
                     )
         except Exception as e:
             traceback.print_exc()
@@ -1420,14 +1421,15 @@ class Zipper9App(ctk.CTk):
             self.lbl_compress_target_info.configure(text=target_str)
 
     def _add_files(self):
-        paths = filedialog.askopenfilenames(title="압축할 파일 선택")
+        lang = getattr(self, "current_lang", "KO")
+        paths = filedialog.askopenfilenames(title=t("dialog_select_files_to_compress", lang=lang))
         if paths:
             archives_selected = [p for p in paths if is_archive_file(p)]
             if archives_selected:
                 self.set_active_tab("extract")
                 self._load_archive_for_extract(archives_selected[0])
                 self.lbl_status.configure(
-                    text=f"📍 압축 파일이 선택되어 '압축해제' 화면으로 자동 전환되었습니다 ({os.path.basename(archives_selected[0])})"
+                    text=t("status_archive_detected", lang=lang, name=os.path.basename(archives_selected[0]))
                 )
                 return
             for p in paths:
@@ -1437,7 +1439,8 @@ class Zipper9App(ctk.CTk):
             self._update_sources_view()
 
     def _add_directory(self):
-        dir_path = filedialog.askdirectory(title="압축할 폴더 선택")
+        lang = getattr(self, "current_lang", "KO")
+        dir_path = filedialog.askdirectory(title=t("dialog_select_dir_to_compress", lang=lang))
         if dir_path:
             dir_path = os.path.normpath(dir_path)
             if dir_path not in self.selected_sources:
@@ -1714,17 +1717,19 @@ class Zipper9App(ctk.CTk):
             metric_container.grid_columnconfigure(i, weight=1)
 
         lang = getattr(self, "current_lang", "KO")
+        unit = t("metric_unit_items", lang=lang)
+        pending = t("card_pending", lang=lang)
         # Card 1: 총 파일 수
         self.card_files = self._create_stat_card(
-            metric_container, 0, t("card_total_files", lang=lang), "-- 개" if lang == "KO" else "-- items", t("card_pending", lang=lang)
+            metric_container, 0, t("card_total_files", lang=lang), f"-- {unit}", pending
         )
         # Card 2: 원본 용량
         self.card_orig = self._create_stat_card(
-            metric_container, 1, t("card_orig_size", lang=lang), "-- MB", t("card_pending", lang=lang)
+            metric_container, 1, t("card_orig_size", lang=lang), "-- MB", pending
         )
         # Card 3: 절감률 (파스텔 민트)
         self.card_ratio = self._create_stat_card(
-            metric_container, 2, t("card_ratio", lang=lang), "-- %", t("card_pending", lang=lang), value_color="#20c997"
+            metric_container, 2, t("card_ratio", lang=lang), "-- %", pending, value_color="#20c997"
         )
 
     def _create_stat_card(self, parent, col, title, initial_val, sub_text, value_color=None):
@@ -1770,9 +1775,22 @@ class Zipper9App(ctk.CTk):
             "*.tar;*.tar.lz4;*.lz4;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.gz;*.xz;*.bz2;"
             "*.alz;*.egg;*.iso;*.wim;*.cab;*.001;*.z01;*.part*.rar"
         )
-        path = filedialog.askopenfilename(
-            title="압축된 파일 선택",
-            filetypes=[
+        lang = getattr(self, "current_lang", "KO")
+        if lang == "EN":
+            filetypes = [
+                ("All Supported Archives", filter_str),
+                ("Split Volumes (*.001, *.z01, *.part*.rar)", "*.001;*.z01;*.part*.rar"),
+                ("ZIP Archives (*.zip)", "*.zip"),
+                ("7-Zip Archives (*.7z, *.7z.001)", "*.7z;*.7z.001"),
+                ("LZ4 TAR Archives (*.tar.lz4, *.lz4)", "*.tar.lz4;*.lz4"),
+                ("RAR Archives (*.rar, *.part*.rar)", "*.rar;*.part*.rar"),
+                ("ALZip Archives (*.alz, *.egg)", "*.alz;*.egg"),
+                ("Apple Archives (*.dmg, *.pkg, *.xip)", "*.dmg;*.pkg;*.xip"),
+                ("TAR Archives (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2"),
+                ("All Files (*.*)", "*.*"),
+            ]
+        else:
+            filetypes = [
                 ("모든 지원 아카이브", filter_str),
                 ("분할 압축 아카이브 (*.001, *.z01, *.part*.rar)", "*.001;*.z01;*.part*.rar"),
                 ("ZIP 아카이브 (*.zip)", "*.zip"),
@@ -1783,7 +1801,10 @@ class Zipper9App(ctk.CTk):
                 ("Apple 아카이브 (*.dmg, *.pkg, *.xip)", "*.dmg;*.pkg;*.xip"),
                 ("TAR 아카이브 (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2"),
                 ("모든 파일", "*.*"),
-            ],
+            ]
+        path = filedialog.askopenfilename(
+            title=t("dialog_select_archive", lang=lang),
+            filetypes=filetypes,
         )
         if path:
             primary_path = find_primary_archive([path]) or path
@@ -1795,14 +1816,15 @@ class Zipper9App(ctk.CTk):
             if self.active_tab != "extract":
                 self.set_active_tab("extract")
 
+            lang = getattr(self, "current_lang", "KO")
             pwd = password or (self.entry_extract_password.get().strip() if hasattr(self, "entry_extract_password") else None)
             try:
                 entries = list_archive_entries(path, password=pwd)
             except PermissionError:
                 # 파일명 암호화된 아카이브: 사용자에게 비밀번호 입력 팝업 표출
                 dialog = ctk.CTkInputDialog(
-                    title="🔒 암호 필요",
-                    text=f"'{os.path.basename(path)}' 파일은 암호로 보호되어 있습니다.\n비밀번호를 입력하세요:",
+                    title=t("dialog_pwd_required", lang=lang),
+                    text=t("dialog_pwd_required_msg", lang=lang, name=os.path.basename(path)),
                 )
                 user_pwd = dialog.get_input()
                 if user_pwd:
@@ -1812,7 +1834,7 @@ class Zipper9App(ctk.CTk):
                     return self._load_archive_for_extract(path, password=user_pwd)
                 else:
                     self.lbl_status.configure(
-                        text=f"암호가 입력되지 않아 열람이 취소되었습니다: {os.path.basename(path)}"
+                        text=t("status_pwd_cancelled", lang=lang, name=os.path.basename(path))
                     )
                     return
 
@@ -1824,60 +1846,107 @@ class Zipper9App(ctk.CTk):
             # 암호화 여부 감지
             has_encrypted_entry = any(e.get("is_encrypted", False) for e in entries)
             self.is_archive_encrypted = bool(password or has_encrypted_entry)
-            enc_tag = " 🔒 [암호화 보호됨]" if self.is_archive_encrypted else ""
-
-            self.lbl_selected_archive.configure(
-                text=f"선택됨: {os.path.basename(path)}{enc_tag} ({path})",
-                text_color=("gray10", "#f1f3f5"),
-            )
-
-            folder_name = get_archive_folder_name(path)
-            archive_dir = os.path.dirname(os.path.abspath(path))
-            loc_name = os.path.basename(archive_dir) or archive_dir
-
-            self.extract_preview.configure(state="normal")
-            self.extract_preview.delete("1.0", "end")
 
             # 단일 폴더 통 압축 여부 판별 (이중 폴더 방지)
             is_single, root_name = check_archive_has_single_root_folder(entries)
             self.has_single_root_folder = is_single
             self.single_root_folder_name = root_name
 
-            if is_single:
-                info_text = t("extract_target_single", loc=loc_name, root=root_name)
-            else:
-                info_text = t("extract_target_nested", loc=loc_name, folder=folder_name)
+            # 다국어 지원 렌더링 호출
+            self._render_extract_loaded_view()
+        except Exception as e:
+            traceback.print_exc()
+            lang = getattr(self, "current_lang", "KO")
+            messagebox.showerror(t("dialog_error", lang=lang), t("err_open_archive_failed", lang=lang, err=e))
 
-            if hasattr(self, "btn_extract_start"):
-                self.btn_extract_start.configure(text=t("btn_extract_to_folder"))
-            if hasattr(self, "lbl_extract_target_info"):
-                self.lbl_extract_target_info.configure(
-                    text=info_text,
-                    text_color=("#212529", "gray85"),
-                )
+    def _render_extract_loaded_view(self):
+        """압축 해제 탭: 로드된 아카이브 메트릭 및 파일 목록 미리보기 렌더링 (다국어 지원)"""
+        path = getattr(self, "selected_archive_for_extract", "")
+        entries = getattr(self, "archive_entries", [])
+        if not path or not entries:
+            return
 
-            total_uncompressed = sum(e["uncompressed_size"] for e in entries)
-            total_compressed = sum(e["compressed_size"] for e in entries)
-            ratio = (
-                ((1.0 - (total_compressed / total_uncompressed)) * 100.0)
-                if total_uncompressed > 0 and total_compressed > 0 and total_compressed <= total_uncompressed
-                else 0.0
+        lang = getattr(self, "current_lang", "KO")
+        enc_tag = f" 🔒 [{t('encrypted_tag', lang=lang)}]" if getattr(self, "is_archive_encrypted", False) else ""
+
+        # 1. 아카이브 선택 라벨
+        if hasattr(self, "lbl_selected_archive"):
+            self.lbl_selected_archive.configure(
+                text=t("selected_archive_text", lang=lang, name=os.path.basename(path), enc=enc_tag, path=path),
+                text_color=("gray10", "#f1f3f5"),
             )
 
-            # 3단 메트릭 업데이트
-            self.card_files["value"].configure(text=f"{len(entries):,} 개")
-            self.card_files["sub"].configure(text="아카이브 내 총 파일")
+        # 2. 해제 대상 안내 라벨
+        folder_name = get_archive_folder_name(path)
+        archive_dir = os.path.dirname(os.path.abspath(path))
+        loc_name = os.path.basename(archive_dir) or archive_dir
 
-            self.card_orig["value"].configure(text=format_bytes(total_uncompressed))
-            self.card_orig["sub"].configure(text=f"압축 크기: {format_bytes(total_compressed)}")
+        is_single = getattr(self, "has_single_root_folder", False)
+        root_name = getattr(self, "single_root_folder_name", None)
 
-            self.card_ratio["value"].configure(text=f"{ratio:.1f} %")
-            self.card_ratio["sub"].configure(text="디스크 공간 절감")
+        if is_single:
+            info_text = t("extract_target_single", lang=lang, loc=loc_name, root=root_name)
+        else:
+            info_text = t("extract_target_nested", lang=lang, loc=loc_name, folder=folder_name)
 
-            # 파일 트리 테이블 출력
-            structure_mode = f" [구조: 단일 폴더 '{root_name}/']" if is_single else " [구조: 다중 파일/항목]"
+        if hasattr(self, "btn_extract_start"):
+            self.btn_extract_start.configure(text=t("btn_extract_to_folder", lang=lang))
+        if hasattr(self, "lbl_extract_target_info"):
+            self.lbl_extract_target_info.configure(
+                text=info_text,
+                text_color=("#212529", "gray85"),
+            )
+
+        # 3. 3단 메트릭 요약
+        total_uncompressed = sum(e["uncompressed_size"] for e in entries)
+        total_compressed = sum(e["compressed_size"] for e in entries)
+        ratio = (
+            ((1.0 - (total_compressed / total_uncompressed)) * 100.0)
+            if total_uncompressed > 0 and total_compressed > 0 and total_compressed <= total_uncompressed
+            else 0.0
+        )
+
+        unit = t("metric_unit_items", lang=lang)
+        if hasattr(self, "card_files") and isinstance(self.card_files, dict):
+            if "title" in self.card_files:
+                self.card_files["title"].configure(text=t("card_total_files", lang=lang))
+            if "value" in self.card_files:
+                self.card_files["value"].configure(text=f"{len(entries):,} {unit}")
+            if "sub" in self.card_files:
+                self.card_files["sub"].configure(text=t("metric_sub_total_files", lang=lang))
+
+        if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
+            if "title" in self.card_orig:
+                self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
+            if "value" in self.card_orig:
+                self.card_orig["value"].configure(text=format_bytes(total_uncompressed))
+            if "sub" in self.card_orig:
+                self.card_orig["sub"].configure(text=t("metric_sub_compressed", lang=lang, size=format_bytes(total_compressed)))
+
+        if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
+            if "title" in self.card_ratio:
+                self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
+            if "value" in self.card_ratio:
+                self.card_ratio["value"].configure(text=f"{ratio:.1f} %")
+            if "sub" in self.card_ratio:
+                self.card_ratio["sub"].configure(text=t("metric_sub_space_saved", lang=lang))
+
+        # 4. 파일 트리 테이블 출력
+        if hasattr(self, "extract_preview"):
+            self.extract_preview.configure(state="normal")
+            self.extract_preview.delete("1.0", "end")
+
+            structure_mode = (
+                t("structure_single", lang=lang, root=root_name)
+                if is_single
+                else t("structure_multi", lang=lang)
+            )
+            col_name = t("tree_hdr_name", lang=lang)
+            col_orig = t("tree_hdr_orig_size", lang=lang)
+            col_comp = t("tree_hdr_comp_size", lang=lang)
+
             header = f"[{os.path.basename(path)}]{structure_mode}\n"
-            header += f"{'항목명':<48} | {'원본 크기':>12} | {'압축 크기':>12}\n"
+            header += f"{col_name:<46} | {col_orig:>13} | {col_comp:>13}\n"
             header += "-" * 78 + "\n"
             self.extract_preview.insert("end", header)
 
@@ -1886,18 +1955,18 @@ class Zipper9App(ctk.CTk):
                 u_str = format_bytes(e["uncompressed_size"])
                 c_str = format_bytes(e["compressed_size"])
                 name_disp = e['name']
-                if len(name_disp) > 46:
-                    name_disp = name_disp[:43] + "..."
+                if len(name_disp) > 44:
+                    name_disp = name_disp[:41] + "..."
                 self.extract_preview.insert(
-                    "end", f"{icon} {name_disp:<46} | {u_str:>12} | {c_str:>12}\n"
+                    "end", f"{icon} {name_disp:<44} | {u_str:>13} | {c_str:>13}\n"
                 )
             self.extract_preview.configure(state="disabled")
+
+        # 5. 상태바 업데이트
+        if hasattr(self, "lbl_status") and not self.worker.is_busy():
             self.lbl_status.configure(
-                text=f"아카이브 분석 완료: {os.path.basename(path)} ({len(entries)}개 파일)"
+                text=t("status_archive_analyzed", lang=lang, name=os.path.basename(path), count=f"{len(entries):,}")
             )
-        except Exception as e:
-            traceback.print_exc()
-            messagebox.showerror(t("dialog_error"), t("err_open_archive_failed", err=e))
 
     def _clear_extract_view(self):
         """압축 해제 탭 내용 초기화 - 초기 대형 드롭 존 복원"""
@@ -1914,22 +1983,43 @@ class Zipper9App(ctk.CTk):
         self.extract_loaded_container.pack_forget()
         self.extract_empty_container.pack(fill="both", expand=True, padx=0, pady=(2, 6))
 
-        self.card_files["value"].configure(text="-- 개")
-        self.card_files["sub"].configure(text="대기 중")
-        self.card_orig["value"].configure(text="-- MB")
-        self.card_orig["sub"].configure(text="대기 중")
-        self.card_ratio["value"].configure(text="-- %")
-        self.card_ratio["sub"].configure(text="대기 중")
+        lang = getattr(self, "current_lang", "KO")
+        unit = t("metric_unit_items", lang=lang)
+        pending = t("card_pending", lang=lang)
+
+        if hasattr(self, "card_files") and isinstance(self.card_files, dict):
+            if "title" in self.card_files:
+                self.card_files["title"].configure(text=t("card_total_files", lang=lang))
+            if "value" in self.card_files:
+                self.card_files["value"].configure(text=f"-- {unit}")
+            if "sub" in self.card_files:
+                self.card_files["sub"].configure(text=pending)
+
+        if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
+            if "title" in self.card_orig:
+                self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
+            if "value" in self.card_orig:
+                self.card_orig["value"].configure(text="-- MB")
+            if "sub" in self.card_orig:
+                self.card_orig["sub"].configure(text=pending)
+
+        if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
+            if "title" in self.card_ratio:
+                self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
+            if "value" in self.card_ratio:
+                self.card_ratio["value"].configure(text="-- %")
+            if "sub" in self.card_ratio:
+                self.card_ratio["sub"].configure(text=pending)
 
         self.extract_preview.configure(state="normal")
         self.extract_preview.delete("1.0", "end")
         self.extract_preview.configure(state="disabled")
 
         if hasattr(self, "btn_extract_start"):
-            self.btn_extract_start.configure(text=t("btn_extract_to_folder"))
+            self.btn_extract_start.configure(text=t("btn_extract_to_folder", lang=lang))
         if hasattr(self, "lbl_extract_target_info"):
             self.lbl_extract_target_info.configure(
-                text=t("extract_target_empty"),
+                text=t("extract_target_empty", lang=lang),
                 text_color=("#475569", "gray75"),
             )
 
@@ -2103,8 +2193,6 @@ class Zipper9App(ctk.CTk):
             self.btn_extract_custom.configure(text=t("btn_browse_extract_dest", lang=lang))
         if hasattr(self, "btn_extract_start"):
             self.btn_extract_start.configure(text=t("btn_extract_to_folder", lang=lang))
-        if hasattr(self, "lbl_extract_target_info") and not getattr(self, "selected_archive_for_extract", None):
-            self.lbl_extract_target_info.configure(text=t("extract_target_empty", lang=lang))
         if hasattr(self, "lbl_extract_drop_title"):
             self.lbl_extract_drop_title.configure(text=t("extract_drop_title", lang=lang))
         if hasattr(self, "lbl_extract_drop_sub"):
@@ -2115,12 +2203,32 @@ class Zipper9App(ctk.CTk):
             self.lbl_extract_drop_smart_tip.configure(text=t("extract_drop_smart_tip", lang=lang))
         if hasattr(self, "btn_reselect"):
             self.btn_reselect.configure(text=t("btn_reselect_archive", lang=lang))
-        if hasattr(self, "card_files") and isinstance(self.card_files, dict) and "title" in self.card_files:
-            self.card_files["title"].configure(text=t("card_total_files", lang=lang))
-        if hasattr(self, "card_orig") and isinstance(self.card_orig, dict) and "title" in self.card_orig:
-            self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
-        if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict) and "title" in self.card_ratio:
-            self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
+
+        # 로드된 아카이브가 있으면 메트릭 및 미리보기 전체를 새 언어로 재렌더링
+        if getattr(self, "selected_archive_for_extract", None) and getattr(self, "archive_entries", None):
+            self._render_extract_loaded_view()
+        else:
+            if hasattr(self, "lbl_extract_target_info"):
+                self.lbl_extract_target_info.configure(text=t("extract_target_empty", lang=lang))
+            unit = t("metric_unit_items", lang=lang)
+            pending = t("card_pending", lang=lang)
+            if hasattr(self, "card_files") and isinstance(self.card_files, dict):
+                if "title" in self.card_files:
+                    self.card_files["title"].configure(text=t("card_total_files", lang=lang))
+                if "value" in self.card_files:
+                    self.card_files["value"].configure(text=f"-- {unit}")
+                if "sub" in self.card_files:
+                    self.card_files["sub"].configure(text=pending)
+            if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
+                if "title" in self.card_orig:
+                    self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
+                if "sub" in self.card_orig:
+                    self.card_orig["sub"].configure(text=pending)
+            if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
+                if "title" in self.card_ratio:
+                    self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
+                if "sub" in self.card_ratio:
+                    self.card_ratio["sub"].configure(text=pending)
 
         # 8. 소스 목록 및 하단 상태바
         self._update_sources_view()
@@ -2225,54 +2333,57 @@ class Zipper9App(ctk.CTk):
             return
 
         choice_key = self.selected_algo
+        lang = getattr(self, "current_lang", "KO")
+        archive_label = "Archive" if lang == "EN" else "아카이브"
+        all_files_label = "All Files" if lang == "EN" else "모든 파일"
 
         level_val = None
         if choice_key == "7z":
             ext = ".7z"
-            filetypes = [("7-Zip 아카이브", "*.7z"), ("모든 파일", "*.*")]
+            filetypes = [(f"7-Zip {archive_label}", "*.7z"), (all_files_label, "*.*")]
             fmt_type = "7z"
             zip_method = "deflate"
             level_val = 5
         elif choice_key == "lz4":
             ext = ".tar.lz4"
-            filetypes = [("LZ4 TAR 아카이브", "*.tar.lz4;*.lz4"), ("모든 파일", "*.*")]
+            filetypes = [(f"LZ4 TAR {archive_label}", "*.tar.lz4;*.lz4"), (all_files_label, "*.*")]
             fmt_type = "tar.lz4"
             zip_method = "deflate"
         elif choice_key == "targz":
             ext = ".tar.gz"
-            filetypes = [("Gzip TAR 아카이브", "*.tar.gz;*.tgz"), ("모든 파일", "*.*")]
+            filetypes = [(f"Gzip TAR {archive_label}", "*.tar.gz;*.tgz"), (all_files_label, "*.*")]
             fmt_type = "tar.gz"
             zip_method = "deflate"
         elif choice_key == "extra":
             extra_val = self.combo_extra_algo.get()
             if "Store" in extra_val or "무압축 (Store" in extra_val:
                 ext = ".zip"
-                filetypes = [("ZIP 아카이브", "*.zip"), ("모든 파일", "*.*")]
+                filetypes = [(f"ZIP {archive_label}", "*.zip"), (all_files_label, "*.*")]
                 fmt_type = "zip"
                 zip_method = "store"
             elif ".tar.xz" in extra_val:
                 ext = ".tar.xz"
-                filetypes = [("XZ TAR 아카이브", "*.tar.xz;*.txz"), ("모든 파일", "*.*")]
+                filetypes = [(f"XZ TAR {archive_label}", "*.tar.xz;*.txz"), (all_files_label, "*.*")]
                 fmt_type = "tar.xz"
                 zip_method = "deflate"
             elif ".tar.bz2" in extra_val:
                 ext = ".tar.bz2"
-                filetypes = [("Bzip2 TAR 아카이브", "*.tar.bz2;*.tbz2"), ("모든 파일", "*.*")]
+                filetypes = [(f"Bzip2 TAR {archive_label}", "*.tar.bz2;*.tbz2"), (all_files_label, "*.*")]
                 fmt_type = "tar.bz2"
                 zip_method = "deflate"
             elif ".tar" in extra_val:
                 ext = ".tar"
-                filetypes = [("TAR 아카이브", "*.tar"), ("모든 파일", "*.*")]
+                filetypes = [(f"TAR {archive_label}", "*.tar"), (all_files_label, "*.*")]
                 fmt_type = "tar"
                 zip_method = "deflate"
             else:
                 ext = ".zip"
-                filetypes = [("ZIP 아카이브", "*.zip"), ("모든 파일", "*.*")]
+                filetypes = [(f"ZIP {archive_label}", "*.zip"), (all_files_label, "*.*")]
                 fmt_type = "zip"
                 zip_method = "zstd"
         else:  # "zstd" 기본
             ext = ".zip"
-            filetypes = [("ZIP 아카이브", "*.zip"), ("모든 파일", "*.*")]
+            filetypes = [(f"ZIP {archive_label}", "*.zip"), (all_files_label, "*.*")]
             fmt_type = "zip"
             zip_method = "zstd"
 
@@ -2284,15 +2395,17 @@ class Zipper9App(ctk.CTk):
         else:
             first = self.selected_sources[0]
             first_base = os.path.splitext(os.path.basename(first))[0] if os.path.isfile(first) else os.path.basename(first)
-            base_name = f"{first_base}_외_{len(self.selected_sources)-1}개"
+            more_count = len(self.selected_sources) - 1
+            base_name = f"{first_base}_and_{more_count}_more" if lang == "EN" else f"{first_base}_외_{more_count}개"
 
         if len(parent_dirs) == 1 and not force_prompt:
             target_dir = list(parent_dirs)[0]
             out_path = get_unique_filepath(target_dir, base_name, ext)
         else:
             initial_dir = list(parent_dirs)[0] if parent_dirs else os.getcwd()
+            save_title = f"Save Archive As ({ext})" if lang == "EN" else f"압축 파일 저장 위치 지정 ({ext})"
             out_path = filedialog.asksaveasfilename(
-                title=f"압축 파일 저장 위치 지정 ({ext})",
+                title=save_title,
                 initialdir=initial_dir,
                 initialfile=f"{base_name}{ext}",
                 defaultextension=ext,
