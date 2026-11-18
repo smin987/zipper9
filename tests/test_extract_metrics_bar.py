@@ -1,5 +1,5 @@
 """
-Zipper9 압축 해제 탭 1줄 메트릭 요약 바(Extract Metrics Summary Bar) 단위 테스트
+Zipper9 압축 해제 탭 슬림 1줄 3단 메트릭 카드(Extract Metric Cards) 단위 테스트
 """
 
 import os
@@ -13,7 +13,7 @@ from zipper9_ui.bridge.i18n import set_language
 
 
 class TestExtractMetricsBar(unittest.TestCase):
-    """압축 해제 화면의 1줄 메트릭 요약 바 표출 및 다국어 렌더링 검증"""
+    """압축 해제 화면의 3단 메트릭 카드 디자인 보존 및 가로 1줄 슬림 배치 검증"""
 
     def setUp(self):
         set_language("KO")
@@ -27,8 +27,8 @@ class TestExtractMetricsBar(unittest.TestCase):
         self.temp_dir.cleanup()
 
     @patch("tkinter.messagebox.showinfo")
-    def test_single_line_metrics_summary_korean(self, mock_msgbox):
-        """한글 모드에서 '총 파일 수 N개, 원본 용량 X, 압축 절감률 Y%' 형식으로 1줄 표출되는지 검증"""
+    def test_single_line_metric_cards_korean(self, mock_msgbox):
+        """한글 모드에서 3단 카드의 디자인(title, value)이 유지되고 가로 1줄로 표출되며 sub 텍스트는 배제되는지 검증"""
         app = Zipper9App()
         try:
             app._on_language_change("KO")
@@ -36,21 +36,37 @@ class TestExtractMetricsBar(unittest.TestCase):
             app._load_archive_for_extract(self.zip_path)
             app.update()
 
-            summary_text = app.lbl_extract_metrics_summary.cget("text")
-            self.assertIn("총 파일 수 2개", summary_text)
-            self.assertIn("원본 용량", summary_text)
-            self.assertIn("압축 절감률", summary_text)
-            self.assertIn("%", summary_text)
+            # 3단 카드가 모두 정상 생성되었는지 확인
+            self.assertIn("title", app.card_files)
+            self.assertIn("value", app.card_files)
+            self.assertNotIn("sub", app.card_files)  # 부가 텍스트 배제 확인
 
-            # 불필요한 부가 카드 텍스트가 없는지 확인
-            self.assertNotIn("디렉토리 내 파일 수", summary_text)
-            self.assertNotIn("압축 크기:", summary_text)
+            self.assertIn("title", app.card_orig)
+            self.assertIn("value", app.card_orig)
+            self.assertNotIn("sub", app.card_orig)
+
+            self.assertIn("title", app.card_ratio)
+            self.assertIn("value", app.card_ratio)
+            self.assertNotIn("sub", app.card_ratio)
+
+            # 한글 라벨 및 수치 검증
+            self.assertEqual(app.card_files["title"].cget("text"), "📊 총 파일 수")
+            self.assertIn("2 개", app.card_files["value"].cget("text"))
+
+            self.assertEqual(app.card_orig["title"].cget("text"), "💾 원본 용량")
+            self.assertIn("KB", app.card_orig["value"].cget("text"))
+
+            self.assertEqual(app.card_ratio["title"].cget("text"), "📉 압축 절감률")
+            self.assertIn("%", app.card_ratio["value"].cget("text"))
+
+            # 하단 파일 목록 텍스트박스가 230 이상으로 확장되었는지 확인
+            self.assertGreaterEqual(app.extract_preview.cget("height"), 230)
         finally:
             app.destroy()
 
     @patch("tkinter.messagebox.showinfo")
-    def test_single_line_metrics_summary_english(self, mock_msgbox):
-        """영문 모드에서 'Total Files: N, Uncompressed Size: X, Space Saved: Y%' 형식으로 1줄 표출되는지 검증"""
+    def test_single_line_metric_cards_english(self, mock_msgbox):
+        """영문 모드에서 3단 카드가 영문 라벨로 정상 전환되는지 검증"""
         app = Zipper9App()
         try:
             app._on_language_change("EN")
@@ -58,10 +74,11 @@ class TestExtractMetricsBar(unittest.TestCase):
             app._load_archive_for_extract(self.zip_path)
             app.update()
 
-            summary_text = app.lbl_extract_metrics_summary.cget("text")
-            self.assertIn("Total Files: 2", summary_text)
-            self.assertIn("Uncompressed Size:", summary_text)
-            self.assertIn("Space Saved:", summary_text)
+            self.assertEqual(app.card_files["title"].cget("text"), "📊 Total Files")
+            self.assertIn("items", app.card_files["value"].cget("text"))
+
+            self.assertEqual(app.card_orig["title"].cget("text"), "💾 Uncompressed Size")
+            self.assertEqual(app.card_ratio["title"].cget("text"), "📉 Space Saved")
         finally:
             app.destroy()
 
