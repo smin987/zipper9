@@ -1,7 +1,10 @@
-# Private folders (User only)
+# Private folders & Core Sources (Local Only)
 _private/
 .private/
 doc/
+crates/
+Cargo.toml
+manifests/
 
 # Python Virtual Environment & Cache
 .venv/

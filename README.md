@@ -69,18 +69,16 @@
 
 ```text
 zipper9/
-├── Cargo.toml                  # Rust workspace definition (Windows 11 Shell Extension)
 ├── requirements.txt            # Python runtime dependencies (CustomTkinter, darkdetect)
 ├── main.py                     # Application entry point
 ├── zipper9.rb                  # Standalone Homebrew Cask recipe (macOS)
 ├── zipper9.spec                # PyInstaller standalone bundling specification
 ├── run.bat                     # 1-click Windows launch script
-├── crates/
-│   └── zipper9_shell/          # Windows 11 modern context menu COM DLL (Rust)
-├── tools/                      # 100% C/C++ native high-speed engine bundles
+├── tools/                      # 100% C/C++ native high-speed engine & shell extension bundles
 │   ├── 7z/                     # 7-Zip multi-core engine (7z.exe, 7z.dll)
 │   ├── lz4/                    # LZ4 high-throughput engine (lz4.exe)
-│   └── zstd/                   # Zstandard high-ratio engine (zstd.exe)
+│   ├── zstd/                   # Zstandard high-ratio engine (zstd.exe)
+│   └── modern_shell/           # Windows 11 modern context menu shell extension bundle
 ├── assets/                     # 3D archive icons (.ico, .png)
 ├── images/                     # UI screenshots and previews
 ├── tests/                      # Headless multi-platform CI/CD test suite

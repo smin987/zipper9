@@ -69,18 +69,16 @@
 
 ```text
 zipper9/
-├── Cargo.toml                  # Rust 워크스페이스 정의 (Windows 11 Shell 확장)
 ├── requirements.txt            # Python 의존성 (CustomTkinter, WinDND 등)
 ├── main.py                     # 애플리케이션 진입점
 ├── zipper9.rb                  # Homebrew Cask 패키지 레시피 (macOS)
 ├── zipper9.spec                # PyInstaller 단일 바이너리 패키징 스펙
 ├── run.bat                     # 원클릭 실행 배치 파일
-├── crates/
-│   └── zipper9_shell/          # Windows 11 모던 우클릭 메뉴 COM DLL (Rust)
-├── tools/                      # 100% C/C++ 네이티브 고속 엔진 번들
+├── tools/                      # 100% C/C++ 네이티브 고속 엔진 및 쉘 확장 번들
 │   ├── 7z/                     # 7-Zip 멀티코어 엔진 (7z.exe, 7z.dll)
 │   ├── lz4/                    # LZ4 초고속 엔진 (lz4.exe)
-│   └── zstd/                   # Zstandard 초고속 엔진 (zstd.exe)
+│   ├── zstd/                   # Zstandard 초고속 엔진 (zstd.exe)
+│   └── modern_shell/           # Windows 11 모던 1단계 우클릭 쉘 확장 번들
 ├── assets/                     # 전용 3D 아카이브 아이콘 (.ico, .png)
 ├── images/                     # UI 미리보기 스크린샷
 ├── tests/                      # 기능 및 CI/CD 무결점 테스트 스위트
