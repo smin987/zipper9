@@ -416,10 +416,7 @@ def get_file_type_badge(path: str) -> tuple[str, str]:
         return "🎬 미디어", "#9775fa"  # Pastel Soft Violet
 
     # 압축된 파일들 (별도 압축 아이콘 / 뱃지 표출)
-    if ext in [
-        ".zip", ".7z", ".rar", ".tar", ".gz", ".xz", ".bz2",
-        ".lz4", ".zst", ".tgz", ".dmg", ".pkg", ".iso", ".alz", ".egg"
-    ]:
+    if ext in SUPPORTED_EXTRACT_EXTS:
         return "🗜️ 압축", "#ff922b"  # Pastel Coral Orange
 
     # 일반 바이너리 / 실행 파일
@@ -1980,35 +1977,41 @@ class Zipper9App(ctk.CTk):
 
     def _select_archive_file(self):
         filter_str = (
-            "*.zip;*.7z;*.rar;*.dmg;*.pkg;*.xip;"
-            "*.tar;*.tar.lz4;*.lz4;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.gz;*.xz;*.bz2;"
-            "*.alz;*.egg;*.iso;*.wim;*.cab;*.001;*.z01;*.part*.rar"
+            "*.zip;*.zipx;*.7z;*.rar;*.dmg;*.pkg;*.xip;"
+            "*.tar;*.tar.lz4;*.lz4;*.tar.zst;*.zst;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.gz;*.xz;*.bz;*.bz2;*.tbz;"
+            "*.alz;*.egg;*.iso;*.img;*.bin;*.udf;*.vhd;*.vhdx;*.vmdk;*.wim;*.cab;"
+            "*.deb;*.udeb;*.rpm;*.arj;*.lzma;*.tlz;*.z;*.taz;*.cpio;*.lha;*.lzh;*.msi;*.msp;*.sfx.exe;*.sfx;"
+            "*.001;*.z01;*.part*.rar"
         )
         lang = getattr(self, "current_lang", "KO")
         if lang == "EN":
             filetypes = [
                 ("All Supported Archives", filter_str),
                 ("Split Volumes (*.001, *.z01, *.part*.rar)", "*.001;*.z01;*.part*.rar"),
-                ("ZIP Archives (*.zip)", "*.zip"),
+                ("ZIP Archives (*.zip, *.zipx)", "*.zip;*.zipx"),
                 ("7-Zip Archives (*.7z, *.7z.001)", "*.7z;*.7z.001"),
-                ("LZ4 TAR Archives (*.tar.lz4, *.lz4)", "*.tar.lz4;*.lz4"),
+                ("Disk Images (*.iso, *.dmg, *.vhd, *.vmdk, *.img, *.udf)", "*.iso;*.dmg;*.vhd;*.vhdx;*.vmdk;*.img;*.bin;*.udf;*.pkg;*.xip"),
+                ("Linux/Unix Packages (*.deb, *.rpm, *.tar.*, *.z, *.lzma)", "*.deb;*.udeb;*.rpm;*.tar;*.tar.*;*.gz;*.xz;*.bz;*.bz2;*.tbz;*.tbz2;*.z;*.taz;*.lzma;*.tlz;*.cpio;*.arj"),
+                ("LZ4 / Zstandard (*.lz4, *.zst)", "*.tar.lz4;*.lz4;*.tar.zst;*.zst"),
                 ("RAR Archives (*.rar, *.part*.rar)", "*.rar;*.part*.rar"),
-                ("ALZip Archives (*.alz, *.egg)", "*.alz;*.egg"),
-                ("Apple Archives (*.dmg, *.pkg, *.xip)", "*.dmg;*.pkg;*.xip"),
-                ("TAR Archives (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2"),
+                ("Installer & SFX (*.msi, *.msp, *.sfx.exe, *.sfx, *.exe)", "*.msi;*.msp;*.msm;*.sfx.exe;*.sfx;*.exe"),
+                ("ALZip & Legacy Archives (*.alz, *.egg, *.lha, *.lzh)", "*.alz;*.egg;*.lha;*.lzh;*.arj"),
+                ("TAR Archives (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.tar.lz4;*.tar.zst"),
                 ("All Files (*.*)", "*.*"),
             ]
         else:
             filetypes = [
                 ("모든 지원 아카이브", filter_str),
                 ("분할 압축 아카이브 (*.001, *.z01, *.part*.rar)", "*.001;*.z01;*.part*.rar"),
-                ("ZIP 아카이브 (*.zip)", "*.zip"),
+                ("ZIP 아카이브 (*.zip, *.zipx)", "*.zip;*.zipx"),
                 ("7-Zip 아카이브 (*.7z, *.7z.001)", "*.7z;*.7z.001"),
-                ("LZ4 TAR 아카이브 (*.tar.lz4, *.lz4)", "*.tar.lz4;*.lz4"),
+                ("디스크 이미지 (*.iso, *.dmg, *.vhd, *.vmdk, *.img, *.udf)", "*.iso;*.dmg;*.vhd;*.vhdx;*.vmdk;*.img;*.bin;*.udf;*.pkg;*.xip"),
+                ("리눅스/유닉스 패키지 (*.deb, *.rpm, *.tar.*, *.z, *.lzma)", "*.deb;*.udeb;*.rpm;*.tar;*.tar.*;*.gz;*.xz;*.bz;*.bz2;*.tbz;*.tbz2;*.z;*.taz;*.lzma;*.tlz;*.cpio;*.arj"),
+                ("LZ4 / Zstandard 초고속 아카이브 (*.lz4, *.zst)", "*.tar.lz4;*.lz4;*.tar.zst;*.zst"),
                 ("RAR 아카이브 (*.rar, *.part*.rar)", "*.rar;*.part*.rar"),
-                ("알집 아카이브 (*.alz, *.egg)", "*.alz;*.egg"),
-                ("Apple 아카이브 (*.dmg, *.pkg, *.xip)", "*.dmg;*.pkg;*.xip"),
-                ("TAR 아카이브 (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2"),
+                ("인스톨러 및 SFX 실행파일 (*.msi, *.msp, *.sfx.exe, *.sfx, *.exe)", "*.msi;*.msp;*.msm;*.sfx.exe;*.sfx;*.exe"),
+                ("알집 및 구형 아카이브 (*.alz, *.egg, *.lha, *.lzh)", "*.alz;*.egg;*.lha;*.lzh;*.arj"),
+                ("TAR 아카이브 (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.tar.lz4;*.tar.zst"),
                 ("모든 파일", "*.*"),
             ]
         path = filedialog.askopenfilename(

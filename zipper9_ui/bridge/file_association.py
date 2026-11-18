@@ -17,6 +17,7 @@ else:
 
 SUPPORTED_ARCHIVE_EXTS = [
     ".zip",
+    ".zipx",
     ".7z",
     ".rar",
     ".tar",
@@ -26,6 +27,10 @@ SUPPORTED_ARCHIVE_EXTS = [
     ".lz4",
     ".zst",
     ".tgz",
+    ".iso",
+    ".dmg",
+    ".alz",
+    ".egg",
 ]
 
 PROGID = "zipper9.Archive"
