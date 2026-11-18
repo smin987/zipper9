@@ -253,7 +253,6 @@ SUPPORTED_EXTRACT_EXTS = (
     ".lha",
     ".lzh",
     ".alz",
-    ".egg",
     # 초고속 현대 알고리즘
     ".tar.lz4",
     ".lz4",

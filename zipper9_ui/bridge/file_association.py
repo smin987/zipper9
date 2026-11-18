@@ -30,7 +30,6 @@ SUPPORTED_ARCHIVE_EXTS = [
     ".iso",
     ".dmg",
     ".alz",
-    ".egg",
 ]
 
 PROGID = "zipper9.Archive"

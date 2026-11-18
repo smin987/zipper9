@@ -1979,7 +1979,7 @@ class Zipper9App(ctk.CTk):
         filter_str = (
             "*.zip;*.zipx;*.7z;*.rar;*.dmg;*.pkg;*.xip;"
             "*.tar;*.tar.lz4;*.lz4;*.tar.zst;*.zst;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.gz;*.xz;*.bz;*.bz2;*.tbz;"
-            "*.alz;*.egg;*.iso;*.img;*.bin;*.udf;*.vhd;*.vhdx;*.vmdk;*.wim;*.cab;"
+            "*.alz;*.iso;*.img;*.bin;*.udf;*.vhd;*.vhdx;*.vmdk;*.wim;*.cab;"
             "*.deb;*.udeb;*.rpm;*.arj;*.lzma;*.tlz;*.z;*.taz;*.cpio;*.lha;*.lzh;*.msi;*.msp;*.sfx.exe;*.sfx;"
             "*.001;*.z01;*.part*.rar"
         )
@@ -1995,7 +1995,7 @@ class Zipper9App(ctk.CTk):
                 ("LZ4 / Zstandard (*.lz4, *.zst)", "*.tar.lz4;*.lz4;*.tar.zst;*.zst"),
                 ("RAR Archives (*.rar, *.part*.rar)", "*.rar;*.part*.rar"),
                 ("Installer & SFX (*.msi, *.msp, *.sfx.exe, *.sfx, *.exe)", "*.msi;*.msp;*.msm;*.sfx.exe;*.sfx;*.exe"),
-                ("ALZip & Legacy Archives (*.alz, *.egg, *.lha, *.lzh)", "*.alz;*.egg;*.lha;*.lzh;*.arj"),
+                ("ALZip & Legacy Archives (*.alz, *.lha, *.lzh)", "*.alz;*.lha;*.lzh;*.arj"),
                 ("TAR Archives (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.tar.lz4;*.tar.zst"),
                 ("All Files (*.*)", "*.*"),
             ]
@@ -2010,7 +2010,7 @@ class Zipper9App(ctk.CTk):
                 ("LZ4 / Zstandard 초고속 아카이브 (*.lz4, *.zst)", "*.tar.lz4;*.lz4;*.tar.zst;*.zst"),
                 ("RAR 아카이브 (*.rar, *.part*.rar)", "*.rar;*.part*.rar"),
                 ("인스톨러 및 SFX 실행파일 (*.msi, *.msp, *.sfx.exe, *.sfx, *.exe)", "*.msi;*.msp;*.msm;*.sfx.exe;*.sfx;*.exe"),
-                ("알집 및 구형 아카이브 (*.alz, *.egg, *.lha, *.lzh)", "*.alz;*.egg;*.lha;*.lzh;*.arj"),
+                ("알집 및 구형 아카이브 (*.alz, *.lha, *.lzh)", "*.alz;*.lha;*.lzh;*.arj"),
                 ("TAR 아카이브 (*.tar.*)", "*.tar;*.tar.gz;*.tgz;*.tar.xz;*.txz;*.tar.bz2;*.tbz2;*.tar.lz4;*.tar.zst"),
                 ("모든 파일", "*.*"),
             ]

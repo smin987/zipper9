@@ -28,7 +28,7 @@ class TestAllFormatsExtraction(unittest.TestCase):
             # 인스톨러/시스템
             ".msi", ".msp", ".msm",
             # 구형 아카이브
-            ".lha", ".lzh", ".alz", ".egg",
+            ".lha", ".lzh", ".alz",
             # 초고속 현대 알고리즘
             ".zst", ".lz4",
         ]
