@@ -434,7 +434,7 @@ class Zipper9App(ctk.CTk):
 
         # 0. 마지막 사용자 설정값 로드
         self.user_settings = load_settings()
-        self.settings_expanded = bool(self.user_settings.get("settings_expanded", True))
+        self.settings_expanded = bool(self.user_settings.get("settings_expanded", False))
         self._settings_delta_h = 244
 
         # 0-1. 다국어(i18n) 설정 초기화

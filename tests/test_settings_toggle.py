@@ -18,57 +18,71 @@ class TestSettingsTogglePlanB(unittest.TestCase):
         set_language("KO")
 
     @patch("tkinter.messagebox.showinfo")
+    def test_initial_default_is_collapsed(self, mock_msgbox):
+        """기본 설정 상태에서 앱 초기 런칭 시 접힌(collapsed) 상태 및 760x536 크기로 시작하는지 검증"""
+        with patch("zipper9_ui.app.load_settings", return_value={}):
+            app = Zipper9App()
+            try:
+                app.update()
+                self.assertFalse(app.settings_expanded)
+                self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
+                self.assertFalse(app.settings_container.winfo_ismapped())
+                
+                geom = app.geometry()
+                m = re.match(r"^(\d+)x(\d+)", geom)
+                self.assertIsNotNone(m)
+                w, h = int(m.group(1)), int(m.group(2))
+                self.assertLessEqual(h, 560, f"Initial default height should be compact (<=560), got {h}")
+            finally:
+                app.destroy()
+
+    @patch("tkinter.messagebox.showinfo")
     def test_plan_b_toggle_window_resize(self, mock_msgbox):
-        """설정 토글 시 창 하단이 접히고(축소) 펴지는(확장) B안 동작 검증"""
-        app = Zipper9App()
-        try:
-            # 펼친 상태 기준 초기화 (760x780)
-            app.settings_expanded = True
-            app.geometry("760x780+100+100")
-            app.minsize(660, 660)
-            app.update()
+        """설정 토글 시 창 하단이 펴지고(확장) 다시 접히는(축소) B안 동작 검증"""
+        with patch("zipper9_ui.app.load_settings", return_value={"settings_expanded": False, "window_geometry": "760x536"}):
+            app = Zipper9App()
+            try:
+                app.update()
 
-            # 초기 상태 검증
-            self.assertTrue(app.settings_expanded)
-            self.assertIn("▼", app.lbl_settings_toggle_title.cget("text"))
-            self.assertNotIn("⚙️", app.lbl_settings_toggle_title.cget("text"))
-            self.assertNotIn("·", app.lbl_settings_toggle_title.cget("text"))
+                # 초기 상태 검증: 접힘 (Collapsed)
+                self.assertFalse(app.settings_expanded)
+                self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
+                self.assertNotIn("⚙️", app.lbl_settings_toggle_title.cget("text"))
+                self.assertNotIn("·", app.lbl_settings_toggle_title.cget("text"))
 
-            # 1. 접기 (Collapse) 트리거
-            app._toggle_settings_panel()
-            app.update()
+                # 1. 펼치기 (Expand) 트리거
+                app._toggle_settings_panel()
+                app.update()
 
-            # 접힘 상태 검증
-            self.assertFalse(app.settings_expanded)
-            self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
+                # 펼침 상태 검증
+                self.assertTrue(app.settings_expanded)
+                self.assertIn("▼", app.lbl_settings_toggle_title.cget("text"))
 
-            geom_collapsed = app.geometry()
-            m = re.match(r"^(\d+)x(\d+)", geom_collapsed)
-            self.assertIsNotNone(m)
-            w_col, h_col = int(m.group(1)), int(m.group(2))
-            
-            # 접혔을 때 높이가 약 536~545 수준으로 줄어들었는지 검증
-            self.assertLess(h_col, 600, f"Collapsed height should be < 600, got {h_col}")
-            self.assertGreaterEqual(h_col, 420, f"Collapsed height should be >= 420, got {h_col}")
+                geom_expanded = app.geometry()
+                m_exp = re.match(r"^(\d+)x(\d+)", geom_expanded)
+                self.assertIsNotNone(m_exp)
+                w_exp, h_exp = int(m_exp.group(1)), int(m_exp.group(2))
+                self.assertGreaterEqual(h_exp, 750, f"Expanded height should be >= 750, got {h_exp}")
 
-            # 2. 다시 펼치기 (Expand) 트리거
-            app._toggle_settings_panel()
-            app.update()
+                # 2. 다시 접기 (Collapse) 트리거
+                app._toggle_settings_panel()
+                app.update()
 
-            # 펼침 복원 상태 검증
-            self.assertTrue(app.settings_expanded)
-            self.assertIn("▼", app.lbl_settings_toggle_title.cget("text"))
+                # 접힘 복원 상태 검증
+                self.assertFalse(app.settings_expanded)
+                self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
 
-            geom_expanded = app.geometry()
-            m2 = re.match(r"^(\d+)x(\d+)", geom_expanded)
-            self.assertIsNotNone(m2)
-            w_exp, h_exp = int(m2.group(1)), int(m2.group(2))
+                geom_collapsed = app.geometry()
+                m_col = re.match(r"^(\d+)x(\d+)", geom_collapsed)
+                self.assertIsNotNone(m_col)
+                w_col, h_col = int(m_col.group(1)), int(m_col.group(2))
 
-            # 원래 높이 780 수준으로 복원되었는지 검증
-            self.assertGreaterEqual(h_exp, 750, f"Expanded height should be >= 750, got {h_exp}")
+                # 접혔을 때 높이가 약 536~545 수준으로 줄어들었는지 검증
+                self.assertLess(h_col, 600, f"Collapsed height should be < 600, got {h_col}")
+                self.assertGreaterEqual(h_col, 420, f"Collapsed height should be >= 420, got {h_col}")
 
-        finally:
-            app.destroy()
+            finally:
+                app.destroy()
 
 
 if __name__ == "__main__":

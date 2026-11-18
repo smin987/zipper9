@@ -16,8 +16,8 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "extra_algo": "다른 압축 알고리즘 선택...",
     "split_preset": "분할 안 함 (기본)",
     "encrypt_filenames": False,
-    "settings_expanded": True,
-    "window_geometry": "780x560",
+    "settings_expanded": False,
+    "window_geometry": "760x536",
 }
 
 
