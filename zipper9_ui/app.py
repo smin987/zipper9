@@ -1888,13 +1888,13 @@ class Zipper9App(ctk.CTk):
         )
         self.btn_reselect.pack(side="right", padx=4)
 
-        # 3단 메트릭 요약 대시보드 (KPI Cards)
-        self._build_metric_cards(self.extract_loaded_container)
+        # 3단 메트릭 대신 슬림한 1줄 메트릭 요약 바 배치
+        self._build_metrics_bar(self.extract_loaded_container)
 
-        # 아카이브 파일 트리/테이블 뷰어
+        # 아카이브 파일 트리/테이블 뷰어 (상단 카드 축소로 확보된 공간만큼 240px로 확장)
         self.extract_preview = ctk.CTkTextbox(
             self.extract_loaded_container,
-            height=190,
+            height=240,
             font=ctk.CTkFont(family="Cascadia Mono", size=11),
             corner_radius=8,
             fg_color=("#ffffff", "#191a1d"),
@@ -1904,7 +1904,7 @@ class Zipper9App(ctk.CTk):
             spacing1=3,
             spacing3=3,
         )
-        self.extract_preview.pack(fill="both", expand=True, padx=0, pady=(4, 4))
+        self.extract_preview.pack(fill="both", expand=True, padx=0, pady=(2, 4))
         self.extract_preview.configure(state="disabled")
 
     def _toggle_extract_pwd_visibility(self):
@@ -1917,67 +1917,34 @@ class Zipper9App(ctk.CTk):
                 self.entry_extract_password.configure(show="*")
                 self.btn_show_extract_pwd.configure(fg_color=("#f1f3f9", "#2c3036"), text_color=("#495057", "#e2e8f0"))
 
-    def _build_metric_cards(self, parent_frame=None):
-        """3단 메트릭 요약 대시보드 (총 파일 수 / 원본 용량 / 압축 절감률)"""
+    def _build_metrics_bar(self, parent_frame=None):
+        """슬림한 1줄 메트릭 요약 바 (총 파일 수, 원본 용량, 압축 절감률)"""
         parent = parent_frame if parent_frame is not None else self.extract_loaded_container
-        metric_container = ctk.CTkFrame(parent, fg_color="transparent")
-        metric_container.pack(fill="x", padx=0, pady=(2, 6))
-
-        for i in range(3):
-            metric_container.grid_columnconfigure(i, weight=1)
-
-        lang = getattr(self, "current_lang", "KO")
-        unit = t("metric_unit_items", lang=lang)
-        pending = t("card_pending", lang=lang)
-        # Card 1: 총 파일 수
-        self.card_files = self._create_stat_card(
-            metric_container, 0, t("card_total_files", lang=lang), f"-- {unit}", pending
-        )
-        # Card 2: 원본 용량
-        self.card_orig = self._create_stat_card(
-            metric_container, 1, t("card_orig_size", lang=lang), "-- MB", pending
-        )
-        # Card 3: 절감률 (파스텔 민트)
-        self.card_ratio = self._create_stat_card(
-            metric_container, 2, t("card_ratio", lang=lang), "-- %", pending, value_color="#20c997"
-        )
-
-    def _create_stat_card(self, parent, col, title, initial_val, sub_text, value_color=None):
-        card = ctk.CTkFrame(
+        bar = ctk.CTkFrame(
             parent,
-            corner_radius=8,
+            corner_radius=6,
             fg_color=("#ffffff", "#1e2024"),
             border_width=1,
             border_color=("#e9ecef", "#2c2e35"),
+            height=30,
         )
-        card.grid(row=0, column=col, padx=3, pady=2, sticky="nsew")
+        bar.pack(fill="x", padx=0, pady=(2, 4))
+        self.metrics_bar_frame = bar
 
-        lbl_title = ctk.CTkLabel(
-            card,
-            text=title,
-            font=ctk.CTkFont(size=11, weight="bold"),
-            text_color=("#868e96", "gray"),
+        lang = getattr(self, "current_lang", "KO")
+        self.lbl_extract_metrics_summary = ctk.CTkLabel(
+            bar,
+            text=t("extract_metrics_summary_empty", lang=lang),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=("#212529", "#f1f3f5"),
+            anchor="w",
         )
-        lbl_title.pack(anchor="w", padx=12, pady=(8, 2))
+        self.lbl_extract_metrics_summary.pack(side="left", padx=12, pady=6)
 
-        val_color = value_color if value_color else ("#212529", "#f1f5f9")
-        lbl_val = ctk.CTkLabel(
-            card,
-            text=initial_val,
-            font=ctk.CTkFont(size=18, weight="bold"),
-            text_color=val_color,
-        )
-        lbl_val.pack(anchor="w", padx=12, pady=(0, 2))
-
-        lbl_sub = ctk.CTkLabel(
-            card,
-            text=sub_text,
-            font=ctk.CTkFont(size=10),
-            text_color=("#868e96", "gray"),
-        )
-        lbl_sub.pack(anchor="w", padx=12, pady=(0, 8))
-
-        return {"title": lbl_title, "value": lbl_val, "sub": lbl_sub}
+        # 레거시 호환성 더미
+        self.card_files = {}
+        self.card_orig = {}
+        self.card_ratio = {}
 
     def _select_archive_file(self):
         filter_str = (
@@ -2107,7 +2074,7 @@ class Zipper9App(ctk.CTk):
                 text_color=("#212529", "gray85"),
             )
 
-        # 3. 3단 메트릭 요약
+        # 3. 1줄 메트릭 요약 바 갱신 (총 파일 수, 원본 용량, 압축 절감률 한 줄 나열)
         total_uncompressed = sum(e["uncompressed_size"] for e in entries)
         total_compressed = sum(e["compressed_size"] for e in entries)
         ratio = (
@@ -2116,30 +2083,16 @@ class Zipper9App(ctk.CTk):
             else 0.0
         )
 
-        unit = t("metric_unit_items", lang=lang)
-        if hasattr(self, "card_files") and isinstance(self.card_files, dict):
-            if "title" in self.card_files:
-                self.card_files["title"].configure(text=t("card_total_files", lang=lang))
-            if "value" in self.card_files:
-                self.card_files["value"].configure(text=f"{len(entries):,} {unit}")
-            if "sub" in self.card_files:
-                self.card_files["sub"].configure(text=t("metric_sub_total_files", lang=lang))
-
-        if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
-            if "title" in self.card_orig:
-                self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
-            if "value" in self.card_orig:
-                self.card_orig["value"].configure(text=format_bytes(total_uncompressed))
-            if "sub" in self.card_orig:
-                self.card_orig["sub"].configure(text=t("metric_sub_compressed", lang=lang, size=format_bytes(total_compressed)))
-
-        if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
-            if "title" in self.card_ratio:
-                self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
-            if "value" in self.card_ratio:
-                self.card_ratio["value"].configure(text=f"{ratio:.1f} %")
-            if "sub" in self.card_ratio:
-                self.card_ratio["sub"].configure(text=t("metric_sub_space_saved", lang=lang))
+        if hasattr(self, "lbl_extract_metrics_summary"):
+            self.lbl_extract_metrics_summary.configure(
+                text=t(
+                    "extract_metrics_summary",
+                    lang=lang,
+                    count=f"{len(entries):,}",
+                    uncompressed=format_bytes(total_uncompressed),
+                    ratio=f"{ratio:.1f}",
+                )
+            )
 
         # 4. 파일 트리 테이블 출력
         if hasattr(self, "extract_preview"):
@@ -2197,29 +2150,8 @@ class Zipper9App(ctk.CTk):
         unit = t("metric_unit_items", lang=lang)
         pending = t("card_pending", lang=lang)
 
-        if hasattr(self, "card_files") and isinstance(self.card_files, dict):
-            if "title" in self.card_files:
-                self.card_files["title"].configure(text=t("card_total_files", lang=lang))
-            if "value" in self.card_files:
-                self.card_files["value"].configure(text=f"-- {unit}")
-            if "sub" in self.card_files:
-                self.card_files["sub"].configure(text=pending)
-
-        if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
-            if "title" in self.card_orig:
-                self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
-            if "value" in self.card_orig:
-                self.card_orig["value"].configure(text="-- MB")
-            if "sub" in self.card_orig:
-                self.card_orig["sub"].configure(text=pending)
-
-        if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
-            if "title" in self.card_ratio:
-                self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
-            if "value" in self.card_ratio:
-                self.card_ratio["value"].configure(text="-- %")
-            if "sub" in self.card_ratio:
-                self.card_ratio["sub"].configure(text=pending)
+        if hasattr(self, "lbl_extract_metrics_summary"):
+            self.lbl_extract_metrics_summary.configure(text=t("extract_metrics_summary_empty", lang=lang))
 
         self.extract_preview.configure(state="normal")
         self.extract_preview.delete("1.0", "end")
@@ -2426,25 +2358,8 @@ class Zipper9App(ctk.CTk):
         else:
             if hasattr(self, "lbl_extract_target_info"):
                 self.lbl_extract_target_info.configure(text=t("extract_target_empty", lang=lang))
-            unit = t("metric_unit_items", lang=lang)
-            pending = t("card_pending", lang=lang)
-            if hasattr(self, "card_files") and isinstance(self.card_files, dict):
-                if "title" in self.card_files:
-                    self.card_files["title"].configure(text=t("card_total_files", lang=lang))
-                if "value" in self.card_files:
-                    self.card_files["value"].configure(text=f"-- {unit}")
-                if "sub" in self.card_files:
-                    self.card_files["sub"].configure(text=pending)
-            if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
-                if "title" in self.card_orig:
-                    self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
-                if "sub" in self.card_orig:
-                    self.card_orig["sub"].configure(text=pending)
-            if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
-                if "title" in self.card_ratio:
-                    self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
-                if "sub" in self.card_ratio:
-                    self.card_ratio["sub"].configure(text=pending)
+            if hasattr(self, "lbl_extract_metrics_summary"):
+                self.lbl_extract_metrics_summary.configure(text=t("extract_metrics_summary_empty", lang=lang))
 
         # 8. 소스 목록 및 하단 상태바
         self._update_sources_view()

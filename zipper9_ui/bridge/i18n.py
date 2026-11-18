@@ -247,6 +247,15 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "KO": "💡 단일 폴더 통 압축은 이중 폴더를 만들지 않고 현재 위치에 깔끔하게 풀어드립니다.",
         "EN": "💡 Smart Extract extracts archives without creating redundant nested folders.",
     },
+    # 1줄 메트릭 요약 바 (Extract Metrics Summary Bar)
+    "extract_metrics_summary": {
+        "KO": "총 파일 수 {count}개, 원본 용량 {uncompressed}, 압축 절감률 {ratio}%",
+        "EN": "Total Files: {count}, Uncompressed Size: {uncompressed}, Space Saved: {ratio}%",
+    },
+    "extract_metrics_summary_empty": {
+        "KO": "총 파일 수 --개, 원본 용량 --, 압축 절감률 --%",
+        "EN": "Total Files: --, Uncompressed Size: --, Space Saved: --%",
+    },
     "card_total_files": {
         "KO": "📊 총 파일 수",
         "EN": "📊 Total Files",
