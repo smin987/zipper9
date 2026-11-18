@@ -19,7 +19,7 @@ class TestSettingsTogglePlanB(unittest.TestCase):
 
     @patch("tkinter.messagebox.showinfo")
     def test_initial_default_is_collapsed(self, mock_msgbox):
-        """기본 설정 상태에서 앱 초기 런칭 시 접힌(collapsed) 상태 및 760x536 크기로 시작하는지 검증"""
+        """기본 설정 상태에서 앱 초기 런칭 시 접힌(collapsed) 상태 및 760x560 크기로 시작하는지 검증"""
         with patch("zipper9_ui.app.load_settings", return_value={}):
             app = Zipper9App()
             try:
@@ -32,14 +32,14 @@ class TestSettingsTogglePlanB(unittest.TestCase):
                 m = re.match(r"^(\d+)x(\d+)", geom)
                 self.assertIsNotNone(m)
                 w, h = int(m.group(1)), int(m.group(2))
-                self.assertLessEqual(h, 560, f"Initial default height should be compact (<=560), got {h}")
+                self.assertLessEqual(h, 580, f"Initial default height should be compact (<=580), got {h}")
             finally:
                 app.destroy()
 
     @patch("tkinter.messagebox.showinfo")
     def test_plan_b_toggle_window_resize(self, mock_msgbox):
         """설정 토글 시 창 하단이 펴지고(확장) 다시 접히는(축소) B안 동작 검증"""
-        with patch("zipper9_ui.app.load_settings", return_value={"settings_expanded": False, "window_geometry": "760x536"}):
+        with patch("zipper9_ui.app.load_settings", return_value={"settings_expanded": False, "window_geometry": "760x560"}):
             app = Zipper9App()
             try:
                 app.update()

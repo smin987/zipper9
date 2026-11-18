@@ -17,7 +17,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "split_preset": "분할 안 함 (기본)",
     "encrypt_filenames": False,
     "settings_expanded": False,
-    "window_geometry": "760x536",
+    "window_geometry": "760x560",
 }
 
 
