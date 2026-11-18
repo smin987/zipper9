@@ -76,9 +76,10 @@ class TestExtractMetricsBar(unittest.TestCase):
 
     @patch("tkinter.messagebox.showinfo")
     def test_single_line_metric_cards_english(self, mock_msgbox):
-        """영문 모드에서 3단 카드가 영문 라벨로 정상 전환되는지 검증"""
+        """영문 모드에서 3단 카드가 영문 라벨로 정상 전환되는지 및 실시간 언어 전환 시 재렌더링 검증"""
         app = Zipper9App()
         try:
+            # 1. 처음부터 영문 모드로 로드 시
             app._on_language_change("EN")
             app.update()
             app._load_archive_for_extract(self.zip_path)
@@ -86,7 +87,22 @@ class TestExtractMetricsBar(unittest.TestCase):
 
             self.assertEqual(app.card_files["title"].cget("text"), "📊 Total Files")
             self.assertIn("items", app.card_files["value"].cget("text"))
+            self.assertEqual(app.card_orig["title"].cget("text"), "💾 Uncompressed Size")
+            self.assertEqual(app.card_ratio["title"].cget("text"), "📉 Space Saved")
 
+            # 2. 로드된 상태에서 실시간으로 한글로 전환 시
+            app._on_language_change("한글")
+            app.update()
+            self.assertEqual(app.card_files["title"].cget("text"), "📊 총 파일 수")
+            self.assertIn("개", app.card_files["value"].cget("text"))
+            self.assertEqual(app.card_orig["title"].cget("text"), "💾 원본 용량")
+            self.assertEqual(app.card_ratio["title"].cget("text"), "📉 압축 절감률")
+
+            # 3. 로드된 상태에서 다시 실시간으로 영문으로 전환 시
+            app._on_language_change("EN")
+            app.update()
+            self.assertEqual(app.card_files["title"].cget("text"), "📊 Total Files")
+            self.assertIn("items", app.card_files["value"].cget("text"))
             self.assertEqual(app.card_orig["title"].cget("text"), "💾 Uncompressed Size")
             self.assertEqual(app.card_ratio["title"].cget("text"), "📉 Space Saved")
         finally:

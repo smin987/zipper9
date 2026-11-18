@@ -2113,12 +2113,18 @@ class Zipper9App(ctk.CTk):
 
         unit = t("metric_unit_items", lang=lang)
         if hasattr(self, "card_files") and isinstance(self.card_files, dict):
+            if "title" in self.card_files:
+                self.card_files["title"].configure(text=t("card_total_files", lang=lang))
             if "value" in self.card_files:
                 self.card_files["value"].configure(text=f"{len(entries):,} {unit}")
         if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
+            if "title" in self.card_orig:
+                self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
             if "value" in self.card_orig:
                 self.card_orig["value"].configure(text=format_bytes(total_uncompressed))
         if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
+            if "title" in self.card_ratio:
+                self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
             if "value" in self.card_ratio:
                 self.card_ratio["value"].configure(text=f"{ratio:.1f} %")
 
@@ -2178,12 +2184,18 @@ class Zipper9App(ctk.CTk):
         unit = t("metric_unit_items", lang=lang)
 
         if hasattr(self, "card_files") and isinstance(self.card_files, dict):
+            if "title" in self.card_files:
+                self.card_files["title"].configure(text=t("card_total_files", lang=lang))
             if "value" in self.card_files:
                 self.card_files["value"].configure(text=f"-- {unit}")
         if hasattr(self, "card_orig") and isinstance(self.card_orig, dict):
+            if "title" in self.card_orig:
+                self.card_orig["title"].configure(text=t("card_orig_size", lang=lang))
             if "value" in self.card_orig:
                 self.card_orig["value"].configure(text="--")
         if hasattr(self, "card_ratio") and isinstance(self.card_ratio, dict):
+            if "title" in self.card_ratio:
+                self.card_ratio["title"].configure(text=t("card_ratio", lang=lang))
             if "value" in self.card_ratio:
                 self.card_ratio["value"].configure(text="-- %")
 
