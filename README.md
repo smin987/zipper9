@@ -57,8 +57,6 @@
 ## 📦 Multi-Platform Binaries
 
 `zipper9` provides pre-built, ready-to-use binaries tailored for each desktop operating system.  
-For technical packaging specifications and build steps, please refer to **[doc/PACKAGING.md](doc/PACKAGING.md)**.
-
 | Operating System | Package Format | Highlights & Integrations |
 | :--- | :--- | :--- |
 | **Windows 11 / 10** | `zipper9.exe`<br>`zipper9_shell.msix` | • Portable standalone binary (18MB, no installation required)<br>• Windows 11 modern top-level 1-click context menu (Rust COM DLL)<br>• Windows 10 classic context menu & file association icon binding |
@@ -85,7 +83,6 @@ zipper9/
 │   └── zstd/                   # Zstandard high-ratio engine (zstd.exe)
 ├── assets/                     # 3D archive icons (.ico, .png)
 ├── images/                     # UI screenshots and previews
-├── doc/                        # Architecture diagrams and packaging guides
 ├── tests/                      # Headless multi-platform CI/CD test suite
 └── zipper9_ui/                 # Python modern Fluent GUI
     ├── app.py                  # CustomTkinter main application

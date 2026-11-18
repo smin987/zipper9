@@ -1,6 +1,7 @@
 # Private folders (User only)
 _private/
 .private/
+doc/
 
 # Python Virtual Environment & Cache
 .venv/

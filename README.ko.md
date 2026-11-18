@@ -57,8 +57,6 @@
 ## 📦 멀티플랫폼 바이너리 배포 지원 (Multi-Platform Binaries)
 
 `zipper9`은 사용자의 데스크톱 환경에 맞춘 공식 바이너리 배포 패키지를 제공합니다.  
-상세 패키징 규격 및 빌드 방법은 **[doc/PACKAGING.md](doc/PACKAGING.md)** 문서를 참조하십시오.
-
 | 운영체제 | 패키지 포맷 | 특징 및 지원 내용 |
 | :--- | :--- | :--- |
 | **Windows 11 / 10** | `zipper9.exe`<br>`zipper9_shell.msix` | • 무설치 단일 독립 실행 바이너리 (18MB)<br>• Windows 11 모던 1단계 최상위 우클릭 메뉴 (Rust COM DLL)<br>• Windows 10 클래식 메뉴 및 파일 확장자 아이콘 연동 |
@@ -85,7 +83,6 @@ zipper9/
 │   └── zstd/                   # Zstandard 초고속 엔진 (zstd.exe)
 ├── assets/                     # 전용 3D 아카이브 아이콘 (.ico, .png)
 ├── images/                     # UI 미리보기 스크린샷
-├── doc/                        # 아키텍처 및 패키징 가이드 문서
 ├── tests/                      # 기능 및 CI/CD 무결점 테스트 스위트
 └── zipper9_ui/                 # Python 모던 Fluent GUI
     ├── app.py                  # CustomTkinter 메인 애플리케이션
