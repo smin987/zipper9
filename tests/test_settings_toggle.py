@@ -19,34 +19,34 @@ class TestSettingsTogglePlanB(unittest.TestCase):
 
     @patch("tkinter.messagebox.showinfo")
     def test_initial_default_is_collapsed(self, mock_msgbox):
-        """기본 설정 상태에서 앱 초기 런칭 시 접힌(collapsed) 상태 및 760x560 크기로 시작하는지 검증"""
+        """기본 설정 상태에서 앱 초기 런칭 시 접힌(collapsed) 상태 및 760x580 크기로 시작하는지 검증"""
         with patch("zipper9_ui.app.load_settings", return_value={}):
             app = Zipper9App()
             try:
                 app.update()
                 self.assertFalse(app.settings_expanded)
-                self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
+                self.assertIn("▶ 설정(알고리즘, 보안 암호, 분할 압축)", app.lbl_settings_toggle_title.cget("text"))
                 self.assertFalse(app.settings_container.winfo_ismapped())
                 
                 geom = app.geometry()
                 m = re.match(r"^(\d+)x(\d+)", geom)
                 self.assertIsNotNone(m)
                 w, h = int(m.group(1)), int(m.group(2))
-                self.assertLessEqual(h, 580, f"Initial default height should be compact (<=580), got {h}")
+                self.assertLessEqual(h, 600, f"Initial default height should be compact (<=600), got {h}")
             finally:
                 app.destroy()
 
     @patch("tkinter.messagebox.showinfo")
     def test_plan_b_toggle_window_resize(self, mock_msgbox):
         """설정 토글 시 창 하단이 펴지고(확장) 다시 접히는(축소) B안 동작 검증"""
-        with patch("zipper9_ui.app.load_settings", return_value={"settings_expanded": False, "window_geometry": "760x560"}):
+        with patch("zipper9_ui.app.load_settings", return_value={"settings_expanded": False, "window_geometry": "760x580"}):
             app = Zipper9App()
             try:
                 app.update()
 
                 # 초기 상태 검증: 접힘 (Collapsed)
                 self.assertFalse(app.settings_expanded)
-                self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
+                self.assertIn("▶ 설정(알고리즘, 보안 암호, 분할 압축)", app.lbl_settings_toggle_title.cget("text"))
                 self.assertNotIn("⚙️", app.lbl_settings_toggle_title.cget("text"))
                 self.assertNotIn("·", app.lbl_settings_toggle_title.cget("text"))
 
@@ -56,7 +56,7 @@ class TestSettingsTogglePlanB(unittest.TestCase):
 
                 # 펼침 상태 검증
                 self.assertTrue(app.settings_expanded)
-                self.assertIn("▼", app.lbl_settings_toggle_title.cget("text"))
+                self.assertIn("▼ 설정(알고리즘, 보안 암호, 분할 압축)", app.lbl_settings_toggle_title.cget("text"))
 
                 geom_expanded = app.geometry()
                 m_exp = re.match(r"^(\d+)x(\d+)", geom_expanded)
@@ -70,7 +70,7 @@ class TestSettingsTogglePlanB(unittest.TestCase):
 
                 # 접힘 복원 상태 검증
                 self.assertFalse(app.settings_expanded)
-                self.assertIn("▶", app.lbl_settings_toggle_title.cget("text"))
+                self.assertIn("▶ 설정(알고리즘, 보안 암호, 분할 압축)", app.lbl_settings_toggle_title.cget("text"))
 
                 geom_collapsed = app.geometry()
                 m_col = re.match(r"^(\d+)x(\d+)", geom_collapsed)

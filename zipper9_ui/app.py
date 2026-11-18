@@ -441,9 +441,9 @@ class Zipper9App(ctk.CTk):
         self.current_lang = self.user_settings.get("lang", "KO")
         set_language(self.current_lang)
 
-        # 1. 윈도우 기본 설정 (설정 접힘 시 760x560, 펼침 시 760x800 또는 저장된 마지막 크기)
+        # 1. 윈도우 기본 설정 (설정 접힘 시 760x580, 펼침 시 760x820 또는 저장된 마지막 크기)
         self.title(t("app_title"))
-        default_geom = "760x800" if self.settings_expanded else "760x560"
+        default_geom = "760x820" if self.settings_expanded else "760x580"
         geom = self.user_settings.get("window_geometry", default_geom)
         
         # High-DPI 배율 중복 누적으로 지나치게 커진 과거 설정값 자동 정규화
@@ -461,9 +461,9 @@ class Zipper9App(ctk.CTk):
 
         self.geometry(geom)
         if self.settings_expanded:
-            self.minsize(660, 680)
+            self.minsize(660, 700)
         else:
-            self.minsize(660, 440)
+            self.minsize(660, 460)
 
         # 2. 테마 설정 (저장된 마지막 테마 모드)
         saved_theme = self.user_settings.get("theme", "Dark")
@@ -1027,7 +1027,7 @@ class Zipper9App(ctk.CTk):
         geom_str = str(self.geometry())
         m = re.match(r"^(\d+)x(\d+)(?:([+-]\d+))?(?:([+-]\d+))?", geom_str)
         cur_w = int(m.group(1)) if m else 760
-        cur_h = int(m.group(2)) if m else (800 if self.settings_expanded else 560)
+        cur_h = int(m.group(2)) if m else (820 if self.settings_expanded else 580)
         pos_x = m.group(3) if (m and m.group(3)) else ""
         pos_y = m.group(4) if (m and m.group(4)) else ""
 
@@ -1036,7 +1036,7 @@ class Zipper9App(ctk.CTk):
             delta_h = getattr(self, "_settings_delta_h", 244)
             if delta_h < 150:
                 delta_h = 244
-            self.minsize(660, 680)
+            self.minsize(660, 700)
             new_h = cur_h + delta_h
             if pos_x and pos_y:
                 self.geometry(f"{cur_w}x{new_h}{pos_x}{pos_y}")
@@ -1055,8 +1055,8 @@ class Zipper9App(ctk.CTk):
 
             delta_h = self._settings_delta_h
             self.settings_container.pack_forget()
-            self.minsize(660, 440)
-            new_h = max(440, cur_h - delta_h)
+            self.minsize(660, 460)
+            new_h = max(460, cur_h - delta_h)
             if pos_x and pos_y:
                 self.geometry(f"{cur_w}x{new_h}{pos_x}{pos_y}")
             else:

@@ -152,12 +152,12 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
 
     # 설정 접이식 패널 (Collapsible Settings)
     "settings_title_expanded": {
-        "KO": "▼ 압축 상세 설정 (알고리즘, 보안 암호, 분할 압축)",
-        "EN": "▼ Compression Settings (Algorithm, Password, Split)",
+        "KO": "▼ 설정(알고리즘, 보안 암호, 분할 압축)",
+        "EN": "▼ Settings (Algorithm, Password, Split)",
     },
     "settings_title_collapsed": {
-        "KO": "▶ 압축 상세 설정 (알고리즘, 보안 암호, 분할 압축)",
-        "EN": "▶ Compression Settings (Algorithm, Password, Split)",
+        "KO": "▶ 설정(알고리즘, 보안 암호, 분할 압축)",
+        "EN": "▶ Settings (Algorithm, Password, Split)",
     },
 
     # 고급 옵션
