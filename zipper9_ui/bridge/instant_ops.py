@@ -7,8 +7,11 @@
 
 import os
 import sys
+import threading
 import time
-from typing import Optional
+from typing import Callable, Optional
+
+import customtkinter as ctk
 
 from zipper9_ui.bridge.worker import (
     CompressionWorker,
@@ -16,6 +19,287 @@ from zipper9_ui.bridge.worker import (
 )
 from zipper9_ui.bridge.i18n import t, set_language
 from zipper9_ui.bridge.settings import load_settings
+
+
+class InstantProgressDialog(ctk.CTk):
+    """우클릭 즉시 압축/해제 전용 콤팩트 진행상태 다이얼로그.
+
+    - 실시간 진행률 (%) 및 프로그레스바 표시
+    - 현재 처리 중인 개별 파일명 및 경과 시간 표시
+    - 취소 버튼 지원 (프로세스 즉시 중단 및 불완전 파일 정리)
+    - 완료 시 완료음 재생 후 자동 종료
+    """
+
+    def __init__(
+        self,
+        title: str,
+        operation_name: str,
+        target_name: str,
+        worker_task_fn: Callable[[CompressionWorker, Callable[[dict], None]], None],
+        on_cancel_cleanup: Optional[Callable[[], None]] = None,
+    ):
+        super().__init__()
+
+        self.worker_task_fn = worker_task_fn
+        self.on_cancel_cleanup = on_cancel_cleanup
+        self.worker = CompressionWorker()
+        self.result_status = "PENDING"
+        self.error_message: Optional[str] = None
+        self.is_done = False
+        self.start_time = time.time()
+        self._timer_id: Optional[str] = None
+
+        # 테마 적용
+        try:
+            settings = load_settings()
+            saved_theme = settings.get("theme", "System")
+            ctk.set_appearance_mode(saved_theme)
+            ctk.set_default_color_theme("blue")
+        except Exception:
+            pass
+
+        # 윈도우 속성 설정
+        self.title(title)
+        self.resizable(False, False)
+        self.attributes("-topmost", True)
+        try:
+            self.lift()
+            self.focus_force()
+        except Exception:
+            pass
+
+        # 앱 아이콘 설정
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            icon_path = os.path.join(base_dir, "tools", "icon.ico")
+            if os.path.isfile(icon_path):
+                self.iconbitmap(icon_path)
+        except Exception:
+            pass
+
+        # 창 크기 및 화면 중앙 배치
+        dlg_width = 480
+        dlg_height = 195
+        self.update_idletasks()
+        sw = self.winfo_screenwidth()
+        sh = self.winfo_screenheight()
+        x = max(0, int((sw - dlg_width) / 2))
+        y = max(0, int((sh - dlg_height) / 2))
+        self.geometry(f"{dlg_width}x{dlg_height}+{x}+{y}")
+
+        # 창 닫기(X) 클릭 시 취소 핸들러
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
+
+        # UI 위젯 구축
+        mono_font = "Cascadia Mono" if sys.platform == "win32" else "monospace"
+
+        container = ctk.CTkFrame(self, corner_radius=12, fg_color="transparent")
+        container.pack(fill="both", expand=True, padx=20, pady=16)
+
+        # 1. 헤더 (작업 타이틀 + 대상 이름 / 우측 백분율)
+        header_frame = ctk.CTkFrame(container, fg_color="transparent")
+        header_frame.pack(fill="x", pady=(0, 6))
+
+        left_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+        left_header.pack(side="left", fill="x", expand=True)
+
+        lbl_op = ctk.CTkLabel(
+            left_header,
+            text=operation_name,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=("#212529", "#f8f9fa"),
+            anchor="w",
+        )
+        lbl_op.pack(fill="x")
+
+        # 대상 파일명 말줄임
+        disp_target = target_name
+        if len(disp_target) > 36:
+            disp_target = disp_target[:18] + "..." + disp_target[-15:]
+
+        lbl_target = ctk.CTkLabel(
+            left_header,
+            text=disp_target,
+            font=ctk.CTkFont(size=11),
+            text_color=("#6c757d", "gray70"),
+            anchor="w",
+        )
+        lbl_target.pack(fill="x")
+
+        self.lbl_percentage = ctk.CTkLabel(
+            header_frame,
+            text="0%",
+            font=ctk.CTkFont(size=24, weight="bold"),
+            text_color=("#1c7ed6", "#4dabf7"),
+            anchor="e",
+            width=80,
+        )
+        self.lbl_percentage.pack(side="right")
+
+        # 2. 프로그레스 바
+        self.progress_bar = ctk.CTkProgressBar(
+            container,
+            height=12,
+            corner_radius=6,
+            progress_color=("#1c7ed6", "#4dabf7"),
+        )
+        self.progress_bar.set(0.0)
+        self.progress_bar.pack(fill="x", pady=(4, 8))
+
+        # 3. 현재 처리 파일명
+        self.lbl_file = ctk.CTkLabel(
+            container,
+            text="준비 중...",
+            font=ctk.CTkFont(family=mono_font, size=10),
+            text_color=("#868e96", "gray65"),
+            anchor="w",
+        )
+        self.lbl_file.pack(fill="x", pady=(0, 10))
+
+        # 4. 하단 바 (경과 시간 + 취소 버튼)
+        bottom_frame = ctk.CTkFrame(container, fg_color="transparent")
+        bottom_frame.pack(fill="x")
+
+        self.lbl_time = ctk.CTkLabel(
+            bottom_frame,
+            text="⏱ 00:00",
+            font=ctk.CTkFont(family=mono_font, size=11),
+            text_color=("#868e96", "gray"),
+            anchor="w",
+        )
+        self.lbl_time.pack(side="left")
+
+        self.btn_cancel = ctk.CTkButton(
+            bottom_frame,
+            text="취소",
+            width=72,
+            height=28,
+            corner_radius=6,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=("#e9ecef", "#2b2d30"),
+            text_color=("#495057", "#e9ecef"),
+            hover_color=("#fa5252", "#e03131"),
+            command=self.on_cancel,
+        )
+        self.btn_cancel.pack(side="right")
+
+        # 타이머 및 작업 스레드 시작
+        self._update_timer()
+        self._thread = threading.Thread(target=self._run_task, daemon=True)
+        self._thread.start()
+
+    def _update_timer(self):
+        if self.is_done:
+            return
+        elapsed = time.time() - self.start_time
+        m = int(elapsed // 60)
+        s = int(elapsed % 60)
+        try:
+            self.lbl_time.configure(text=f"⏱ {m:02d}:{s:02d}")
+            self._timer_id = self.after(500, self._update_timer)
+        except Exception:
+            pass
+
+    def destroy(self):
+        self.is_done = True
+        if self._timer_id:
+            try:
+                self.after_cancel(self._timer_id)
+            except Exception:
+                pass
+            self._timer_id = None
+        super().destroy()
+
+    def _on_progress_callback(self, info: dict):
+        if self.is_done:
+            return
+        self.after(0, lambda: self._update_progress_ui(info))
+
+    def _update_progress_ui(self, info: dict):
+        if self.is_done:
+            return
+        pct = float(info.get("percentage", 0.0))
+        norm_pct = min(max(pct / 100.0, 0.0), 1.0)
+        self.progress_bar.set(norm_pct)
+        self.lbl_percentage.configure(text=f"{int(pct)}%")
+
+        cur_file = info.get("file", "").strip()
+        if cur_file:
+            if len(cur_file) > 46:
+                cur_file = "..." + cur_file[-43:]
+            self.lbl_file.configure(text=cur_file)
+
+    def _run_task(self):
+        try:
+            self.worker_task_fn(self.worker, self._on_progress_callback)
+            self.after(0, self._on_task_success)
+        except Exception as e:
+            self.after(0, lambda err=e: self._on_task_error(err))
+
+    def _on_task_success(self):
+        if self.is_done:
+            return
+        self.is_done = True
+        self.result_status = "SUCCESS"
+        self.progress_bar.set(1.0)
+        self.lbl_percentage.configure(text="100%")
+        self.lbl_file.configure(text="✨ 완료되었습니다!", text_color=("#2b8a3e", "#51cf66"))
+        self.btn_cancel.configure(state="disabled")
+
+        try:
+            import winsound
+            winsound.MessageBeep(winsound.MB_ICONASTERISK)
+        except Exception:
+            pass
+
+        self.after(350, self.destroy)
+
+    def _on_task_error(self, error: Exception):
+        if self.is_done:
+            return
+        self.is_done = True
+        err_msg = str(error)
+
+        if "PASSWORD_REQUIRED" in err_msg or "wrong password" in err_msg.lower():
+            self.result_status = "LAUNCH_GUI"
+            self.destroy()
+            return
+
+        if "취소" in err_msg or self.result_status == "CANCEL":
+            self.result_status = "CANCEL"
+            if self.on_cancel_cleanup:
+                try:
+                    self.on_cancel_cleanup()
+                except Exception:
+                    pass
+            self.destroy()
+            return
+
+        self.result_status = "ERROR"
+        self.error_message = err_msg
+        if self.on_cancel_cleanup:
+            try:
+                self.on_cancel_cleanup()
+            except Exception:
+                pass
+        self.destroy()
+
+    def on_cancel(self):
+        if self.is_done:
+            return
+        self.is_done = True
+        self.result_status = "CANCEL"
+        self.btn_cancel.configure(text="취소 중...", state="disabled")
+        self.lbl_file.configure(text="작업을 취소하고 있습니다...", text_color="#fa5252")
+        self.worker.cancel()
+
+        if self.on_cancel_cleanup:
+            try:
+                self.on_cancel_cleanup()
+            except Exception:
+                pass
+
+        self.after(150, self.destroy)
 
 
 def get_unique_filepath(target_dir: str, base_name: str, ext: str) -> str:
@@ -144,24 +428,38 @@ def run_instant_compress(target_path: str) -> bool:
 
     out_zip = get_unique_filepath(target_dir, base_name, ".zip")
 
-    worker = CompressionWorker()
-    start_time = time.time()
-    try:
-        worker.compress_sync(
+    def do_compress(w: CompressionWorker, progress_cb: Callable[[dict], None]):
+        w.compress_sync(
             source_paths=[target_abs],
             output_archive_path=out_zip,
             format_type="zip",
             zip_method="zstd",
+            on_progress=progress_cb,
         )
-        elapsed = time.time() - start_time
-        try:
-            import winsound
-            winsound.MessageBeep(winsound.MB_ICONASTERISK)
-        except Exception:
-            pass
+
+    def cleanup_on_cancel():
+        if os.path.isfile(out_zip):
+            try:
+                os.remove(out_zip)
+            except Exception:
+                pass
+
+    dialog = InstantProgressDialog(
+        title="⚡ zipper9 - 압축 진행 중",
+        operation_name="압축 진행 중...",
+        target_name=os.path.basename(target_abs),
+        worker_task_fn=do_compress,
+        on_cancel_cleanup=cleanup_on_cancel,
+    )
+    dialog.mainloop()
+
+    if dialog.result_status == "SUCCESS":
         return True
-    except Exception as e:
-        show_native_notification("압축 오류", f"압축 중 오류가 발생했습니다:\n{e}", is_error=True)
+    elif dialog.result_status == "CANCEL":
+        return False
+    else:
+        if dialog.error_message:
+            show_native_notification("압축 오류", f"압축 중 오류가 발생했습니다:\n{dialog.error_message}", is_error=True)
         return False
 
 
@@ -170,6 +468,7 @@ def run_instant_extract(archive_path: str) -> str:
     Returns:
         "LAUNCH_GUI": 암호가 감지되어 GUI 창을 띄워야 함
         "SUCCESS": 압축 해제 성공
+        "CANCEL": 사용자가 취소함
         "ERROR": 오류 발생
     """
     try:
@@ -225,25 +524,37 @@ def run_instant_extract(archive_path: str) -> str:
 
     os.makedirs(out_dir, exist_ok=True)
 
-    worker = CompressionWorker()
-    start_time = time.time()
-    try:
-        worker.extract_sync(
+    def do_extract(w: CompressionWorker, progress_cb: Callable[[dict], None]):
+        w.extract_sync(
             archive_path=archive_abs,
             output_dir=out_dir,
             password=None,
+            on_progress=progress_cb,
         )
-        elapsed = time.time() - start_time
+
+    def cleanup_on_cancel():
         try:
-            import winsound
-            winsound.MessageBeep(winsound.MB_ICONASTERISK)
+            worker = CompressionWorker()
+            worker._cleanup_corrupted_extractions(out_dir, archive_abs, None)
         except Exception:
             pass
+
+    dialog = InstantProgressDialog(
+        title="⚡ zipper9 - 압축 해제 중",
+        operation_name="압축 해제 중...",
+        target_name=os.path.basename(archive_abs),
+        worker_task_fn=do_extract,
+        on_cancel_cleanup=cleanup_on_cancel,
+    )
+    dialog.mainloop()
+
+    if dialog.result_status == "SUCCESS":
         return "SUCCESS"
-    except Exception as e:
-        err_msg = str(e)
-        if "PASSWORD_REQUIRED" in err_msg or "wrong password" in err_msg.lower():
-            # 해제 시점에 암호 에러가 감지된 경우에도 GUI로 유도
-            return "LAUNCH_GUI"
-        show_native_notification("해제 오류", f"압축 해제 중 오류가 발생했습니다:\n{e}", is_error=True)
+    elif dialog.result_status == "LAUNCH_GUI":
+        return "LAUNCH_GUI"
+    elif dialog.result_status == "CANCEL":
+        return "CANCEL"
+    else:
+        if dialog.error_message:
+            show_native_notification("해제 오류", f"압축 해제 중 오류가 발생했습니다:\n{dialog.error_message}", is_error=True)
         return "ERROR"

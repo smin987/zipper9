@@ -224,9 +224,24 @@ class CompressionWorker:
     def __init__(self):
         self._thread: Optional[threading.Thread] = None
         self._is_running = False
+        self._current_process: Optional[subprocess.Popen] = None
+        self._cancelled = False
 
     def is_busy(self) -> bool:
         return self._is_running
+
+    def cancel(self):
+        """현재 진행 중인 압축/해제 작업을 즉시 취소합니다."""
+        self._cancelled = True
+        proc = self._current_process
+        if proc and proc.poll() is None:
+            try:
+                proc.terminate()
+                time.sleep(0.05)
+                if proc.poll() is None:
+                    proc.kill()
+            except Exception:
+                pass
 
     def compress_sync(
         self,
@@ -242,6 +257,7 @@ class CompressionWorker:
         on_progress: Optional[Callable[[dict], None]] = None,
     ):
         """동기 아카이브 압축 실행"""
+        self._cancelled = False
         start_time = time.time()
         fmt = format_type.lower()
         if fmt == "7z":
@@ -366,6 +382,7 @@ class CompressionWorker:
         on_progress: Optional[Callable[[dict], None]] = None,
     ):
         """동기 아카이브 압축 해제 실행"""
+        self._cancelled = False
         start_time = time.time()
         lower_name = archive_path.lower()
         compound_tar_exts = (".tar.gz", ".tgz", ".tar.xz", ".txz", ".tar.bz2", ".tbz2")
@@ -833,57 +850,69 @@ class CompressionWorker:
             creationflags=SUBPROCESS_FLAGS,
             startupinfo=STARTUP_INFO,
         )
+        self._current_process = process
 
         last_file = default_title
         pct_pattern = re.compile(r"(\d+)%")
         buffer = b""
         last_callback_time = 0.0
 
-        while True:
-            chunk = process.stdout.read(64)
-            if not chunk:
-                if process.poll() is not None:
-                    break
-                time.sleep(0.01)
-                continue
+        try:
+            while True:
+                if self._cancelled:
+                    try:
+                        process.terminate()
+                        process.kill()
+                    except Exception:
+                        pass
+                    raise RuntimeError("작업이 사용자에 의해 취소되었습니다.")
 
-            buffer += chunk
-            while b"\r" in buffer or b"\n" in buffer:
-                idx_r = buffer.find(b"\r")
-                idx_n = buffer.find(b"\n")
-                if idx_r != -1 and (idx_n == -1 or idx_r < idx_n):
-                    split_idx = idx_r
-                else:
-                    split_idx = idx_n
-
-                raw_line = buffer[:split_idx]
-                buffer = buffer[split_idx + 1:]
-
-                line_str = safe_decode_output(raw_line).strip()
-                if not line_str:
+                chunk = process.stdout.read(64)
+                if not chunk:
+                    if process.poll() is not None:
+                        break
+                    time.sleep(0.01)
                     continue
 
-                match = pct_pattern.search(line_str)
-                if match:
-                    pct = float(match.group(1))
-                    if "+" in line_str:
-                        extracted = line_str.split("+")[-1].strip()
-                        if extracted:
-                            last_file = extracted
+                buffer += chunk
+                while b"\r" in buffer or b"\n" in buffer:
+                    idx_r = buffer.find(b"\r")
+                    idx_n = buffer.find(b"\n")
+                    if idx_r != -1 and (idx_n == -1 or idx_r < idx_n):
+                        split_idx = idx_r
+                    else:
+                        split_idx = idx_n
 
-                    now = time.time()
-                    if on_progress and (now - last_callback_time >= 0.04 or pct >= 100.0):
-                        last_callback_time = now
-                        on_progress({
-                            "file": last_file,
-                            "processed": int(pct),
-                            "total": 100,
-                            "percentage": pct,
-                            "elapsed": now - start_time,
-                        })
+                    raw_line = buffer[:split_idx]
+                    buffer = buffer[split_idx + 1:]
 
-        try:
+                    line_str = safe_decode_output(raw_line).strip()
+                    if not line_str:
+                        continue
+
+                    match = pct_pattern.search(line_str)
+                    if match:
+                        pct = float(match.group(1))
+                        if "+" in line_str:
+                            extracted = line_str.split("+")[-1].strip()
+                            if extracted:
+                                last_file = extracted
+
+                        now = time.time()
+                        if on_progress and (now - last_callback_time >= 0.04 or pct >= 100.0):
+                            last_callback_time = now
+                            on_progress({
+                                "file": last_file,
+                                "processed": int(pct),
+                                "total": 100,
+                                "percentage": pct,
+                                "elapsed": now - start_time,
+                            })
+
             process.wait()
+            if self._cancelled:
+                raise RuntimeError("작업이 사용자에 의해 취소되었습니다.")
+
             if process.returncode != 0:
                 err_raw = process.stderr.read()
                 err_msg = safe_decode_output(err_raw)
@@ -903,6 +932,7 @@ class CompressionWorker:
                     "elapsed": time.time() - start_time,
                 })
         finally:
+            self._current_process = None
             try:
                 if process.stdout:
                     process.stdout.close()

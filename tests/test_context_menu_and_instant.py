@@ -78,7 +78,8 @@ class TestContextMenuAndInstant(unittest.TestCase):
         )
         self.assertTrue(os.path.isfile(zip_path))
 
-        # 즉시 해제 실행
+        # 즉시 해제 실행 (기존 파일과의 충돌 방지를 위해 원본 소스 폴더 제거 후 해제)
+        shutil.rmtree(sub_dir, ignore_errors=True)
         res = run_instant_extract(zip_path)
         self.assertEqual(res, "SUCCESS")
 
