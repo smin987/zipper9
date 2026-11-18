@@ -417,7 +417,7 @@ def get_file_type_badge(path: str) -> tuple[str, str]:
     # 압축된 파일들 (별도 압축 아이콘 / 뱃지 표출)
     if ext in [
         ".zip", ".7z", ".rar", ".tar", ".gz", ".xz", ".bz2",
-        ".lz4", ".zst", ".tgz", ".dmg", ".pkg", ".iso"
+        ".lz4", ".zst", ".tgz", ".dmg", ".pkg", ".iso", ".alz", ".egg"
     ]:
         return "🗜️ 압축", "#ff922b"  # Pastel Coral Orange
 
@@ -544,13 +544,24 @@ class Zipper9App(ctk.CTk):
                 return
 
             current_tab = self.active_tab
-
-            # 드롭된 항목 중 압축 파일(분할 압축 세트 포함)이 있는지 스마트 판별
-            archive_found = find_primary_archive(normalized_paths)
-
-            # 1. 압축 파일이 드롭된 경우 -> 사용자 편의를 위해 '스마트 압축해제' 화면으로 자동 전환 및 로드!
             lang = getattr(self, "current_lang", "KO")
-            if archive_found:
+
+            # 드롭된 항목 중 압축 파일(분할 압축 세트 포함) 식별 및 일반 파일 유무 파악
+            archive_found = find_primary_archive(normalized_paths)
+            has_non_archive_in_drop = any(not is_archive_file(p) for p in normalized_paths)
+            has_existing_sources = bool(self.selected_sources)
+
+            # [스마트 압축해제 화면 자동 전환 조건]:
+            # 1) 이미 압축하기 목록에 등록된 파일이 전혀 없고,
+            # 2) 이번에 드롭된 항목에도 일반(비압축) 파일/폴더가 전혀 없으며,
+            # 3) 압축 파일(아카이브)만 순수하게 드롭된 경우에만 압축해제 화면으로 전환!
+            should_extract = (
+                archive_found is not None
+                and not has_existing_sources
+                and not has_non_archive_in_drop
+            )
+
+            if should_extract:
                 switched = (current_tab == "compress")
                 if switched:
                     self.set_active_tab("extract")
@@ -561,7 +572,11 @@ class Zipper9App(ctk.CTk):
                     )
                 return
 
-            # 2. 압축되지 않은 일반 파일/폴더가 드롭된 경우 -> '압축하기' 화면으로 자동 전환하여 등록!
+            # [압축하기 패키징 등록]:
+            # - 기존에 일반 파일이 이미 등록되어 있거나,
+            # - 이번에 일반 파일과 압축 파일이 함께 들어왔거나,
+            # - 일반 파일만 들어온 경우
+            # -> 모든 파일(압축 파일 포함)을 압축 대상 목록(selected_sources)에 추가하여 함께 패키징 압축!
             switched = (current_tab == "extract")
             if switched:
                 self.set_active_tab("compress")
@@ -1613,16 +1628,22 @@ class Zipper9App(ctk.CTk):
         lang = getattr(self, "current_lang", "KO")
         paths = filedialog.askopenfilenames(title=t("dialog_select_files_to_compress", lang=lang))
         if paths:
-            archives_selected = [p for p in paths if is_archive_file(p)]
-            if archives_selected:
+            normalized_paths = [os.path.normpath(p) for p in paths]
+            archive_found = find_primary_archive(normalized_paths)
+            has_non_archive = any(not is_archive_file(p) for p in normalized_paths)
+            has_existing = bool(self.selected_sources)
+
+            # 기존 등록된 파일이 없고, 선택된 파일들도 순수 압축 파일만 있는 경우에만 압축해제 화면으로 전환
+            if archive_found and not has_existing and not has_non_archive:
                 self.set_active_tab("extract")
-                self._load_archive_for_extract(archives_selected[0])
+                self._load_archive_for_extract(archive_found)
                 self.lbl_status.configure(
-                    text=t("status_archive_detected", lang=lang, name=os.path.basename(archives_selected[0]))
+                    text=t("status_archive_detected", lang=lang, name=os.path.basename(archive_found))
                 )
                 return
-            for p in paths:
-                p = os.path.normpath(p)
+
+            # 일반 파일이 있거나 함께 선택된 경우 -> 압축하기 목록에 함께 패키징 대상으로 등록
+            for p in normalized_paths:
                 if p not in self.selected_sources:
                     self.selected_sources.append(p)
             self._update_sources_view()
