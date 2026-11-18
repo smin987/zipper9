@@ -560,10 +560,30 @@ class Zipper9App(ctk.CTk):
             )
 
             if should_extract:
+                # [유효성 사전 검사]: 실제 열 수 있는 정상 아카이브인지 화면 전환 전에 미리 검증!
+                preloaded = None
+                try:
+                    preloaded = list_archive_entries(archive_found)
+                except PermissionError:
+                    # 파일명 암호화된 정상 7z 아카이브 -> 압축해제 화면으로 전환하여 암호 입력 진행
+                    pass
+                except (ValueError, RuntimeError):
+                    # 지원하지 않는 형식이거나 손상된 파일인 경우:
+                    # 1) 압축 풀기 화면으로 자동 진입하지 않고 기존 화면 유지!
+                    # 2) '지원하지 않는 형식의 압축 포맷입니다.' 경고 알림 표출!
+                    messagebox.showwarning(
+                        t("dialog_warning", lang=lang),
+                        t("err_unsupported_archive_format", lang=lang),
+                    )
+                    self.lbl_status.configure(
+                        text=t("err_unsupported_archive_format", lang=lang)
+                    )
+                    return
+
                 switched = (current_tab == "compress")
                 if switched:
                     self.set_active_tab("extract")
-                self._load_archive_for_extract(archive_found)
+                self._load_archive_for_extract(archive_found, preloaded_entries=preloaded)
                 if switched:
                     self.lbl_status.configure(
                         text=t("status_archive_detected", lang=lang, name=os.path.basename(archive_found))
@@ -2022,33 +2042,44 @@ class Zipper9App(ctk.CTk):
             primary_path = find_primary_archive([path]) or path
             self._load_archive_for_extract(primary_path)
 
-    def _load_archive_for_extract(self, path: str, password: str | None = None):
+    def _load_archive_for_extract(self, path: str, password: str | None = None, preloaded_entries: list | None = None):
         try:
+            lang = getattr(self, "current_lang", "KO")
+            pwd = password or (self.entry_extract_password.get().strip() if hasattr(self, "entry_extract_password") else None)
+
+            if preloaded_entries is not None:
+                entries = preloaded_entries
+            else:
+                try:
+                    entries = list_archive_entries(path, password=pwd)
+                except PermissionError:
+                    # 파일명 암호화된 아카이브: 사용자에게 비밀번호 입력 팝업 표출
+                    dialog = ctk.CTkInputDialog(
+                        title=t("dialog_pwd_required", lang=lang),
+                        text=t("dialog_pwd_required_msg", lang=lang, name=os.path.basename(path)),
+                    )
+                    user_pwd = dialog.get_input()
+                    if user_pwd:
+                        if hasattr(self, "entry_extract_password"):
+                            self.entry_extract_password.delete(0, "end")
+                            self.entry_extract_password.insert(0, user_pwd)
+                        return self._load_archive_for_extract(path, password=user_pwd)
+                    else:
+                        self.lbl_status.configure(
+                            text=t("status_pwd_cancelled", lang=lang, name=os.path.basename(path))
+                        )
+                        return
+                except (ValueError, RuntimeError):
+                    messagebox.showwarning(
+                        t("dialog_warning", lang=lang),
+                        t("err_unsupported_archive_format", lang=lang),
+                    )
+                    self.lbl_status.configure(text=t("err_unsupported_archive_format", lang=lang))
+                    return
+
             self.selected_archive_for_extract = path
             if self.active_tab != "extract":
                 self.set_active_tab("extract")
-
-            lang = getattr(self, "current_lang", "KO")
-            pwd = password or (self.entry_extract_password.get().strip() if hasattr(self, "entry_extract_password") else None)
-            try:
-                entries = list_archive_entries(path, password=pwd)
-            except PermissionError:
-                # 파일명 암호화된 아카이브: 사용자에게 비밀번호 입력 팝업 표출
-                dialog = ctk.CTkInputDialog(
-                    title=t("dialog_pwd_required", lang=lang),
-                    text=t("dialog_pwd_required_msg", lang=lang, name=os.path.basename(path)),
-                )
-                user_pwd = dialog.get_input()
-                if user_pwd:
-                    if hasattr(self, "entry_extract_password"):
-                        self.entry_extract_password.delete(0, "end")
-                        self.entry_extract_password.insert(0, user_pwd)
-                    return self._load_archive_for_extract(path, password=user_pwd)
-                else:
-                    self.lbl_status.configure(
-                        text=t("status_pwd_cancelled", lang=lang, name=os.path.basename(path))
-                    )
-                    return
 
             # 초기 대형 드롭 영역 숨기고 로드 컨테이너 활성화
             self.extract_empty_container.pack_forget()

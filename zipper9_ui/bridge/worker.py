@@ -1469,6 +1469,9 @@ def list_archive_entries(archive_path: str, password: Optional[str] = None) -> L
             combined_err = (err_out + "\n" + text_out).lower()
             if "wrong password" in combined_err or "cannot open encrypted" in combined_err or "headers error" in combined_err:
                 raise PermissionError("PASSWORD_REQUIRED: 암호가 필요한 아카이브입니다.")
+            if "cannot open the file as archive" in combined_err or "can not open the file as archive" in combined_err:
+                raise ValueError("UNSUPPORTED_ARCHIVE: 지원하지 않는 형식의 압축 포맷입니다.")
+            raise RuntimeError(f"아카이브를 열 수 없습니다: {err_out.strip() or text_out.strip()}")
 
         results = []
         current = {}
@@ -1522,5 +1525,8 @@ def list_archive_entries(archive_path: str, password: Optional[str] = None) -> L
         if results:
             return results
 
-    # Fallback
-    return [{"name": os.path.basename(archive_path), "uncompressed_size": os.path.getsize(archive_path), "compressed_size": os.path.getsize(archive_path), "is_dir": False}]
+        if res.returncode != 0:
+            raise ValueError("UNSUPPORTED_ARCHIVE: 지원하지 않는 형식의 압축 포맷입니다.")
+        return []
+
+    raise ValueError("UNSUPPORTED_ARCHIVE: 지원하지 않는 형식의 압축 포맷입니다.")

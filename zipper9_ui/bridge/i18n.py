@@ -492,6 +492,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     },
 
     # 경고 및 에러 다이얼로그
+    "err_unsupported_archive_format": {
+        "KO": "지원하지 않는 형식의 압축 포맷입니다.",
+        "EN": "Unsupported archive format.",
+    },
     "dialog_warning": {
         "KO": "경고",
         "EN": "Warning",
