@@ -160,30 +160,34 @@ def refresh_shell():
 
 def get_invoker_command() -> tuple[str, str]:
     """우클릭 시 실행할 커맨드 프리픽스와 아이콘 경로 반환"""
+    base_dir = get_base_dir()
+    dist_exe = os.path.join(base_dir, "dist", "zipper9.exe")
+
     # 1순위: PyInstaller 바이너리 자체 실행 중
     if getattr(sys, "frozen", False):
         exe_path = os.path.abspath(sys.executable)
         return f'"{exe_path}"', f'"{exe_path}"'
 
-    # 2순위: dist/zipper9.exe 단일 바이너리가 빌드되어 있는 경우 최우선 바인딩
-    base_dir = get_base_dir()
-    dist_exe = os.path.join(base_dir, "dist", "zipper9.exe")
-    if os.path.isfile(dist_exe):
-        exe_abs = os.path.abspath(dist_exe)
-        return f'"{exe_abs}"', f'"{exe_abs}"'
-
-    # 3순위: 개발 환경 (pythonw.exe + app.py)
+    # 2순위: 파이썬 소스 개발 환경 (run.bat 등)
+    main_script = os.path.join(base_dir, "main.py")
     python_dir = os.path.dirname(sys.executable)
     pythonw_candidate = os.path.join(python_dir, "pythonw.exe")
     python_exe = pythonw_candidate if os.path.isfile(pythonw_candidate) else sys.executable
 
-    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    app_script = os.path.join(current_dir, "app.py")
-
     # 전용 아이콘 탐색
     archive_ico = os.path.join(base_dir, "assets", "archive_icon.ico")
-    icon_path = f'"{archive_ico}"' if os.path.isfile(archive_ico) else f'"{python_exe}"'
-    cmd_prefix = f'"{python_exe}" "{app_script}"'
+    icon_path = f'"{dist_exe}"' if os.path.isfile(dist_exe) else (f'"{archive_ico}"' if os.path.isfile(archive_ico) else f'"{python_exe}"')
+
+    # dist_exe가 존재하고 소스코드(main.py)보다 최신이면 dist_exe 바인딩
+    if os.path.isfile(dist_exe):
+        dist_mtime = os.path.getmtime(dist_exe)
+        main_mtime = os.path.getmtime(main_script) if os.path.isfile(main_script) else 0
+        if dist_mtime >= main_mtime:
+            exe_abs = os.path.abspath(dist_exe)
+            return f'"{exe_abs}"', f'"{exe_abs}"'
+
+    # 소스코드가 더 최신이거나 dist_exe가 없으면 현재 파이썬 인터프리터 바인딩
+    cmd_prefix = f'"{python_exe}" "{main_script}"'
     return cmd_prefix, icon_path
 
 
