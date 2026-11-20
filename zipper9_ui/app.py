@@ -21,6 +21,9 @@ import threading
 import traceback
 import multiprocessing
 import webbrowser
+import urllib.request
+import json
+import time
 
 # 프로젝트 루트 디렉터리를 sys.path에 추가 (탐색기 우클릭 등 외부 작업 디렉터리 실행 시 모듈 임포트 보장)
 _app_dir = os.path.dirname(os.path.abspath(__file__))
@@ -81,6 +84,8 @@ from zipper9_ui.bridge.i18n import (
     get_language,
     SUPPORTED_LANGUAGES,
 )
+from zipper9_ui.about_dialog import AboutLicenseDialog
+from zipper9_ui.tooltip import ModernTooltip
 
 APP_VERSION = "v1.0.0"
 GITHUB_REPO_URL = "https://github.com/smin987/zipper9"
@@ -478,6 +483,10 @@ class Zipper9App(ctk.CTk):
         self.is_archive_encrypted = False
         self.active_tab = "compress"
 
+        # 업데이트 확인 상태
+        self.has_update = False
+        self.latest_version_str = ""
+
         # 알고리즘 선택 상태 (저장된 마지막 알고리즘 복원)
         self.selected_algo = self.user_settings.get("selected_algo", "zstd")
         self.algo_cards = {}
@@ -491,6 +500,9 @@ class Zipper9App(ctk.CTk):
 
         # 6. 윈도우 렌더링 후 드래그 앤 드롭 초기화
         self.after(150, self._setup_drag_and_drop)
+
+        # 7. 백그라운드 릴리즈 업데이트 확인 (1일 1회 체크)
+        self.after(500, self._schedule_update_check)
 
     def _setup_drag_and_drop(self):
         # Windows 관리자 권한 UIPI 드래그 앤 드롭 차단 방어 (ChangeWindowMessageFilter)
@@ -667,21 +679,22 @@ class Zipper9App(ctk.CTk):
         )
         title_label.pack(side="left", padx=(0, 6))
 
-        # 버전 표시 뱃지 (파란색 버튼배경 + 흰색 글자, 클릭 시 GitHub 저장소로 이동)
+        # 버전 표시 뱃지 (최신 상태: 은은한 숫자 텍스트, 새 버전 있을 때: 알약형 뱃지)
         self.btn_version = ctk.CTkButton(
             title_box,
             text=APP_VERSION,
-            width=52,
+            width=50,
             height=20,
             corner_radius=10,
             font=ctk.CTkFont(size=11, weight="bold"),
-            fg_color=("#4dabf7", "#1c7ed6"),
-            hover_color=("#339af0", "#1864ab"),
-            text_color="#ffffff",
+            fg_color="transparent",
+            hover_color=("#e9ecef", "#2c3036"),
+            text_color=("#868e96", "#adb5bd"),
             cursor="hand2",
-            command=self._open_github_repo,
+            command=self._on_version_clicked,
         )
         self.btn_version.pack(side="left", padx=(0, 10), pady=(3, 0))
+        self.version_tooltip = ModernTooltip(self.btn_version, self._get_version_tooltip_text)
 
         # Native C++ 엔진 텍스트 (파스텔 톤)
         cores = multiprocessing.cpu_count() or 16
@@ -729,6 +742,21 @@ class Zipper9App(ctk.CTk):
             text_color="#ffffff",
         )
         self.btn_sponsor.pack(side="right", padx=(0, 8))
+
+        # 정보 / 라이선스 버튼 (후원하기 버튼 바로 옆 - 세련된 소프트 블루 알약)
+        self.btn_about = ctk.CTkButton(
+            row1,
+            text=t("btn_about_license"),
+            command=self._open_about_dialog,
+            width=112,
+            height=26,
+            corner_radius=13,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=("#339af0", "#1c7ed6"),
+            hover_color=("#228be6", "#1971c2"),
+            text_color="#ffffff",
+        )
+        self.btn_about.pack(side="right", padx=(0, 8))
 
         # 2행: 마우스 우클릭 설정 & 압축 아이콘 설정 & 다크모드 설정 (줄 바꿈된 2단 좌측 정렬)
         row2 = ctk.CTkFrame(header_container, fg_color="transparent")
@@ -2350,6 +2378,8 @@ class Zipper9App(ctk.CTk):
             self.archive_icon_switch.configure(text=t("archive_icon_toggle", lang=lang))
         if hasattr(self, "btn_sponsor"):
             self.btn_sponsor.configure(text=t("btn_sponsor", lang=lang))
+        if hasattr(self, "btn_about"):
+            self.btn_about.configure(text=t("btn_about_license", lang=lang))
 
         # 2. 네비게이션 알약 버튼
         if hasattr(self, "nav_segmented"):
@@ -2556,6 +2586,101 @@ class Zipper9App(ctk.CTk):
     def _open_sponsor_link(self):
         """GitHub Sponsors 후원 페이지를 브라우저로 오픈"""
         webbrowser.open("https://github.com/sponsors/smin987")
+
+    def _open_about_dialog(self):
+        """정보 및 오픈소스 라이선스 다이얼로그 팝업"""
+        AboutLicenseDialog(self, APP_VERSION)
+
+    def _on_version_clicked(self):
+        """버전 라벨/뱃지 클릭 시 동작: 새 버전이 있으면 GitHub Releases로, 최신 상태면 About 창 열기"""
+        if self.has_update:
+            webbrowser.open(f"{GITHUB_REPO_URL}/releases")
+        else:
+            self._open_about_dialog()
+
+    def _get_version_tooltip_text(self) -> str:
+        """버전 뱃지 호버 시 툴팁 텍스트 반환"""
+        if self.has_update:
+            return t("tooltip_update_available")
+        return t("tooltip_up_to_date")
+
+    def _schedule_update_check(self):
+        """앱 시작 후 백그라운드 릴리즈 업데이트 확인 트리거 (1일 1회 주기)"""
+        if not self.winfo_exists():
+            return
+        threading.Thread(target=self._check_for_updates_worker, daemon=True).start()
+
+    def _check_for_updates_worker(self):
+        """1일 1회 GitHub 최신 릴리즈 비동기 확인 워커"""
+        try:
+            settings = load_settings()
+            last_check = float(settings.get("last_update_check", 0.0) or 0.0)
+            latest_ver = str(settings.get("latest_known_version", "") or "")
+            now = time.time()
+
+            # 24시간(86400초)이 경과했거나 캐시된 버전 정보가 없는 경우 GitHub API 질의
+            if (now - last_check >= 86400) or not latest_ver:
+                api_url = "https://api.github.com/repos/smin987/zipper9/releases/latest"
+                req = urllib.request.Request(
+                    api_url,
+                    headers={"User-Agent": "zipper9-app", "Accept": "application/vnd.github.v3+json"},
+                )
+                with urllib.request.urlopen(req, timeout=4) as resp:
+                    if resp.status == 200:
+                        data = json.loads(resp.read().decode("utf-8"))
+                        tag = data.get("tag_name", "").strip()
+                        if tag:
+                            latest_ver = tag
+                            settings["last_update_check"] = now
+                            settings["latest_known_version"] = latest_ver
+                            save_settings(settings)
+
+            if latest_ver:
+                has_newer = self._is_newer_version(latest_ver, APP_VERSION)
+                self.after(0, self._apply_update_ui, has_newer, latest_ver)
+        except Exception:
+            # 오프라인, 방화벽, 또는 API 에러 시 조용히 무시 (Silent Fallback)
+            pass
+
+    @staticmethod
+    def _is_newer_version(remote_ver: str, local_ver: str) -> bool:
+        """버전 문자열 비교 (예: v1.0.1 > v1.0.0)"""
+        try:
+            r_parts = [int(x) for x in re.findall(r"\d+", remote_ver)]
+            l_parts = [int(x) for x in re.findall(r"\d+", local_ver)]
+            return r_parts > l_parts
+        except Exception:
+            return False
+
+    def _apply_update_ui(self, has_update: bool, latest_ver: str):
+        """메인 UI 스레드에서 버전 뱃지 및 툴팁 갱신"""
+        self.has_update = has_update
+        self.latest_version_str = latest_ver
+
+        if not hasattr(self, "btn_version") or not self.btn_version.winfo_exists():
+            return
+
+        if has_update:
+            disp_tag = latest_ver if latest_ver.startswith("v") else f"v{latest_ver}"
+            self.btn_version.configure(
+                text=f"✨ {disp_tag} New",
+                font=ctk.CTkFont(size=11, weight="bold"),
+                fg_color=("#ff922b", "#e8590c"),
+                hover_color=("#f76707", "#d9480f"),
+                text_color="#ffffff",
+                width=86,
+                corner_radius=10,
+            )
+        else:
+            self.btn_version.configure(
+                text=APP_VERSION,
+                font=ctk.CTkFont(size=11, weight="bold"),
+                fg_color="transparent",
+                hover_color=("#e9ecef", "#2c3036"),
+                text_color=("#868e96", "#adb5bd"),
+                width=50,
+                corner_radius=10,
+            )
 
     # =========================================================================
     # 압축 / 압축 해제 실행

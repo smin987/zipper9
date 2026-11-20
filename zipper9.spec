@@ -27,6 +27,8 @@ hiddenimports = [
     'multiprocessing',
     'zipper9_ui',
     'zipper9_ui.app',
+    'zipper9_ui.about_dialog',
+    'zipper9_ui.tooltip',
     'zipper9_ui.bridge',
     'zipper9_ui.bridge.worker',
     'zipper9_ui.bridge.context_menu',

@@ -39,6 +39,34 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "KO": "💖 후원하기",
         "EN": "💖 Sponsor",
     },
+    "btn_about_license": {
+        "KO": "ℹ️ 정보 / 라이선스",
+        "EN": "ℹ️ About / License",
+    },
+    "tooltip_update_available": {
+        "KO": "최신 업데이트가 있습니다.",
+        "EN": "A new update is available.",
+    },
+    "tooltip_up_to_date": {
+        "KO": "최신 버전을 사용 중입니다.",
+        "EN": "You are using the latest version.",
+    },
+    "dialog_about_title": {
+        "KO": "zipper9 정보 및 오픈소스 라이선스",
+        "EN": "zipper9 About & Open Source Licenses",
+    },
+    "dialog_open_repo": {
+        "KO": "🌐 GitHub 저장소",
+        "EN": "🌐 GitHub Repository",
+    },
+    "dialog_open_license_file": {
+        "KO": "📄 라이선스 문서 열기",
+        "EN": "📄 Open License File",
+    },
+    "dialog_close": {
+        "KO": "닫기",
+        "EN": "Close",
+    },
 
     # 네비게이션
     "nav_compress": {

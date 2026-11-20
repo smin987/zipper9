@@ -31,7 +31,10 @@ class TestContextMenuAndInstant(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_context_menu_registration(self):
+    @patch("zipper9_ui.bridge.context_menu.is_modern_package_registered", return_value=False)
+    @patch("zipper9_ui.bridge.context_menu.register_modern_package", return_value=True)
+    @patch("zipper9_ui.bridge.context_menu.unregister_modern_package", return_value=True)
+    def test_context_menu_registration(self, mock_unreg, mock_reg, mock_is_modern):
         """우클릭 메뉴 등록 및 해제 동작 검증"""
         # 등록
         res_reg = register_context_menu()
@@ -42,6 +45,9 @@ class TestContextMenuAndInstant(unittest.TestCase):
         res_unreg = unregister_context_menu()
         self.assertTrue(res_unreg, "우클릭 메뉴 해제 실패")
         self.assertFalse(is_context_menu_registered(), "해제 후 상태 확인 실패")
+
+        # 테스트 후 원래 상태 복원
+        register_context_menu()
 
     @patch("zipper9_ui.bridge.instant_ops.show_native_notification")
     def test_instant_compress(self, mock_notify):

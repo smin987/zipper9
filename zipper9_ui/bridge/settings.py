@@ -19,6 +19,8 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "settings_expanded": False,
     "window_geometry": "760x580",
     "context_menu": True,
+    "last_update_check": 0.0,
+    "latest_known_version": "",
 }
 
 
