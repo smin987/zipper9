@@ -288,5 +288,5 @@ class AboutLicenseDialog(ctk.CTkToplevel):
         webbrowser.open("https://github.com/smin987/zipper9")
 
     def _open_license_file(self):
-        """공식 GitHub 저장소의 라이선스 탭 화면을 브라우저로 열기"""
-        webbrowser.open("https://github.com/smin987/zipper9?tab=License-1-ov-file")
+        """공식 GitHub 저장소의 라이선스 탭 화면 및 본문 앵커로 브라우저 열기"""
+        webbrowser.open("https://github.com/smin987/zipper9?tab=License-1-ov-file#License-1-ov-file")
