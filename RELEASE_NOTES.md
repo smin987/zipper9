@@ -46,7 +46,7 @@
 - **Linux ARM64 (aarch64) 정식 빌드 및 배포 지원**
   - 라즈베리 파이 4/5, Apple Silicon(가상머신), AWS Graviton 등 ARM64 기반 리눅스용 독립 실행 바이너리 및 `.deb` 패키지를 공식 지원합니다.
 - **Windows 단독 포터블 실행 파일 공식 릴리즈 명칭 표준화 (`zipper9-windows-x64.exe`)**
-  - GitHub Releases 배포 시 Windows 실행 파일명을 `zipper9-windows-x64.exe`로 명시하여 Linux(`amd64`, `arm64`) 및 macOS(`dmg`)와 동일하게 운영체제 및 타깃 아키텍처(x64)를 직관적으로 파악할 수 있도록 배포 파일명을 체계화했습니다. (기존 스크립트 호환용 `zipper9.exe` 동시 제공)
+  - GitHub Releases 배포 시 Windows 실행 파일명을 `zipper9-windows-x64.exe`로 명시하여 Linux(`amd64`, `arm64`) 및 macOS(`dmg`)와 동일하게 운영체제 및 타깃 아키텍처(x64)를 직관적으로 파악할 수 있도록 배포 파일명을 체계화했습니다.
 - **앱 내 모던 `[ℹ️ 정보 / 라이선스]` 안내 다이얼로그 탑재**
   - 상단 헤더의 `[ℹ️ 정보 / 라이선스]` 알약형 버튼 클릭 시 세련된 모던 Fluent 다이얼로그 팝업이 노출됩니다.
   - 기업/상업 환경 100% 무료 보증 라이선스 정책, ALZ 오픈소스 엔진(unalz)의 단속 프리 안전성, EGG 포맷 배제 사유, 그리고 7-Zip, unalz, LZ4, Zstandard 등 제3자 오픈소스 라이선스 총괄 표를 앱 내에서 직접 확인할 수 있습니다.
