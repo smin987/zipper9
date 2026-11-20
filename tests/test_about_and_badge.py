@@ -51,6 +51,15 @@ class TestAboutAndBadge(unittest.TestCase):
             dialog = AboutLicenseDialog(self.root, APP_VERSION)
             self.assertIsNotNone(dialog)
             self.assertIn("zipper9", dialog.title())
+
+            # URL 열기 검증
+            with patch("webbrowser.open") as mock_open:
+                dialog._open_repo()
+                mock_open.assert_called_with("https://github.com/smin987/zipper9")
+
+                dialog._open_license_file()
+                mock_open.assert_called_with("https://github.com/smin987/zipper9/blob/main/LICENSE")
+
             dialog.destroy()
 
 
