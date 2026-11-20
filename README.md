@@ -22,11 +22,23 @@
 
 ## 🌟 Key Features
 
-### 🖥️ Screenshots
+### 📸 Screenshots
 
-| Light Mode | Dark Mode |
+<div align="center">
+
+#### ☀️ Light Mode
+| Compact View (Settings Collapsed) | Detailed View (Settings Expanded) |
 | :---: | :---: |
-| ![English Light](images/english_normal.png) | ![English Dark](images/english_dark.png) |
+| <a href="images/1.0.1/screenshot_en_normal_collapsed.png"><img src="images/1.0.1/screenshot_en_normal_collapsed.png" alt="zipper9 English Light Mode (Collapsed)" width="450"></a> | <a href="images/1.0.1/screenshot_en_normal.png"><img src="images/1.0.1/screenshot_en_normal.png" alt="zipper9 English Light Mode (Expanded)" width="450"></a> |
+
+#### 🌙 Dark Mode
+| Compact View (Settings Collapsed) | Detailed View (Settings Expanded) |
+| :---: | :---: |
+| <a href="images/1.0.1/screenshot_en_dark_collapsed.png"><img src="images/1.0.1/screenshot_en_dark_collapsed.png" alt="zipper9 English Dark Mode (Collapsed)" width="450"></a> | <a href="images/1.0.1/screenshot_en_dark.png"><img src="images/1.0.1/screenshot_en_dark.png" alt="zipper9 English Dark Mode (Expanded)" width="450"></a> |
+
+*💡 Easily toggle between Light and Dark mode via the header switch, or collapse settings (▼/▶) for an ultra-compact window (820px ➔ 580px).*
+
+</div>
 
 1. **Ultra-Lightweight Modern UI (CustomTkinter)**:
    - Compact standalone bundle (~18MB), instant responsiveness, and polished Dark/Light theme support.

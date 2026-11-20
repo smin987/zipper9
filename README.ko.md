@@ -22,11 +22,23 @@
 
 ## 🌟 주요 특징
 
-### 🖥️ 스크린샷
+### 📸 스크린샷 (Screenshots)
 
-| 라이트 모드 (Light Mode) | 다크 모드 (Dark Mode) |
+<div align="center">
+
+#### ☀️ 기본 라이트 모드 (Light Mode)
+| 기본 화면 (설정 아코디언 접힘) | 세부 옵션 설정 화면 (펼침) |
 | :---: | :---: |
-| ![라이트 모드](images/korean_normal.png) | ![다크 모드](images/korean_dark.png) |
+| <a href="images/1.0.1/screenshot_kor_normal_collapsed.png"><img src="images/1.0.1/screenshot_kor_normal_collapsed.png" alt="zipper9 한국어 라이트 모드 (설정 접힘)" width="450"></a> | <a href="images/1.0.1/screenshot_kor_normal.png"><img src="images/1.0.1/screenshot_kor_normal.png" alt="zipper9 한국어 라이트 모드 (설정 펼침)" width="450"></a> |
+
+#### 🌙 다크 모드 (Dark Mode)
+| 기본 화면 (설정 아코디언 접힘) | 세부 옵션 설정 화면 (펼침) |
+| :---: | :---: |
+| <a href="images/1.0.1/screenshot_kor_dark_collapsed.png"><img src="images/1.0.1/screenshot_kor_dark_collapsed.png" alt="zipper9 한국어 다크 모드 (설정 접힘)" width="450"></a> | <a href="images/1.0.1/screenshot_kor_dark.png"><img src="images/1.0.1/screenshot_kor_dark.png" alt="zipper9 한국어 다크 모드 (설정 펼침)" width="450"></a> |
+
+*💡 상단 헤더의 테마 버튼(☀️/🌙)으로 언제든지 원클릭 전환이 가능하며, 설정 아코디언 패널(▼/▶)을 접어 창을 컴팩트(820px ➔ 580px)하게 축소할 수 있습니다.*
+
+</div>
 
 1. **초경량 모던 UI (CustomTkinter)**:
    - 20MB 내외의 가벼운 번들 크기, 즉각적인 반응 속도, 세련된 다크/라이트 테마.
