@@ -288,17 +288,5 @@ class AboutLicenseDialog(ctk.CTkToplevel):
         webbrowser.open("https://github.com/smin987/zipper9")
 
     def _open_license_file(self):
-        """로컬 LICENSE 또는 THIRD_PARTY_LICENSES.md 파일 열기"""
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        if getattr(sys, "frozen", False):
-            base_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
-
-        for candidate in ["THIRD_PARTY_LICENSES.md", "LICENSE"]:
-            p = os.path.join(base_dir, candidate)
-            if os.path.isfile(p):
-                try:
-                    os.startfile(p)
-                    return
-                except Exception:
-                    pass
-        webbrowser.open("https://github.com/smin987/zipper9/blob/main/THIRD_PARTY_LICENSES.md")
+        """공식 GitHub 저장소의 라이선스 탭 화면을 브라우저로 열기"""
+        webbrowser.open("https://github.com/smin987/zipper9?tab=License-1-ov-file")
