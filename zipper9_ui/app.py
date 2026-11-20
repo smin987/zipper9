@@ -87,7 +87,7 @@ from zipper9_ui.bridge.i18n import (
 from zipper9_ui.about_dialog import AboutLicenseDialog
 from zipper9_ui.tooltip import ModernTooltip
 
-APP_VERSION = "v1.0.0"
+APP_VERSION = "v1.0.1"
 GITHUB_REPO_URL = "https://github.com/smin987/zipper9"
 
 
