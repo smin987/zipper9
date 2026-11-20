@@ -45,6 +45,8 @@
   - 100% 자유 오픈소스 엔진(`unalz`, zlib/libpng 라이선스) 기반으로 작동하여, **기업 및 상업적 업무 환경에서도 라이선스 단속 위험 없이 완전 무료**로 안전하게 사용할 수 있습니다.
 - **Linux ARM64 (aarch64) 정식 빌드 및 배포 지원**
   - 라즈베리 파이 4/5, Apple Silicon(가상머신), AWS Graviton 등 ARM64 기반 리눅스용 독립 실행 바이너리 및 `.deb` 패키지를 공식 지원합니다.
+- **Windows 단독 포터블 실행 파일 공식 릴리즈 명칭 표준화 (`zipper9-windows-x64.exe`)**
+  - GitHub Releases 배포 시 Windows 실행 파일명을 `zipper9-windows-x64.exe`로 명시하여 Linux(`amd64`, `arm64`) 및 macOS(`dmg`)와 동일하게 운영체제 및 타깃 아키텍처(x64)를 직관적으로 파악할 수 있도록 배포 파일명을 체계화했습니다. (기존 스크립트 호환용 `zipper9.exe` 동시 제공)
 
 ### 🛡️ 안정성 및 품질 개선 (Fixes & Improvements)
 - **압축 해제 중단/취소 시 불완전 파일 및 잔여 폴더 100% 자동 롤백 클린업**

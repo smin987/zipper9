@@ -91,7 +91,7 @@
 `zipper9`은 사용자의 데스크톱 환경에 맞춘 공식 바이너리 배포 패키지를 제공합니다.  
 | 운영체제 | 패키지 포맷 | 특징 및 지원 내용 |
 | :--- | :--- | :--- |
-| **Windows 11 / 10** | `zipper9.exe`<br>`zipper9_shell.msix` | • 무설치 단일 독립 실행 바이너리 (18MB)<br>• Windows 11 모던 1단계 최상위 우클릭 메뉴 (Rust COM DLL)<br>• Windows 10 클래식 메뉴 및 파일 확장자 아이콘 연동 |
+| **Windows 11 / 10** | `zipper9-windows-x64.exe`<br>`zipper9_shell.msix` | • 무설치 단일 독립 실행 바이너리 (18MB)<br>• Windows 11 모던 1단계 최상위 우클릭 메뉴 (Rust COM DLL)<br>• Windows 10 클래식 메뉴 및 파일 확장자 아이콘 연동 |
 | **Debian / Ubuntu / Raspberry Pi** | `zipper9_1.0.0_amd64.deb`<br>`zipper9_1.0.0_arm64.deb`<br>`zipper9-v1.0.0-linux-*.tar.gz` | • x86_64(`amd64`) 및 ARM64(`arm64`, Raspberry Pi 4/5, AWS Graviton) 네이티브 지원<br>• 원클릭 `.deb` 설치 및 완전 독립 단독 실행 포터블 바이너리 제공<br>• 시스템 패키지(`7zip`, `lz4`, `zstd`)와 자동 연동<br>• XDG 데스크톱 앱 런처 및 파일 관리자(Nautilus) 통합 |
 | **macOS** | `zipper9-1.0.0.dmg`<br>`zipper9.app` | • Apple Silicon (M1~M4) 및 Intel Universal 지원<br>• `/Applications` 드래그 앤 드롭 설치<br>• Homebrew 기반 고속 엔진 자동 바인딩 |
 
@@ -137,7 +137,7 @@ zipper9/
   zipper9 sample.zip
   zipper9 C:\data\my_folder
   ```
-- **포터블 바이너리**: [GitHub Releases](https://github.com/smin987/zipper9/releases)에서 `zipper9.exe`를 다운로드하여 더블 클릭 실행.
+- **포터블 바이너리**: [GitHub Releases](https://github.com/smin987/zipper9/releases)에서 `zipper9-windows-x64.exe`를 다운로드하여 더블 클릭 실행.
 
 ### 2. 데비안 / 우분투 / 라즈베리 파이 (Debian / Ubuntu / Raspberry Pi)
 - **APT 패키지 설치 (amd64)**:

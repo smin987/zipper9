@@ -91,7 +91,7 @@
 `zipper9` provides pre-built, ready-to-use binaries tailored for each desktop operating system.  
 | Operating System | Package Format | Highlights & Integrations |
 | :--- | :--- | :--- |
-| **Windows 11 / 10** | `zipper9.exe`<br>`zipper9_shell.msix` | • Portable standalone binary (18MB, no installation required)<br>• Windows 11 modern top-level 1-click context menu (Rust COM DLL)<br>• Windows 10 classic context menu & file association icon binding |
+| **Windows 11 / 10** | `zipper9-windows-x64.exe`<br>`zipper9_shell.msix` | • Portable standalone binary (18MB, no installation required)<br>• Windows 11 modern top-level 1-click context menu (Rust COM DLL)<br>• Windows 10 classic context menu & file association icon binding |
 | **Debian / Ubuntu / Raspberry Pi** | `zipper9_1.0.0_amd64.deb`<br>`zipper9_1.0.0_arm64.deb`<br>`zipper9-v1.0.0-linux-*.tar.gz` | • Native 64-bit x86_64 (`amd64`) and ARM64 (`arm64`, Raspberry Pi 4/5, Graviton) support<br>• 1-click `.deb` installation & standalone portable binaries<br>• Seamless integration with system packages (`7zip`, `lz4`, `zstd`)<br>• XDG desktop app launcher & file manager (Nautilus) integration |
 | **macOS** | `zipper9-v1.0.0-macos.dmg`<br>`zipper9.app` | • Universal binary for Apple Silicon (M1~M4) & Intel Macs<br>• Standard `/Applications` drag & drop `.dmg` installer<br>• Homebrew Cask standalone recipe (`zipper9.rb`) support |
 
@@ -137,7 +137,7 @@ Install and run zipper9 via a single command in your terminal across all support
   zipper9 sample.zip
   zipper9 C:\data\my_folder
   ```
-- **Portable Binary**: Download `zipper9.exe` directly from [GitHub Releases](https://github.com/smin987/zipper9/releases) and double-click to run.
+- **Portable Binary**: Download `zipper9-windows-x64.exe` directly from [GitHub Releases](https://github.com/smin987/zipper9/releases) and double-click to run.
 
 ### 2. Debian / Ubuntu / Raspberry Pi
 - **APT One-Line Install (amd64)**:
