@@ -23,6 +23,10 @@ QUICK SUMMARY / TL;DR (요약)
 - [X] 영리 목적의 배포 및 재판매 금지:
   본 소프트웨어(소스코드 및 바이너리 일체)를 유료로 판매, 대여, 상업적 번들링
   (애드웨어, 스폰서십 등)하거나 영리적 이익을 목적으로 배포할 수 없습니다.
+- [!] 무보증 및 완전 면책 (무료 제공의 기본 원칙):
+  작성자는 소프트웨어의 동작 방식에 대해 어떠한 법적 책임도 지지 않습니다.
+  이는 모든 무료 소프트웨어의 근본적인 원칙이며, 본 소프트웨어가 여러분에게
+  완전 무료로 제공되는 핵심 이유입니다.
 
 [ENGLISH SUMMARY]
 - [YES] FREE BINARIES & COMMERCIAL USE: Official compiled binaries (.exe, .deb, .dmg)
@@ -38,6 +42,10 @@ QUICK SUMMARY / TL;DR (요약)
   PROHIBITED from modifying, altering, or patching the Source Code for any purpose.
 - [NO] NO COMMERCIAL DISTRIBUTION OR RESALE: You may NOT sell, license, rent,
   bundle for profit, or commercially monetize the Source Code or binaries.
+- [NOTICE] NO LIABILITY (FOUNDATIONAL PRINCIPLE OF FREE SOFTWARE):
+  The Author assumes no responsibility or liability for how the Software operates.
+  This is the foundational principle of all free software, and it is precisely why
+  the Software is offered to you completely free of charge.
 
 ==============================================================================
 1. DEFINITIONS
@@ -145,6 +153,10 @@ Nothing in this License alters or supersedes the terms of those upstream license
 ==============================================================================
 6. DISCLAIMER OF WARRANTY & LIMITATION OF LIABILITY
 ==============================================================================
+The Author assumes no responsibility or liability for how the Software operates.
+This is the foundational principle of all free software, and it is precisely why
+the Software is offered to you completely free of charge.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. IN NO EVENT

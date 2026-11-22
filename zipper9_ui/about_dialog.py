@@ -200,15 +200,20 @@ class AboutLicenseDialog(ctk.CTkToplevel):
         if self.lang == "KO":
             p1 = "• 컴파일 바이너리 (Freeware): 공식 배포되는 실행 파일(.exe, .deb, .dmg 등)은 개인, 교육 기관, 비영리 단체는 물론 상업/기업 사용자 누구나 100% 영구 무료로 업무에 자유롭게 사용할 수 있습니다."
             p2 = "• 소스코드 (Source-Available): 개인 연구, 학습, 보안 감사 및 공식 저장소 기여(PR) 목적의 로컬 수정은 전면 허용됩니다. 단, 영리 단체 및 기업 사용자의 소스코드 수정 및 커스텀 빌드 제작은 엄격히 금지되며(공식 바이너리 사용 필수), 경쟁 제품 출시 목적의 수정 및 무단 배포는 금지됩니다."
+            p3 = "• 무보증 및 완전 면책: 작성자는 소프트웨어의 동작 방식에 대해 어떠한 법적 책임도 지지 않으며, 이는 모든 무료 소프트웨어의 근본 원칙이자 본 프로그램이 100% 완전 무료로 제공되는 핵심 이유입니다."
         else:
             p1 = "• Compiled Binaries (Freeware): Officially distributed binaries (.exe, .deb, .dmg, etc.) are 100% free forever for personal, educational, non-profit, and commercial / enterprise use."
             p2 = "• Source Code (Source-Available): Local inspection, study, security auditing, and contributing (PRs) are permitted for individual developers. Modifying source code or distributing derivative builds by commercial entities, as well as developing competing archiving products, is strictly prohibited."
+            p3 = "• Disclaimer & Free Principle: The Author assumes no responsibility or liability for how the Software operates. This is the foundational principle of all free software, and it is precisely why the Software is offered to you completely free of charge."
 
         lbl_p1 = ctk.CTkLabel(box, text=p1, font=ctk.CTkFont(size=11), text_color=("#495057", "#ced4da"), justify="left", wraplength=540, anchor="w")
         lbl_p1.pack(fill="x", pady=(0, 4))
 
         lbl_p2 = ctk.CTkLabel(box, text=p2, font=ctk.CTkFont(size=11), text_color=("#495057", "#ced4da"), justify="left", wraplength=540, anchor="w")
-        lbl_p2.pack(fill="x")
+        lbl_p2.pack(fill="x", pady=(0, 4))
+
+        lbl_p3 = ctk.CTkLabel(box, text=p3, font=ctk.CTkFont(size=11), text_color=("#495057", "#ced4da"), justify="left", wraplength=540, anchor="w")
+        lbl_p3.pack(fill="x")
 
     def _build_format_compliance(self, parent):
         box = ctk.CTkFrame(parent, fg_color="transparent")
