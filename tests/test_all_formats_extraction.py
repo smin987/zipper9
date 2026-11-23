@@ -10,7 +10,7 @@ if _root not in sys.path:
     sys.path.insert(0, _root)
 
 from zipper9_ui.bridge.worker import SUPPORTED_EXTRACT_EXTS, CompressionWorker
-from zipper9_ui.app import is_archive_file
+from zipper9_ui.app import is_archive_file, get_file_type_badge
 from zipper9_ui.bridge.context_menu import ARCHIVE_EXTENSIONS
 from zipper9_ui.bridge.file_association import SUPPORTED_ARCHIVE_EXTS
 
@@ -72,6 +72,25 @@ class TestAllFormatsExtraction(unittest.TestCase):
         system_protected_exts = [".iso", ".msi", ".msp", ".msm", ".vhd", ".vhdx", ".vmdk", ".vdi", ".qcow2", ".sfx.exe"]
         for ext in system_protected_exts:
             self.assertNotIn(ext, SUPPORTED_ARCHIVE_EXTS, f"{ext} must NOT be in SUPPORTED_ARCHIVE_EXTS for system safety")
+
+    def test_split_archive_badge_and_association(self):
+        """분할 압축 아카이브(.001, .7z.001, .zip.001 등)의 아이콘 연결 및 스마트 뱃지 정상 판별 검증"""
+        # 1. 파일 확장자 연결 목록(SUPPORTED_ARCHIVE_EXTS) 및 해제 지원 목록에 .001 포함 확인
+        self.assertIn(".001", SUPPORTED_ARCHIVE_EXTS, ".001 확장자가 탐색기 아이콘 연결 목록에 포함되어야 함")
+        self.assertIn(".001", SUPPORTED_EXTRACT_EXTS, ".001 확장자가 압축 해제 포맷 목록에 포함되어야 함")
+
+        # 2. get_file_type_badge 판별: mame.7z.001 등이 일반 파일이 아닌 '🗜️ 압축'으로 정확히 반환되는지 확인
+        test_split_files = [
+            "mame.7z.001",
+            "archive.zip.001",
+            "backup.tar.001",
+            "split_game.001",
+            "data.z01",
+        ]
+        for fname in test_split_files:
+            badge_text, badge_color = get_file_type_badge(fname)
+            self.assertEqual(badge_text, "🗜️ 압축", f"{fname}은 '🗜️ 압축' 뱃지가 부여되어야 함 (실제: {badge_text})")
+            self.assertEqual(badge_color, "#ff922b", f"{fname}의 뱃지 컬러가 #ff922b(Coral Orange)여야 함")
 
 
 if __name__ == "__main__":

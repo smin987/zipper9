@@ -420,8 +420,8 @@ def get_file_type_badge(path: str) -> tuple[str, str]:
     ]:
         return "🎬 미디어", "#9775fa"  # Pastel Soft Violet
 
-    # 압축된 파일들 (별도 압축 아이콘 / 뱃지 표출)
-    if ext in SUPPORTED_EXTRACT_EXTS:
+    # 압축된 파일들 (별도 압축 아이콘 / 뱃지 표출 - 분할 압축 .7z.001 등 포함)
+    if ext in SUPPORTED_EXTRACT_EXTS or SPLIT_EXT_REGEX.search(path.lower()):
         return "🗜️ 압축", "#ff922b"  # Pastel Coral Orange
 
     # 일반 바이너리 / 실행 파일

@@ -258,6 +258,9 @@ SUPPORTED_EXTRACT_EXTS = (
     ".lz4",
     ".tar.zst",
     ".zst",
+    # 분할 압축 볼륨 포맷
+    ".001",
+    ".z01",
 )
 
 

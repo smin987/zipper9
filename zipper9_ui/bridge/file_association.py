@@ -15,7 +15,7 @@ else:
     winreg = None
     ctypes = None
 
-# 시스템 보호형 확장자 연동 목록 (총 36종)
+# 시스템 보호형 확장자 연동 목록 (총 38종)
 # (※ .iso, .msi, .msp, .vhd, .vhdx, .vmdk, .vdi, .qcow2 등 디스크 마운트/시스템 인스톨러/가상디스크 전용 포맷과
 #    시스템 실행파일(.sfx.exe)은 Windows 고유 기능 보존을 위해 파일 아이콘/더블클릭 연결에서 제외)
 SUPPORTED_ARCHIVE_EXTS = [
@@ -28,6 +28,9 @@ SUPPORTED_ARCHIVE_EXTS = [
     ".cab",
     ".wim",
     ".sfx",
+    # 분할 압축 포맷 (7z/zip/raw 분할 아카이브 1번 볼륨 등)
+    ".001",
+    ".z01",
     # Unix / Linux 계열 아카이브 및 패키지
     ".gz",
     ".tgz",
