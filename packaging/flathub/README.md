@@ -89,6 +89,29 @@ git push origin add-io.github.smin987.zipper9
 
 ---
 
+
+### 💡 Flathub 제출 시 필수 준비사항 (ImageOptimizer 실전 경험 기반)
+
+#### 1. 리눅스 구동 영상 첨부 필수 (.mp4)
+- Flathub PR 체크리스트에는 **"Please attach a video showcasing the application on Linux using the Flatpak."** 항목이 필수입니다.
+- **WSLg 15초 영상 제작 레시피**:
+  1. Windows 11의 WSLg 터미널에서 리눅스 바이너리를 실행합니다:
+     ```bash
+     cd /tmp
+     curl -sLO https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-linux-x86_64.tar.gz
+     tar -xzf zipper9-v1.0.1-linux-x86_64.tar.gz
+     cd zipper9-v1.0.1-linux-x86_64
+     ./zipper9
+     ```
+  2. Windows 단축키 `Win + Shift + S` (동영상 녹화 모드)를 눌러 zipper9 화면의 파일 열기/압축 해제 동작을 10~15초간 간단히 녹화합니다 (`.mp4`).
+  3. GitHub PR 본문 입력창에 해당 `.mp4` 파일을 드래그 앤 드롭하면 자동으로 업로드 영상 링크가 생성됩니다.
+
+#### 2. 신규 프로젝트 유예 정책 (`too-new` 라벨) 대비
+- Flathub는 일회성 토이 프로젝트 유입을 막기 위해 신규 저장소에 대해 `too-new` 라벨을 달고 1~2개월의 개발 이력 및 유지보수 증명을 요구할 수 있습니다 (실제 ImageOptimizer v1.1.3 PR #11329 사례).
+- 혹시 `too-new` 라벨과 함께 PR이 닫히더라도 거절이 아니며, 1~2개월 동안 커밋과 릴리즈를 유지한 뒤 PR에 재검토(Revisit) 요청 댓글을 남기면 정상 승인 절차를 밟게 됩니다.
+
+---
+
 ## 3. Flathub CI 빌드 봇 검증 및 심사 (Review Process)
 
 1. **자동 빌드 검증 (`flathubbot`)**:
