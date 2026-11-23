@@ -74,18 +74,24 @@ class TestAllFormatsExtraction(unittest.TestCase):
             self.assertNotIn(ext, SUPPORTED_ARCHIVE_EXTS, f"{ext} must NOT be in SUPPORTED_ARCHIVE_EXTS for system safety")
 
     def test_split_archive_badge_and_association(self):
-        """분할 압축 아카이브(.001, .7z.001, .zip.001 등)의 아이콘 연결 및 스마트 뱃지 정상 판별 검증"""
-        # 1. 파일 확장자 연결 목록(SUPPORTED_ARCHIVE_EXTS) 및 해제 지원 목록에 .001 포함 확인
+        """분할 압축 아카이브(.001, .002, .7z.001 등)의 아이콘 연결 및 스마트 뱃지 정상 판별 검증"""
+        # 1. 파일 확장자 연결 목록(SUPPORTED_ARCHIVE_EXTS) 및 해제 지원 목록에 .001, .002 등 포함 확인
         self.assertIn(".001", SUPPORTED_ARCHIVE_EXTS, ".001 확장자가 탐색기 아이콘 연결 목록에 포함되어야 함")
+        self.assertIn(".002", SUPPORTED_ARCHIVE_EXTS, ".002 확장자가 탐색기 아이콘 연결 목록에 포함되어야 함")
         self.assertIn(".001", SUPPORTED_EXTRACT_EXTS, ".001 확장자가 압축 해제 포맷 목록에 포함되어야 함")
+        self.assertIn(".002", SUPPORTED_EXTRACT_EXTS, ".002 확장자가 압축 해제 포맷 목록에 포함되어야 함")
 
-        # 2. get_file_type_badge 판별: mame.7z.001 등이 일반 파일이 아닌 '🗜️ 압축'으로 정확히 반환되는지 확인
+        # 2. get_file_type_badge 판별: mame.7z.001, mame.7z.002 등이 일반 파일이 아닌 '🗜️ 압축'으로 정확히 반환되는지 확인
         test_split_files = [
             "mame.7z.001",
+            "mame.7z.002",
             "archive.zip.001",
+            "archive.zip.002",
             "backup.tar.001",
             "split_game.001",
+            "split_game.002",
             "data.z01",
+            "data.z02",
         ]
         for fname in test_split_files:
             badge_text, badge_color = get_file_type_badge(fname)

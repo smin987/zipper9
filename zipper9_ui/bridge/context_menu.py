@@ -21,14 +21,16 @@ else:
     winreg = None
     STARTUP_INFO = None
 
+SPLIT_ARCHIVE_EXTS: List[str] = [f".{i:03d}" for i in range(1, 100)] + [f".z{i:02d}" for i in range(1, 10)]
+
 ARCHIVE_EXTENSIONS: List[str] = [
     ".zip", ".zipx", ".7z", ".rar", ".tar", ".gz", ".tgz",
     ".bz", ".bz2", ".tbz", ".tbz2", ".xz", ".txz", ".zst", ".lz4",
     ".iso", ".img", ".bin", ".udf", ".vhd", ".vhdx", ".vmdk",
     ".cab", ".wim", ".alz", ".deb", ".udeb", ".rpm",
     ".arj", ".lzma", ".tlz", ".z", ".taz", ".lha", ".lzh", ".msi",
-    ".dmg", ".pkg", ".xip", ".001", ".z01", ".part1.rar",
-]
+    ".dmg", ".pkg", ".xip", ".part1.rar",
+] + [ext for ext in SPLIT_ARCHIVE_EXTS if ext not in [".zip", ".rar"]]
 
 
 def get_base_dir() -> str:

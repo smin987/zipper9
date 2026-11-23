@@ -258,9 +258,9 @@ SUPPORTED_EXTRACT_EXTS = (
     ".lz4",
     ".tar.zst",
     ".zst",
-    # 분할 압축 볼륨 포맷
-    ".001",
-    ".z01",
+    # 분할 압축 볼륨 포맷 (.001 ~ .099, .z01 ~ .z09)
+    *(f".{i:03d}" for i in range(1, 100)),
+    *(f".z{i:02d}" for i in range(1, 10)),
 )
 
 

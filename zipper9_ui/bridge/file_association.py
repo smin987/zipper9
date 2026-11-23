@@ -15,7 +15,12 @@ else:
     winreg = None
     ctypes = None
 
-# 시스템 보호형 확장자 연동 목록 (총 38종)
+# 분할 압축 볼륨 확장자 목록 (.001 ~ .099, .z01 ~ .z09)
+# 분할 아카이브 1번 볼륨뿐만 아니라 후속 파트 파일들(.002, .003 등)도
+# 탐색기에서 동일한 zipper9 전용 압축 아이콘으로 깔끔하게 정렬 표출되도록 지원
+SPLIT_ARCHIVE_EXTS = [f".{i:03d}" for i in range(1, 100)] + [f".z{i:02d}" for i in range(1, 10)]
+
+# 시스템 보호형 확장자 연동 목록
 # (※ .iso, .msi, .msp, .vhd, .vhdx, .vmdk, .vdi, .qcow2 등 디스크 마운트/시스템 인스톨러/가상디스크 전용 포맷과
 #    시스템 실행파일(.sfx.exe)은 Windows 고유 기능 보존을 위해 파일 아이콘/더블클릭 연결에서 제외)
 SUPPORTED_ARCHIVE_EXTS = [
@@ -28,9 +33,6 @@ SUPPORTED_ARCHIVE_EXTS = [
     ".cab",
     ".wim",
     ".sfx",
-    # 분할 압축 포맷 (7z/zip/raw 분할 아카이브 1번 볼륨 등)
-    ".001",
-    ".z01",
     # Unix / Linux 계열 아카이브 및 패키지
     ".gz",
     ".tgz",
@@ -63,7 +65,7 @@ SUPPORTED_ARCHIVE_EXTS = [
     # 초고속 현대 알고리즘
     ".lz4",
     ".zst",
-]
+] + SPLIT_ARCHIVE_EXTS
 
 # 시스템 기본 기능(디스크 마운트, 프로그램 설치 등) 보존을 위해 파일 아이콘 및 더블클릭 연결에서 명시적 제외되는 포맷
 SYSTEM_PROTECTED_EXTS = [
