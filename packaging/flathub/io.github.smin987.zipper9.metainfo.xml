@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.smin987.zipper9</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+
+  <name>Zipper9</name>
+  <summary>Ultra-fast modern file archiver powered by 7-Zip, Zstd, and LZ4</summary>
+  <summary xml:lang="ko">7-Zip, Zstd, LZ4 엔진 기반의 초고속 모던 압축 프로그램</summary>
+
+  <description>
+    <p>
+      Zipper9 is a modern, high-performance file archiver engineered for extreme speed and simplicity.
+      It features an optimized hybrid architecture powered by native C/C++ backends (7-Zip, Zstandard, and LZ4)
+      alongside an intuitive modern interface.
+    </p>
+    <p xml:lang="ko">
+      Zipper9은 극한의 속도와 간결함을 위해 설계된 모던 고성능 압축 유틸리티입니다.
+      네이티브 C/C++ 엔진(7-Zip, Zstandard, LZ4)의 강력한 성능과 직관적인 모던 인터페이스를 제공합니다.
+    </p>
+    <ul>
+      <li>Multi-format support: ZIP, 7Z, TAR, BZIP2, GZIP, LZIP, LZMA, XZ, Zstandard (.zst), ALZ, and EGG.</li>
+      <li>Extreme decompression performance using multithreaded native decoders.</li>
+      <li>Smart auto-extraction: Automatically detects whether to extract directly or create a root folder to prevent desktop clutter.</li>
+      <li>Full dark mode and light mode theme support with responsive dual layouts (compact/expanded).</li>
+      <li>Cross-platform support: Seamless experience across Linux, Windows, and macOS.</li>
+    </ul>
+    <ul xml:lang="ko">
+      <li>다양한 포맷 지원: ZIP, 7Z, TAR, BZIP2, GZIP, LZIP, LZMA, XZ, Zstandard(.zst), ALZ, EGG 지원.</li>
+      <li>멀티스레드 네이티브 디코더를 통한 초고속 압축 및 해제 성능.</li>
+      <li>지능형 자동 해제: 압축 파일 내부 구조를 분석하여 파일 어질러짐을 방지하는 스마트 폴더 생성.</li>
+      <li>완벽한 다크/라이트 테마 및 접힘/펼침 반응형 레이아웃 제공.</li>
+      <li>크로스 플랫폼 지원: Linux, Windows, macOS에서 일관된 사용자 경험.</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">io.github.smin987.zipper9.desktop</launchable>
+
+  <url type="homepage">https://github.com/smin987/zipper9</url>
+  <url type="bugtracker">https://github.com/smin987/zipper9/issues</url>
+  <url type="help">https://github.com/smin987/zipper9#readme</url>
+  <url type="vcs-browser">https://github.com/smin987/zipper9</url>
+
+  <developer_name>smin987</developer_name>
+  <developer id="io.github.smin987">
+    <name>smin987</name>
+  </developer>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Light Mode Expanded View</caption>
+      <caption xml:lang="ko">라이트 모드 펼침 뷰</caption>
+      <image>https://raw.githubusercontent.com/smin987/zipper9/main/images/1.0.1/screenshot_light_expanded_en.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Dark Mode Expanded View</caption>
+      <caption xml:lang="ko">다크 모드 펼침 뷰</caption>
+      <image>https://raw.githubusercontent.com/smin987/zipper9/main/images/1.0.1/screenshot_dark_expanded_en.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Light Mode Compact View</caption>
+      <caption xml:lang="ko">라이트 모드 기본 뷰</caption>
+      <image>https://raw.githubusercontent.com/smin987/zipper9/main/images/1.0.1/screenshot_light_collapsed_en.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Dark Mode Compact View</caption>
+      <caption xml:lang="ko">다크 모드 기본 뷰</caption>
+      <image>https://raw.githubusercontent.com/smin987/zipper9/main/images/1.0.1/screenshot_dark_collapsed_en.png</image>
+    </screenshot>
+  </screenshots>
+
+  <categories>
+    <category>Utility</category>
+    <category>Archiving</category>
+    <category>Compression</category>
+  </categories>
+
+  <provides>
+    <binary>zipper9</binary>
+    <mediatype>application/zip</mediatype>
+    <mediatype>application/x-7z-compressed</mediatype>
+    <mediatype>application/x-tar</mediatype>
+    <mediatype>application/x-bzip2</mediatype>
+    <mediatype>application/x-gzip</mediatype>
+    <mediatype>application/x-lzip</mediatype>
+    <mediatype>application/x-lzma</mediatype>
+    <mediatype>application/x-xz</mediatype>
+    <mediatype>application/zstd</mediatype>
+    <mediatype>application/x-alz</mediatype>
+    <mediatype>application/x-egg</mediatype>
+  </provides>
+
+  <releases>
+    <release version="1.0.1" date="2026-11-20">
+      <description>
+        <p>Zipper9 v1.0.1 Release</p>
+        <p xml:lang="ko">Zipper9 v1.0.1 정식 릴리즈</p>
+        <ul>
+          <li>Enhanced cross-platform support with native Linux packaging and distribution.</li>
+          <li>Refined modern UI with improved responsiveness and localized tooltips.</li>
+          <li>Performance improvements in multithreaded decompression pipelines.</li>
+        </ul>
+        <ul xml:lang="ko">
+          <li>Linux 네이티브 패키징 및 안정적인 크로스 플랫폼 실행 지원 강화.</li>
+          <li>모던 UI 응답성 개선 및 다국어 툴팁 최적화.</li>
+          <li>멀티스레드 압축 해제 파이프라인 성능 향상.</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+
+  <content_rating type="oars-1.1" />
+</component>

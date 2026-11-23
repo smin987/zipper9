@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Zipper9
+GenericName=File Archiver
+GenericName[ko]=압축 프로그램
+Comment=Ultra-fast modern file archiver powered by 7-Zip, Zstd, and LZ4
+Comment[ko]=7-Zip, Zstd, LZ4 엔진 기반의 초고속 모던 압축 프로그램
+Exec=zipper9 %F
+Icon=io.github.smin987.zipper9
+Terminal=false
+Categories=Utility;Archiving;Compression;
+MimeType=application/zip;application/x-7z-compressed;application/x-tar;application/x-bzip2;application/x-gzip;application/x-lzip;application/x-lzma;application/x-xz;application/zstd;application/x-alz;application/x-egg;
+StartupNotify=true
+Keywords=zip;7z;tar;archive;compress;extractor;압축;
