@@ -2,6 +2,13 @@
 
 본 문서는 **Zipper9**(`io.github.smin987.zipper9`)을 글로벌 리눅스 앱스토어인 **[Flathub](https://flathub.org)**에 공식 제출하고 등록하기 위한 전체 프로세스를 단계별로 설명합니다.
 
+> [!CAUTION]
+> **Flathub 공식 AI 정책 (Strictly Human-Driven Policy)**
+> Flathub는 자원봉사자 리뷰어 보호와 생태계 품질 관리를 위해 **PR 제출, 커밋 메시지, PR 설명문 작성 및 리뷰어와의 모든 소통 과정에서 AI/LLM 자동화 및 대필을 엄격히 금지**하고 있습니다.
+> AI 도구로 자동 생성된 PR이나 AI 에이전트 제출이 확인될 경우 **사전 경고 없이 PR이 즉시 Close(반려) 처리되며 계정이 영구 밴(Permanent Ban)**될 수 있습니다.
+> 따라서 **반드시 개발자 본인이 직접 브랜치를 푸시하고 GitHub 웹에서 본인의 문장으로 PR을 작성하여 제출**해야 합니다.
+
+
 ---
 
 ## 1. 사전 준비 및 패키지 파일 구성
