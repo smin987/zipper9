@@ -46,8 +46,8 @@ class TestContextMenuAndInstant(unittest.TestCase):
         self.assertTrue(res_unreg, "우클릭 메뉴 해제 실패")
         self.assertFalse(is_context_menu_registered(), "해제 후 상태 확인 실패")
 
-        # 테스트 후 원래 상태 복원
-        register_context_menu()
+        # 테스트 종료 후 클린업
+        unregister_context_menu()
 
     @patch("zipper9_ui.bridge.instant_ops.show_native_notification")
     def test_instant_compress(self, mock_notify):

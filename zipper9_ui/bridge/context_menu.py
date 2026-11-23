@@ -215,8 +215,30 @@ def _delete_key_recursive(root_key, subkey: str) -> bool:
         return False
 
 
+def _cleanup_legacy_registry_keys() -> bool:
+    """레거시 정적 레지스트리 키 전체 정리 (Windows 11 모던 셸 확장 활성 시 클래식 메뉴 중복 노출 방지)"""
+    if not winreg:
+        return False
+    success = True
+    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\*\shell\zipper9_compress"):
+        success = False
+    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\Directory\shell\zipper9_compress"):
+        success = False
+    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\Folder\shell\zipper9_compress"):
+        success = False
+    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\Directory\Background\shell\zipper9_open"):
+        success = False
+    for ext in ARCHIVE_EXTENSIONS:
+        assoc_key_path = rf"Software\Classes\SystemFileAssociations\{ext}\shell\zipper9_extract"
+        if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, assoc_key_path):
+            success = False
+    return success
+
+
 def is_context_menu_registered() -> bool:
-    """우클릭 메뉴가 현재 등록되어 있는지 확인 (레거시 레지스트리 우선 확인 후 모던 패키지 조회)"""
+    """우클릭 메뉴가 현재 등록되어 있는지 확인 (모던 패키지 및 레거시 레지스트리 확인)"""
+    if is_modern_package_registered():
+        return True
     if winreg:
         try:
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Classes\*\shell\zipper9_compress"):
@@ -225,15 +247,11 @@ def is_context_menu_registered() -> bool:
             pass
         except Exception:
             pass
-
-    return is_modern_package_registered()
+    return False
 
 
 def register_context_menu(custom_exe_path: Optional[str] = None) -> bool:
-    """우클릭 메뉴 등록 (Windows 11 모던 1단계 + Windows 10/클래식 레거시 하이브리드 등록)"""
-    # 1. Windows 11 모던 패키지 등록 시도 (반디집과 동일한 1단계 메뉴)
-    register_modern_package()
-
+    """우클릭 메뉴 등록 (Windows 11 모던 패키지 우선 등록, 모던 활성 시 클래식 메뉴 중복 방지)"""
     base_dir = get_base_dir()
     dist_exe = os.path.join(base_dir, "dist", "zipper9.exe")
 
@@ -253,7 +271,19 @@ def register_context_menu(custom_exe_path: Optional[str] = None) -> bool:
         except Exception:
             pass
 
-    # 2. Windows 10 / 클래식 셸용 레거시 HKCU 등록 (호환성 보장)
+    # 1. Windows 11 모던 패키지 등록 시도 (반디집과 동일한 1단계 최상위 메뉴)
+    register_modern_package()
+
+    # 2. Windows 11 모던 패키지가 실제로 활성화된 경우:
+    # 모던 COM 셸(zipper9_shell.dll)이 1단계 모던 메뉴와 2단계 '추가 옵션 표시'(클래식 메뉴) 양쪽을 모두 전담하므로,
+    # 정적 레지스트리 키는 중복 노출(2개 표출) 방지를 위해 등록하지 않고 기존 키를 삭제/정리합니다.
+    if is_modern_package_registered():
+        _cleanup_legacy_registry_keys()
+        refresh_shell()
+        return True
+
+    # 3. Windows 10 또는 모던 패키지 미등록 환경:
+    # 클래식 셸용 레거시 HKCU 레지스트리 키 등록 (호환성 보장)
     if not winreg:
         return False
 
@@ -301,7 +331,7 @@ def register_context_menu(custom_exe_path: Optional[str] = None) -> bool:
                 with winreg.CreateKey(key, "command") as cmd_key:
                     winreg.SetValueEx(cmd_key, "", 0, winreg.REG_SZ, f'{cmd_prefix} --extract-instant "%1"')
 
-        # 3. Windows 탐색기 셸 변경 즉시 알림 (재시작 없이 즉시 반영)
+        # 4. Windows 탐색기 셸 변경 즉시 알림 (재시작 없이 즉시 반영)
         refresh_shell()
         return True
     except Exception as e:
@@ -314,23 +344,9 @@ def unregister_context_menu() -> bool:
     # 1. 모던 패키지 제거
     unregister_modern_package()
 
-    if not winreg:
-        return False
+    # 2. 레거시 레지스트리 키 정리
+    success = _cleanup_legacy_registry_keys()
 
-    success = True
-    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\*\shell\zipper9_compress"):
-        success = False
-    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\Directory\shell\zipper9_compress"):
-        success = False
-    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\Folder\shell\zipper9_compress"):
-        success = False
-    if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, r"Software\Classes\Directory\Background\shell\zipper9_open"):
-        success = False
-    for ext in ARCHIVE_EXTENSIONS:
-        assoc_key_path = rf"Software\Classes\SystemFileAssociations\{ext}\shell\zipper9_extract"
-        if not _delete_key_recursive(winreg.HKEY_CURRENT_USER, assoc_key_path):
-            success = False
-
-    # Windows 탐색기 셸 변경 즉시 알림
+    # 3. Windows 탐색기 셸 변경 즉시 알림
     refresh_shell()
     return success
