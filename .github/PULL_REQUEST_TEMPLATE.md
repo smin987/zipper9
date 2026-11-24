@@ -1,36 +1,36 @@
-## 📌 Pull Request 요약 (Summary)
+## 📌 Pull Request Summary (요약)
 <!-- [EN] Summarize the core changes and motivation in 1-3 lines. -->
 <!-- [KO] 본 PR에서 변경된 핵심 내용과 목적을 1~3줄로 요약해 주세요. -->
 
 ---
 
-## 🛠️ 변경 유형 (Type of Change)
+## 🛠️ Type of Change (변경 유형)
 <!-- Please check the applicable items with [x] / 해당하는 항목에 [x] 체크해 주세요. -->
-- [ ] 🐛 버그 수정 (Bug fix)
-- [ ] ✨ 새로운 기능 추가 (New feature)
-- [ ] ⚡ 성능 최적화 (Performance improvement)
-- [ ] 📝 문서 업데이트 (Documentation update)
-- [ ] 🧪 테스트 코드 추가/수정 (Tests)
-- [ ] 🎨 코드 스타일/리팩토링 (Refactoring)
-- [ ] 🔧 빌드/배포/CI 파이프라인 변경 (Build/CI)
+- [ ] 🐛 Bug fix (버그 수정)
+- [ ] ✨ New feature (새로운 기능 추가)
+- [ ] ⚡ Performance improvement (성능 최적화)
+- [ ] 📝 Documentation update (문서 업데이트)
+- [ ] 🧪 Tests (테스트 코드 추가/수정)
+- [ ] 🎨 Refactoring (코드 스타일/리팩토링)
+- [ ] 🔧 Build/CI (빌드/배포/CI 파이프라인 변경)
 
 ---
 
-## 🔍 상세 작업 내용 (Details)
+## 🔍 Details (상세 작업 내용)
 <!-- [EN] Describe detailed implementation or referenced issues (e.g., Closes #12). -->
 <!-- [KO] 구체적인 구현 내용이나 해결한 이슈 번호를 적어주세요 (예: Closes #12). -->
 
 ---
 
-## 🧪 테스트 검증 (Verification)
+## 🧪 Verification (테스트 검증)
 <!-- Please check off verified items / 로컬 환경에서 테스트를 통과했는지 확인해 주세요. -->
-- [ ] `pytest tests/` 단위 테스트 전수 통과 확인 (All unit tests pass)
-- [ ] 로컬 GUI 구동 (`python main.py`) 정상 동작 확인 (Local GUI launch verified)
-- [ ] 신규 기능 또는 버그 수정에 대한 테스트 케이스 추가 완료 (Test cases added for new feature/fix)
+- [ ] `pytest tests/` All unit tests pass (단위 테스트 전수 통과 확인)
+- [ ] Local GUI launch verified (`python main.py`) (로컬 GUI 구동 정상 동작 확인)
+- [ ] Test cases added for new feature/fix (신규 기능 또는 버그 수정에 대한 테스트 케이스 추가 완료)
 
 ---
 
-## 📜 기여자 라이선스 계약 (Contributor License Agreement, CLA) 동의 [필수 / Mandatory]
+## 📜 Contributor License Agreement (CLA) Consent [Mandatory / 필수]
 > [!IMPORTANT]
 > **[EN]** The zipper9 project provides free binaries under a Fair-Code model and maintains rights for future commercial/dual-licensing. By submitting this PR, you legally agree to the CLA terms set forth in [CONTRIBUTING.md](../CONTRIBUTING.md):
 > 1. You warrant that this contribution is your own original work and does not violate third-party rights.
