@@ -1,9 +1,10 @@
 # ⚡ zipper9 v1.0.1 Release Notes / 릴리즈 노트
 
-[English (영어)](#-zipper9-v101-release-english) | [한국어 (Korean)](#-zipper9-v101-릴리즈-korean)
+[English (영어)](#english) | [한국어 (Korean)](#korean)
 
 ---
 
+<a id="english" name="english"></a>
 # ⚡ zipper9 v1.0.1 Release (English)
 
 Ultra-lightweight, blazing-fast multi-format archiver with modern Fluent UI, full Windows 11 context menu integration, and enterprise-grade format compliance.
@@ -129,6 +130,7 @@ If zipper9 brings value to your daily workflow, please consider sponsoring the d
 ---
 ---
 
+<a id="korean" name="korean"></a>
 # ⚡ zipper9 v1.0.1 릴리즈 (Korean)
 
 모던 Fluent UI, Windows 11 탐색기 우클릭 메뉴 완벽 연동, 기업 환경 100% 무료 보증 라이선스를 탑재한 초경량·초고속 멀티 포맷 아카이버 zipper9입니다.
