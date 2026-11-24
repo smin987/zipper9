@@ -1,102 +1,89 @@
-# zipper9 Contribution Guidelines & CLA / 기여 가이드라인 및 기여자 라이선스 계약
+[ENGLISH](#english) | [한국어](#korean)
 
-Thank you for your interest in contributing to **zipper9**!
-**zipper9** 프로젝트에 관심을 가져주셔서 감사합니다!
+<a id="english"></a>
+# 🤝 Contributing to zipper9
 
-This document outlines guidelines for contributing, coding standards, and our mandatory Contributor License Agreement (CLA) to ensure the sustainable and legally sound development of the project.
-본 문서는 프로젝트의 지속 가능하고 법적으로 안전한 개발을 위한 기여 안내, 코딩 표준 및 필수 기여자 라이선스 계약(CLA)을 규정합니다.
-
----
-
-## 1. Contributor License Agreement (CLA) [Mandatory / 필수 동의]
-
-> [!IMPORTANT]
-> ### 📜 ENGLISH: Mandatory Contributor Consent
-> **zipper9** adopts a **Fair-Code (Source-Available)** license model providing 100% free binaries to all users. To ensure long-term sustainability, **commercial, dual-licensed, or Pro editions** may be introduced in the future.
-> 
-> Under open-source legal principles, incorporating external contributions into future commercial or dual-licensed distributions **legally requires the explicit prior consent of all contributors**.
-> 
-> By submitting a Pull Request (PR) to this repository, you explicitly agree to the following terms:
-> 
-> 1. **Grant of Rights for Commercial & Dual Licensing**:
->    - You grant the original Author (smin987) a **perpetual, worldwide, non-exclusive, royalty-free, irrevocable, and sublicensable license** to use, modify, adapt, compile, bundle, distribute, sublicense, and sell your Contribution (including code, documentation, scripts, and assets).
->    - The Author may include your Contribution in both current free/source-available releases and future **commercial, proprietary, dual-licensed, or Pro editions** without restriction or compensation.
-> 2. **Warranty of Original Work**:
->    - You warrant that the Contribution is your own original creation and that you have full legal right to grant the rights above. You represent that your Contribution does not infringe upon any third-party patents, copyrights, trade secrets, or proprietary licenses.
-> 3. **Disclaimer of Warranty**:
->    - Your Contribution is provided "AS-IS", without warranties of any kind, consistent with Section 6 of the `LICENSE` file.
-> 
-> ---
-> 
-> ### 📜 한국어: 기여자 라이선스 계약 (CLA) 동의 필수
-> **zipper9**은 모든 사용자에게 100% 무료 바이너리를 제공하는 **Fair-Code(Source-Available)** 라이선스 모델을 채택하고 있으며, 향후 프로젝트의 지속 가능성을 위해 **프로(Pro) 버전, 듀얼 라이선스, 또는 상용 패키지**가 도입될 수 있습니다.
-> 
-> 오픈소스 법률 원칙상 외부 기여자의 코드가 포함된 상태에서 상용/듀얼 라이선스로 전환하거나 유료 버전을 배포하려면 **기여자 전원의 사전 동의가 법적으로 필수**입니다.
-> 
-> 따라서 **zipper9에 Pull Request(PR)를 제출하는 모든 기여자는 아래 사항에 명시적으로 동의하는 것으로 간주됩니다:**
-> 
-> 1. **상용/듀얼 라이선스 포함 권한 부여**:
->    - 기여자는 본인이 제출한 코드, 패치, 문서, 자산 등 모든 기여물(Contribution)에 대해, 프로젝트 원작자(smin987)에게 **영구적이고, 전 세계적이며, 비독점적이고, 무상(로열티 프리)이며, 취소 불가능하고 서브라이선스가 가능한 권한**을 부여합니다.
->    - 원작자는 해당 기여물을 zipper9의 무료 버전뿐만 아니라, **향후 출시될 수 있는 상용(Commercial), 듀얼(Dual), 프로(Pro) 또는 유료 라이선스 버전에도 제한 없이 포함, 수정, 컴파일, 판매 및 재배포**할 수 있습니다.
-> 2. **순수 창작물 보증**:
->    - 기여자는 제출한 코드가 본인의 독자적인 순수 창작물이며, 제3자의 특허, 저작권, 영업비밀 또는 독점 라이선스를 침해하지 않음을 보증합니다.
-> 3. **라이선스 면책 동의**:
->    - 기여물은 `LICENSE` 제6조에 따라 "있는 그대로(AS-IS)" 제공되며 어떠한 보증도 수반하지 않습니다.
+Thank you for your interest in contributing to zipper9! We welcome bug reports, feature requests, documentation improvements, and code contributions (Pull Requests).
 
 ---
 
-## 2. Bug Reports & Feature Requests / 버그 리포트 및 기능 제안
+## 📜 Contributor License Agreement (CLA)
 
-- Please file issues on [GitHub Issues](https://github.com/smin987/zipper9/issues).
-- 버그나 개선 아이디어는 [GitHub Issues](https://github.com/smin987/zipper9/issues)에 등록해 주세요.
-- When filing a bug report, please include:
-  - OS version / 운영체제 버전 (e.g., Windows 11 23H2, Ubuntu 24.04, macOS Sonoma)
-  - zipper9 version / 앱 버전 (e.g., v1.0.1)
-  - Steps to reproduce & target archive format / 재현 단계 및 대상 아카이브 포맷 (ZIP, 7Z, TAR, ALZ 등)
-  - Error logs or screenshots / 에러 로그 또는 화면 캡처
+zipper9 is distributed under the **Source-Available Freeware** license. To ensure the long-term sustainability of the project and to allow potential future enterprise offerings or dual-licensing models (e.g., Commercial EULA, BSL, or Pro/Enterprise editions), **all contributors must agree to the following terms upon submitting a Pull Request (PR)**.
 
----
-
-## 3. Development Setup / 로컬 개발 환경 설정
-
-1. **Fork & Clone repository / 저장소 포크 및 복제**:
-   ```bash
-   git clone https://github.com/<your-username>/zipper9.git
-   cd zipper9
-   ```
-
-2. **Virtual Environment & Dependencies / 가상환경 및 의존성 설치**:
-   ```bash
-   python -m venv .venv
-   # Windows PowerShell
-   .venv\Scripts\Activate.ps1
-   # Linux / macOS
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-3. **Run Application / 로컬 실행**:
-   ```bash
-   python main.py
-   ```
-
-4. **Run Tests / 단위 테스트 실행**:
-   ```bash
-   pytest tests/
-   ```
+### 1. Grant of License & Commercial Re-licensing Authorization
+By submitting a Pull Request, patch, code, or documentation to this repository, you agree to the following terms:
+1. **Grant of Rights**: You grant the Project Author/Maintainer (smin987) a perpetual, worldwide, non-exclusive, royalty-free, irrevocable copyright license to use, reproduce, modify, prepare derivative works of, publicly display, sublicense, and distribute your contributions and such derivative works.
+2. **Commercial & Dual-Licensing Authorization**: You expressly acknowledge and agree that the Author retains the unrestricted legal right to incorporate your contributions into future commercial editions, dual-licensed releases (e.g., Commercial EULA, Business Source License, Open Core, or Paid Pro/Enterprise versions), and to relicense or monetize the software without requiring separate approval or providing compensation.
+3. **Original Work Representation**: You represent that each of your contributions is your original creation, and that you have the full legal right and authority to grant the rights described above.
 
 ---
 
-## 4. Pull Request Submission Rules / PR 제출 규칙
+## 🚀 Contribution Workflow
 
-1. **Branch Naming / 브랜치 명명 규칙**:
-   - Features: `feature/<feature-name>` (예: `feature/fastcdc-dedup`)
-   - Fixes: `fix/<bug-name>` (예: `fix/context-menu-duplicate`)
-2. **Unit Tests / 단위 테스트 필수**:
-   - Ensure all existing tests pass (`pytest tests/`) and add new test cases for new functionality.
-   - 기존 단위 테스트 100% 통과 확인 및 신규 기능/버그 픽스에 대한 테스트 케이스를 필수로 동봉해 주세요.
-3. **Commit Convention / 커밋 메시지 컨벤션**:
-   - Follow Conventional Commits: `feat: ...`, `fix: ...`, `docs: ...`, `refactor: ...`, `test: ...`
-4. **Mandatory CLA Check / PR 템플릿의 CLA 동의 필수**:
-   - Check the mandatory CLA consent checkboxes in the Pull Request template.
-   - PR 생성 시 나타나는 템플릿의 CLA 동의 체크박스(`[x]`)를 반드시 체크해 주셔야 병합이 진행됩니다.
+### 1. Opening an Issue
+- Before submitting major changes or new features, please open a [GitHub Issue](https://github.com/smin987/zipper9/issues) to discuss your proposal.
+- When reporting bugs, please include your OS environment (Windows / macOS / Linux), archive formats involved, steps to reproduce, and any relevant logs.
+
+### 2. Submitting a Pull Request
+1. Fork the repository and create a feature branch (`git checkout -b feature/amazing-feature`).
+2. Commit your changes adhering to Conventional Commits (e.g., `feat:`, `fix:`, `docs:`, `test:`).
+3. Run existing automated tests to ensure all tests pass:
+   ```bash
+   python -m unittest tests/test_context_menu.py
+   ```
+4. Confirm and check the **Contributor License Agreement (CLA)** checkbox in the PR template before submitting your PR.
+
+---
+
+## 💡 Coding Standards & Conventions
+- Python 3.10+ standard syntax.
+- GUI is built with `CustomTkinter`; bridge/native engine logic (`zipper9_ui/bridge/`) must remain strictly modular.
+- When introducing new formats or features, include corresponding unit tests under the `tests/` directory.
+
+---
+---
+
+[ENGLISH](#english) | [한국어](#korean)
+
+<a id="korean"></a>
+# 🤝 zipper9 기여 가이드라인 (한국어 안내)
+
+zipper9 프로젝트에 관심을 가져주셔서 감사합니다! 버그 제보, 기능 제안, 문서 보완, 코드 기여(Pull Request) 등 모든 형태의 기여를 환영합니다.
+
+---
+
+## 📜 기여자 라이선스 계약 (Contributor License Agreement, CLA)
+
+zipper9은 **Source-Available Freeware (공정 이용 무료 소프트웨어)** 모델로 운영되며, 향후 프로젝트의 지속 가능성과 기업용 기능 지원을 위해 **듀얼 라이선스(Dual-Licensing) 또는 상용 Pro/Enterprise 에디션**으로 확장될 수 있습니다.
+
+타인의 기여(PR)가 코드베이스에 포함된 이후에도 법적 분쟁 없이 프로젝트를 발전시키고 상용/듀얼 라이선스 버전을 제공할 수 있도록, **모든 기여자는 풀 리퀘스트(Pull Request) 제출 시 아래 조항에 동의하는 것으로 간주**됩니다.
+
+### 1. 라이선스 부여 및 상용 재라이선싱 동의
+1. **권한 부여**: 본 프로젝트에 풀 리퀘스트(PR), 패치, 코드를 제출함으로써, 기여자는 프로젝트 관리자(smin987)에게 제출된 기여물에 대한 **영구적(perpetual), 전 세계적(worldwide), 비독점적(non-exclusive), 로열티 없는(royalty-free), 취소 불가능한(irrevocable) 사용, 수정, 복제, 배포 및 재라이선싱 권한**을 부여합니다.
+2. **상용 및 듀얼 라이선싱 허여**: 프로젝트 관리자는 기여된 코드를 현재의 무료 버전뿐만 아니라 **향후 상용 라이선스(Commercial License), 듀얼 라이선스, BSL, 유료 Pro/Enterprise 에디션에 포함하여 배포하고 수익화할 수 있는 완전한 권한**을 가집니다.
+3. **원저작물 보증**: 기여자는 제출한 기여물이 본인의 순수 창작물이며, 상기 권한을 부여할 수 있는 완전한 법적 권리를 보유하고 있음을 보증합니다.
+
+---
+
+## 🚀 기여 절차 및 방법
+
+### 1. 이슈(Issue) 등록
+- 새로운 기능 제안이나 대규모 변경 작업 전에는 먼저 [GitHub Issues](https://github.com/smin987/zipper9/issues)를 등록하여 방향성을 논의해 주세요.
+- 버그 제보 시 OS 환경(Windows/macOS/Linux), 문제 발생 포맷, 재현 단계를 상세히 적어주세요.
+
+### 2. 풀 리퀘스트(Pull Request) 생성
+1. 저장소를 Fork하고 기능 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`).
+2. 변경 사항을 커밋합니다 (`feat:`, `fix:`, `docs:`, `test:` 등의 Conventional Commits 권장).
+3. 단위 테스트를 실행하여 무결성을 검증합니다:
+   ```bash
+   python -m unittest tests/test_context_menu.py
+   ```
+4. PR 템플릿의 **기여자 라이선스 동의(CLA)** 체크박스를 확인 및 체크한 후 PR을 제출합니다.
+
+---
+
+## 💡 개발 및 코딩 컨벤션
+- 파이썬 3.10+ 표준 문법을 준수합니다.
+- GUI는 `CustomTkinter`를 기준으로 작성하며, 코어 엔진 및 백엔드 로직(`zipper9_ui/bridge/`)을 깔끔하게 모듈화합니다.
+- 새로운 포맷이나 압축 옵션을 추가할 때는 반드시 `tests/` 디렉터리에 대응하는 단위 테스트를 추가해 주세요.
