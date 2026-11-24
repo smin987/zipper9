@@ -83,7 +83,10 @@ The Author makes the Source Code publicly available subject to the following ter
        personal machine solely for internal experimentation and bug analysis.
     3. Fork the official repository solely for the purpose of submitting bug fixes,
        features, or Pull Requests (PRs) back to the official upstream repository
-       (https://github.com/smin987/zipper9).
+       (https://github.com/smin987/zipper9). All submitted contributions are subject to
+       the Contributor License Agreement (CLA) in CONTRIBUTING.md, granting the Author
+       irrevocable rights to include contributions in current open-source and future
+       commercial, dual-licensed, or proprietary editions.
 
 (b) STRICT PROHIBITION ON MODIFICATION BY COMMERCIAL & CORPORATE USERS:
     Commercial entities, corporations, companies, for-profit organizations/associations,
