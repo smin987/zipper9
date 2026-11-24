@@ -1,94 +1,247 @@
-# ⚡ zipper9 릴리즈 노트 (Release Notes)
+# ⚡ zipper9 v1.0.1 Release Notes / 릴리즈 노트
 
-## [v1.0.1] - 2026-11-20
-
-### 🚀 주요 신규 기능 (New Features)
-- **시스템 보호형 압축 파일 아이콘(DefaultIcon) 및 파일 연결 36종 대폭 확장**
-  - 상단 헤더의 **[압축 아이콘 파일 표시]** 스위치를 켰을 때 zipper9 전용 압축 아이콘(`archive_icon.ico`)이 적용되는 포맷을 기존 14종에서 **순수 아카이브 및 패키지 36종으로 대폭 확장**했습니다.
-  - `CAB`, `WIM`, `LHA`, `LZH`, `ARJ`, `DEB`, `RPM`, `TBZ2`, `TXZ`, `IMG`, `BIN`, `UDF`, `PKG` 등 대중적이고 유용한 아카이브 포맷들에 모두 zipper9 전용 아이콘이 깨끗하게 적용됩니다.
-  - Windows 탐색기 기본 가상 디스크 드라이브 마운트 기능 보존을 위해 `.iso`는 아이콘 목록에서 안전하게 제외되었으며, 인스톨러(`.msi`, `.msp`), 가상 디스크(`.vhd`, `.vhdx`, `.vmdk`, `.vdi`, `.qcow2`) 및 시스템 실행파일(`.sfx.exe`) 역시 고유 동작을 보존하도록 원천 분리했습니다. (우클릭 메뉴 및 앱 내 압축/해제는 그대로 100% 지원)
-- **광범위한 아카이브·디스크 이미지·시스템 패키지 압축 해제 46종 확장자 전면 등록 지원**
-  - 표준 압축 포맷(`ZIP`, `ZIPX`, `7Z`, `RAR/RAR5`, `TAR`, `CAB`, `WIM`, `SFX`, `SFX.EXE`), Unix/Linux 패키지(`GZ`, `TGZ`, `BZ`, `BZ2`, `TBZ`, `TBZ2`, `XZ`, `TXZ`, `LZMA`, `TLZ`, `Z`, `TAZ`, `DEB`, `UDEB`, `RPM`, `CPIO`, `ARJ`), 가상 디스크 이미지(`ISO`, `IMG`, `BIN`, `UDF`, `DMG`, `PKG`, `XIP`, `VHD`, `VHDX`, `VMDK`, `VDI`, `QCOW2`), 윈도우 인스톨러(`MSI`, `MSP`, `MSM`), 구형 레거시 아카이브(`LHA`, `LZH`, `ALZ`) 및 초고속 현대 아카이브(`LZ4`, `ZSTD`) 등 총 46종의 확장자를 정식 인식 목록(`SUPPORTED_EXTRACT_EXTS`)에 일괄 추가했습니다. (※ EGG 포맷은 이스트소프트의 상업적 재배포 제한 및 독점 라이선스 문제로 제외)
-  - 파일 드래그 & 드롭 시 즉각적인 스마트 압축해제 화면 전환, 파일 열기 대화상자 필터링, 탐색기 마우스 우클릭 메뉴 등록(`context_menu.py`) 및 전용 `🗜️ 압축` 플레임 코랄 오렌지 뱃지 자동 연동을 전면 지원합니다.
-- **ISO 광학 디스크 이미지 UDF 압축 생성 및 3대 규격(ISO 9660, Joliet, UDF) 압축 해제 공식 지원**
-  - **압축하기 (ISO 생성)**: 압축 화면의 **[다른 압축 알고리즘 선택...]** 드롭다운에 `ISO: .iso (UDF · 광학 디스크 이미지)` 옵션을 신설했습니다. 대용량 파일(4GB 초과)과 유니코드(한글, 공백, 특수문자), 깊은 다단계 디렉터리 트리를 무손실로 보존하는 표준 **UDF 2.60** 규격으로 ISO 디스크 이미지를 즉시 생성할 수 있습니다.
-  - **압축 해제 (ISO 추출)**: **ISO 9660, Joliet, UDF** 3대 표준 및 파생 규격을 모두 지원합니다. Windows 가상 드라이브 마운트 없이도 7-Zip 네이티브 엔진을 통해 ISO 내부 파일 목록을 즉시 탐색하고 원클릭으로 압축 해제할 수 있습니다.
-  - **안전한 가이드 UX**: ISO 디스크 이미지 특성에 맞추어 볼륨 분할 압축 및 헤더 암호화가 활성화되어 있을 경우 사용자에게 친절한 안내와 함께 표준 ISO 모드로 자동 조율하여 실패 없는 생성을 보장합니다.
-  - **무결성 검사 연동**: 생성 완료 후 7-Zip(`7z t`)을 통한 볼륨 무결성 검증을 100% 지원합니다.
-- **기본 환경설정 개편 (탐색기 우클릭 메뉴 기본 활성화 ON & 기본 언어 영문 EN 탑재)**
-  - 신규 설치 및 세팅 초기화 시 탐색기 마우스 우클릭 메뉴가 기본적으로 **활성화(ON)** 상태로 자동 등록되어, 반디집과 같은 무마찰 즉시 압축/해제를 즉시 사용할 수 있도록 기본 정책을 개편했습니다. (사용자가 헤더 스위치를 수동으로 OFF로 끄면 해당 선택이 영구 기억됩니다.)
-  - 앱의 초기 기본 언어를 글로벌 표준인 **영어(`EN`)**로 지정했습니다. (헤더의 알약형 세그먼트 버튼을 통해 언제든 원클릭으로 한국어로 즉시 전환 가능합니다.)
-- **압축 해제 3단 메트릭 카드 디자인 보존 및 가로 1줄 슬림 배치 (하단 파일 목록 뷰 대폭 확장)**
-  - 기존 3단 카드의 세련된 디자인(모서리 곡률 8px, 소프트 테두리, 카드별 분리)을 100% 그대로 보존했습니다.
-  - 카드 내 장황했던 부가 설명 문구("내부 압축 대상 파일", "비압축 상태 전체 크기" 등)를 전면 삭제하고, 각 카드 내부에서 제목과 수치를 가로 1줄로 컴팩트하게 나란히 배치했습니다.
-  - 카드 제목에 **검은색 굵은 글씨**(`font=11pt bold`, `#000000`, 다크 모드 `#f8f9fa`)를 적용하여 뚜렷한 대비를 확립하고, 결과 수치('16개', '221.9 KB', '15.6%') 전체를 15.6%와 동일한 **파스텔 세이지 민트색**(`#20c997`)으로 통일하여 시인성을 극대화했습니다.
-  - 카드의 세로 높이가 대폭 슬림화(108px ➔ 약 38px)되어 확보된 공간을 하단 파일 목록 텍스트박스(`extract_preview`, 190px ➔ 230px+)로 확장 재배치하여, 더 많은 내부 파일 목록을 스크롤 없이 쾌적하게 한눈에 확인할 수 있습니다.
-  - 언어 전환(`KO` ↔ `EN`) 시에도 기 로드된 3단 카드의 제목(`Total Files`, `Uncompressed Size`, `Space Saved`)과 수치 단위(`items` 등)가 즉각 실시간 동적 갱신되도록 완전한 다국어화를 확립했습니다.
-- **지능형 아카이브 패키징 (일반 파일 + 압축 파일 동시 압축 지원)**
-  - 압축하기 화면에 이미 일반 파일이 등록되어 있거나, 일반 파일과 압축 파일(`.zip`, `.7z`, `.rar`, `.tar.gz`, `.alz` 등)을 함께 드롭/추가할 경우 압축해제 화면으로 전환되지 않고 모든 파일이 압축 대상 목록에 정상 등록되어 하나의 아카이브로 함께 패키징 압축됩니다.
-  - 파일 목록이 비어 있는 상태에서 순수 압축 파일만 단독 드롭한 경우에만 편리하게 '스마트 압축해제' 화면으로 자동 전환됩니다.
-- **설정 아코디언 패널 및 GUI 창 하단 동적 축소/확장(Plan B) 탑재**
-  - 압축 알고리즘 4대 프리셋, 추가 포맷, 무결성 검사, 보안 비밀번호, 분할 압축, 7z 파일명 암호화 기능을 통합하는 **[▼/▶ 설정(알고리즘, 보안 암호, 분할 압축)]** 아코디언 패널을 탑재했습니다.
-  - 패널 좌측의 화살표 기호(`▼` 펼침, `▶` 접힘)를 클릭하면 GUI 창의 하단부가 접혀 올라가며 윈도우 높이가 컴팩트하게 축소(820px ➔ 580px)되고, 다시 펼치면 하단부가 아래로 부드럽게 확장됩니다.
-  - 상단의 파일 드롭/목록 영역의 크기는 왜곡 없이 그대로 보존되며, 하단 여백을 넉넉하게 확보하여 편안한 시인성을 제공합니다.
-  - 패널이 접힌 상태에서도 선택된 설정(알고리즘, 암호 여부, 분할 크기 등)이 우측 요약 배지에 실시간으로 표출되며, 사용자의 마지막 상태 및 창 크기는 `settings.json`에 영구 보존됩니다.
-- **우클릭 즉시 압축/해제 실시간 진행창 (`InstantProgressDialog`) 탑재**
-  - Windows 탐색기에서 파일/폴더를 우클릭하여 **[⚡ zipper9으로 압축하기]** 또는 **[⚡ zipper9으로 풀기]** 실행 시, 실시간 진행상황 팝업창이 표시됩니다.
-  - 실시간 진행률(%), 현재 처리 중인 개별 파일명(`Cascadia Mono` 폰트 적용), 경과 시간(`⏱ 00:00`) 표시.
-  - 진행 중 언제든 즉시 안전하게 작업을 중단할 수 있는 `[취소]` 버튼 및 불완전 파일 자동 정리(Clean-up) 지원.
-  - 작업 완료 시 Windows 성공 알림음(Beep)과 함께 0.35초 후 창이 자동으로 닫힙니다.
-- **암호 입력창 Enter 키 원클릭 압축 해제**
-  - 암호화된 압축 파일을 열었을 때, 상단 암호 입력란에서 비밀번호를 입력하고 `Enter` 키를 누르면 마우스 클릭 없이 즉시 스마트 해제가 진행됩니다.
-- **ALZ (`.alz`, `.a00`) 아카이브 압축 해제 공식 지원**
-  - 알집(ALZip)의 독자 규격인 ALZ 포맷 및 분할 압축(`.alz`, `.a00`, `.a01`...) 파일의 내부 미리보기 및 압축 해제를 완벽하게 지원합니다.
-  - 암호화된 ALZ 파일 해제 및 우클릭 즉시 해제 실시간 진행창과 100% 연동됩니다.
-  - 100% 자유 오픈소스 엔진(`unalz`, zlib/libpng 라이선스) 기반으로 작동하여, **기업 및 상업적 업무 환경에서도 라이선스 단속 위험 없이 완전 무료**로 안전하게 사용할 수 있습니다.
-- **Linux ARM64 (aarch64) 정식 빌드 및 배포 지원**
-  - 라즈베리 파이 4/5, Apple Silicon(가상머신), AWS Graviton 등 ARM64 기반 리눅스용 독립 실행 바이너리 및 `.deb` 패키지를 공식 지원합니다.
-- **Windows 단독 포터블 실행 파일 공식 릴리즈 명칭 표준화 (`zipper9-windows-x64.exe`)**
-  - GitHub Releases 배포 시 Windows 실행 파일명을 `zipper9-windows-x64.exe`로 명시하여 Linux(`amd64`, `arm64`) 및 macOS(`dmg`)와 동일하게 운영체제 및 타깃 아키텍처(x64)를 직관적으로 파악할 수 있도록 배포 파일명을 체계화했습니다.
-- **앱 내 모던 `[ℹ️ 정보 / 라이선스]` 안내 다이얼로그 탑재**
-  - 상단 헤더의 `[ℹ️ 정보 / 라이선스]` 알약형 버튼 클릭 시 세련된 모던 Fluent 다이얼로그 팝업이 노출됩니다.
-  - 기업/상업 환경 100% 무료 보증 라이선스 정책, ALZ 오픈소스 엔진(unalz)의 단속 프리 안전성, EGG 포맷 배제 사유, 그리고 7-Zip, unalz, LZ4, Zstandard 등 제3자 오픈소스 라이선스 총괄 표를 앱 내에서 직접 확인할 수 있습니다.
-  - `[🌐 GitHub 저장소]`, `[📄 라이선스 문서 열기]`, `[닫기]` 원클릭 버튼 및 실시간 다국어(KO/EN)와 다크/라이트 테마를 완벽 지원합니다.
-- **스마트 버전 뱃지 및 1일 1회 GitHub 최신 릴리즈 자동 체크 시스템 탑재**
-  - **최신 버전 상태**: 제목 옆에 차분하고 절제된 은은한 숫자 텍스트(`v1.0.0`)로 노출되어 일상 작업에 방해되지 않습니다.
-  - **새 버전 발견 시**: 눈에 띄는 생동감 있는 알약형 뱃지(`✨ vX.X.X New`)로 즉각 자동 전환되어 원클릭으로 릴리즈 다운로드 페이지로 이동할 수 있습니다.
-  - **마우스 호버 스마트 툴팁**: 뱃지에 마우스를 올리면 `"최신 업데이트가 있습니다."` 또는 `"최신 버전을 사용 중입니다."` 안내 툴팁이 부드럽게 노출됩니다.
-  - **24시간 캐싱 & 백그라운드 논블로킹**: 마지막 확인 시각을 기억하여 1일 1회만 초경량 비동기로 조회하므로, UI 멈춤(렉)이 전혀 없고 GitHub API 요청 한도(Rate Limit)에 걸리지 않습니다.
-
-### 🛡️ 안정성 및 품질 개선 (Fixes & Improvements)
-- **압축 해제 중단/취소 시 불완전 파일 및 잔여 폴더 100% 자동 롤백 클린업**
-  - 대용량 아카이브 해제 도중 사용자가 [취소]하거나 창을 닫았을 때, 디스크 공간 사전 할당(Pre-allocation) 등으로 인해 디스크에 쓰이다 만 불완전 파일(수 기가바이트의 깨진 파일)이 방치되던 문제를 완벽히 해결했습니다.
-  - 기존 0바이트 파일만 삭제하던 제한을 전면 개편하여 파일 크기와 무관하게 중단된 모든 불완전 파일을 감지하여 자동 삭제하며, Windows 파일 잠금(Lock) 방어를 위한 안전 재시도 루프와 내부가 비워진 임시 해제 폴더까지 깨끗하게 `rmdir` 자동 정리합니다.
-- **비표준/콘솔 롬(Wii/GameCube 등) 및 손상된 아카이브 사전 유효성 검증 및 방어 UX 탑재**
-  - 확장자는 `.iso`, `.img`, `.bin` 등 아카이브 확장자이지만 실제로는 PC 표준 파일시스템(ISO 9660, Joliet, UDF)이 아닌 콘솔 롬(닌텐도 Wii/GameCube 독자 FST 등)이거나 손상된 파일인 경우를 사전에 프로빙합니다.
-  - 열 수 없는 비표준/손상 파일 드롭 시 자동으로 압축풀기 화면으로 전환되지 않고 현재 작업 화면(압축하기 등)을 안전하게 유지하며, **"지원하지 않는 형식의 압축 포맷입니다."** (EN: *"Unsupported archive format."*) 시스템 경고 대화상자를 표출하여 사용자 혼란을 완벽하게 차단했습니다.
-- **영문 모드(EN) 압축 해제 대시보드 및 파일 목록 완전 다국어화**
-  - 압축 해제 화면의 3단 통계 카드(`Total Files`, `Uncompressed Size`, `Space Saved`)의 단위, 보조 설명 텍스트와 파일 목록 미리보기의 테이블 컬럼(`Item Name`, `Original Size`, `Compressed`) 및 루트 폴더 구조 표시를 영문 모드에 맞춰 완벽하게 영문화했습니다.
-  - 앱 사용 도중 실시간으로 언어를 전환(`KO` ↔ `EN`)하더라도 이미 로드된 아카이브 정보가 즉시 해당 언어로 동적 재렌더링됩니다.
-- **단위 테스트 무한 대기(블로킹) 방어 및 9.7초 초고속 통과**
-  - `unittest discover` 실행 시 발생하던 GUI 모달 다이얼로그(`messagebox`) 블로킹을 원천 차단하고 단독 스크립트에 실행 가드를 적용하여 전체 테스트 스위트를 9.7초 만에 안정적으로 통과하도록 개선했습니다.
-- **암호 불일치/CRC 오류 시 0-Byte 유령 파일 자동 롤백 및 청소**
-  - 비밀번호를 잘못 입력하여 해제가 중단되었을 때 디스크에 생성되던 0바이트 빈 파일과 빈 폴더를 즉시 감지하여 자동 삭제합니다.
-- **우클릭 메뉴 실행 경로 자동 동기화 (Auto-Sync) 기능 탑재**
-  - 새 버전의 실행 파일을 다른 폴더에 다운로드받아 실행하더라도, 레지스트리의 우클릭 메뉴 연결 경로(`ExePath`)를 현재 실행된 최신 바이너리 위치로 자동 갱신합니다.
-- **아카이브 목록 가독성 개선**
-  - 압축 파일 내부 파일 목록 폰트를 모던 `Cascadia Mono` 11pt로 최적화하고 행간 간격을 여유롭게 조정했습니다.
-- **개발 환경 우클릭 바인딩 최적화**
-  - 파이썬 소스코드(`run.bat` 등) 개발 상태에서도 최신 소스코드 변경사항이 즉각 우클릭 메뉴에 반영되도록 런처 바인딩을 개선했습니다.
+[English (영어)](#-zipper9-v101-release-english) | [한국어 (Korean)](#-zipper9-v101-릴리즈-korean)
 
 ---
 
-## 💡 기존 v1.0.0 사용자를 위한 업데이트 및 적용 가이드
+# ⚡ zipper9 v1.0.1 Release (English)
 
-기존에 `v1.0.0` 단일 실행 파일(`.exe`)을 사용하시던 분들이 새 버전을 다운로드받았을 때의 동작 및 적용 방법입니다:
+Ultra-lightweight, blazing-fast multi-format archiver with modern Fluent UI, full Windows 11 context menu integration, and enterprise-grade format compliance.
 
-### 1. 기존 파일 위치에 그대로 '덮어쓰기'한 경우
-- **내려받아 덮어쓰기만 하면 100% 즉시 자동 적용됩니다.**
-- Windows 탐색기 레지스트리는 이미 해당 경로의 `zipper9.exe`를 바라보고 있으므로, 앱을 따로 열지 않아도 우클릭 압축/해제 시 새로운 실시간 진행창이 즉시 작동합니다.
+---
 
-### 2. 다운로드 폴더 등 '새로운 경로'에 따로 받은 경우
-- **새로 받은 `zipper9.exe`를 더블클릭해서 딱 한 번만 실행해 주세요.**
-- 앱 시작 시 내장된 **자동 경로 동기화(Auto-Sync)** 기능이 작동하여, 레지스트리의 우클릭 메뉴 연결 경로(`ExePath`)를 새로운 위치로 조용히 자동 갱신해 줍니다.
-- 이후에는 앱을 닫고 평소처럼 마우스 우클릭으로 압축/해제 기능을 바로 이용하시면 됩니다.
+## 📦 Download Assets & OS Installation Guide
+
+### 1. Download Packages & Assets
+| Operating System | Architecture | Package / Asset Name | Description |
+| :--- | :--- | :--- | :--- |
+| **🪟 Windows 11 / 10** | x86_64 (64-bit) | [`zipper9-windows-x64.exe`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-windows-x64.exe) | Single standalone portable executable (Recommended) |
+| **🪟 Windows 11 / 10** | x86_64 (64-bit) | [`zipper9-v1.0.1-windows-x64.zip`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-windows-x64.zip) | Portable ZIP archive with binaries & docs |
+| **🍎 macOS** | Universal (Intel & Apple Silicon) | [`zipper9-v1.0.1-macos.dmg`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-macos.dmg) | Apple Disk Image installer (.app bundle) |
+| **🐧 Linux (Debian / Ubuntu / Mint)** | x86_64 (amd64) | [`zipper9_1.0.1_amd64.deb`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9_1.0.1_amd64.deb) | Native Debian package installer |
+| **🐧 Linux (Raspberry Pi 4/5 / ARM)** | aarch64 (arm64) | [`zipper9_1.0.1_arm64.deb`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9_1.0.1_arm64.deb) | Native Debian package for 64-bit ARM Linux |
+| **🐧 Linux (Generic Standalone)** | x86_64 | [`zipper9-v1.0.1-linux-x86_64.tar.gz`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-linux-x86_64.tar.gz) | Standalone portable tarball binary |
+| **🐧 Linux (Generic ARM SBCs)** | aarch64 | [`zipper9-v1.0.1-linux-aarch64.tar.gz`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-linux-aarch64.tar.gz) | Standalone portable tarball for ARM64 |
+
+---
+
+### 2. OS-Specific Installation Instructions
+
+#### 🪟 Windows 11 / 10
+- **Standalone Portable Execution (No installation required)**:
+  1. Download [`zipper9-windows-x64.exe`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-windows-x64.exe).
+  2. Move it to your preferred folder (e.g., `C:\Tools\zipper9\` or Desktop) and double-click to launch.
+- **Windows Explorer Context Menu Auto-Sync**:
+  - Running `zipper9-windows-x64.exe` automatically registers and syncs both Windows 11 Modern and Classic Explorer right-click context menus (`Compress with zipper9`, `Extract with zipper9`).
+  - To update, simply overwrite the old executable with the new version or run the new executable once.
+
+#### 🍎 macOS (Apple Silicon & Intel)
+- **Installing via DMG Package**:
+  1. Download [`zipper9-v1.0.1-macos.dmg`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-macos.dmg).
+  2. Double-click to open the DMG, then drag `zipper9.app` into your **Applications** folder.
+  3. **First-launch Gatekeeper Notice**:
+     - If macOS displays an *"unidentified developer"* prompt on first launch, open **Finder** ➔ navigate to **Applications** ➔ right-click `zipper9.app` ➔ select **Open**, and click **Open** in the confirmation dialog.
+
+#### 🐧 Linux (Ubuntu / Debian / Raspberry Pi OS / Generic Linux)
+- **Debian / Ubuntu / Mint / Pop!_OS (`.deb` package)**:
+  ```bash
+  # For x86_64 (Intel/AMD 64-bit)
+  sudo apt install ./zipper9_1.0.1_amd64.deb
+
+  # For ARM64 (Raspberry Pi 4/5, Apple Silicon VMs, Cloud ARM)
+  sudo apt install ./zipper9_1.0.1_arm64.deb
+  ```
+- **Generic Linux Standalone Tarball (Run anywhere without root privileges)**:
+  ```bash
+  # Extract tarball
+  tar -xzf zipper9-v1.0.1-linux-x86_64.tar.gz
+  cd zipper9
+  ./zipper9
+  ```
+
+---
+
+## 🚀 Key New Features (v1.0.1)
+
+- **Extensive Expansion of Protected DefaultIcon & File Associations to 36 Formats**:
+  - Toggling **[Display Archive File Icon]** now applies zipper9's brand icon across **36 pure archive and package formats** (`CAB`, `WIM`, `LHA`, `LZH`, `ARJ`, `DEB`, `RPM`, `TBZ2`, `TXZ`, `IMG`, `BIN`, `UDF`, `PKG`, etc.).
+  - Preserves Windows native virtual disk mounting (`.iso`) and installers/virtual disks (`.msi`, `.vhd`, `.vhdx`, `.vmdk`, `.sfx.exe`).
+- **Comprehensive Decompression Support for 46 Archive, Disk Image & Package Formats**:
+  - Full support registered in `SUPPORTED_EXTRACT_EXTS` across 46 total extensions including standard archives (`ZIP`, `7Z`, `RAR`), Linux packages (`DEB`, `RPM`, `TAR.GZ`, `TAR.XZ`), and modern streaming formats (`LZ4`, `ZSTD`).
+  - *Note: EGG format is permanently excluded due to proprietary commercial redistribution restrictions.*
+- **UDF ISO Optical Disk Image Creation & Triple-Standard (ISO 9660, Joliet, UDF) Extraction**:
+  - **Creation**: Supports standard **UDF 2.60** preserving large files (>4GB) and Unicode filenames without loss.
+  - **Extraction**: Supports ISO 9660, Joliet, and UDF standards directly through 7-Zip native engine without virtual drive mounting.
+- **Default Preference Overhaul**:
+  - Explorer right-click context menu integration is now enabled (**ON**) by default on fresh installations.
+  - Initial interface language standardized to global **English (`EN`)** (one-click toggleable to Korean).
+- **Slim Single-Line 3-Metric Decompression Cards**:
+  - Re-engineered dashboard cards into a slim, single-line horizontal layout (height reduced from 108px to ~38px), expanding the file preview listbox (`extract_preview`) for comfortable scroll-free inspection.
+- **Intelligent Packaging (Batch Compress Regular Files + Existing Archives)**:
+  - Dropping regular files and existing archives together packages all items into a unified archive instead of switching to decompression.
+- **Accordion Settings Panel with Dynamic Window Resizing (Plan B)**:
+  - Collapsible **[▼/▶ Settings]** panel smoothly adjusts window height (820px ➔ 580px) while maintaining full view of active settings via summary badges.
+- **Real-Time Context Menu Progress Dialog (`InstantProgressDialog`)**:
+  - Lightweight popup showing real-time percentage (%), currently processed filename (`Cascadia Mono`), elapsed time, and safe cancellation with auto-rollback.
+- **Official ALZ (`.alz`, `.a00`) Archive Decompression Support**:
+  - Powered 100% by the permissive open-source engine (`unalz`, zlib/libpng License), guaranteeing **zero license audit risk for enterprise environments**.
+- **Official Linux ARM64 (aarch64) Standalone Binary & Package Support**:
+  - Full native support for Raspberry Pi 4/5, Apple Silicon VMs, and AWS Graviton servers.
+- **Standardized Windows Standalone Portable Binary Naming (`zipper9-windows-x64.exe`)**.
+- **Modern In-App `[ℹ️ About / Licenses]` Dialog**:
+  - Fluent dialog with freeware guarantees, ALZ unalz audit safety, and third-party OSS license tables.
+- **Smart Version Badge with Non-Blocking 24-Hour GitHub Update Check**.
+
+---
+
+## 🛡️ Fixes & Improvements
+
+- **100% Automatic Rollback & Cleanup of Incomplete Files on Cancellation**:
+  - Purges partial files of any size upon cancel/close, including Windows lock retry defense and automatic cleanup of empty directories (`rmdir`).
+- **Pre-Validation & Safe UX for Non-Standard / Corrupted Archives (Wii/GameCube ROMs, etc.)**:
+  - Displays a clean alert (*"Unsupported archive format"*) without crashing or switching views when non-standard disc images are dropped.
+- **Full Localization for English (EN) Mode Dashboard & File Previews**.
+- **Blocking Prevention & 9.7s High-Speed Unit Test Execution**.
+- **Automatic 0-Byte Phantom File Cleanup on Password / CRC Errors**.
+- **Automatic Context Menu ExePath Auto-Sync**.
+- **Enhanced Archive File List Readability (Cascadia Mono 11pt)**.
+
+---
+
+## 📄 License & Fair-Code Terms
+
+Distributed under the **[zipper9 Fair-Code License Agreement](https://github.com/smin987/zipper9/blob/main/LICENSE)**:
+- **Compiled Binaries**: 100% completely FREE forever for personal, educational, non-profit, and **commercial / enterprise use**.
+- **Source Code**: Public for study, security auditing, and upstream contributions (CLA applies). Modifying source code for commercial use or developing competing utilities is strictly prohibited.
+
+---
+
+## 💖 Support & Sponsorship
+
+If zipper9 brings value to your daily workflow, please consider sponsoring the developer. Your support directly funds performance optimizations, multi-platform releases, and new features! ☕✨
+
+<div align="center">
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/smin987) &nbsp; [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/smin987) &nbsp; [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/smin987)
+
+</div>
+
+---
+---
+
+# ⚡ zipper9 v1.0.1 릴리즈 (Korean)
+
+모던 Fluent UI, Windows 11 탐색기 우클릭 메뉴 완벽 연동, 기업 환경 100% 무료 보증 라이선스를 탑재한 초경량·초고속 멀티 포맷 아카이버 zipper9입니다.
+
+---
+
+## 📦 다운로드 에셋 및 OS별 설치 안내
+
+### 1. 다운로드 패키지 및 에셋 목록
+| 운영체제 | 아키텍처 | 파일명 / 에셋 링크 | 설명 |
+| :--- | :--- | :--- | :--- |
+| **🪟 Windows 11 / 10** | x86_64 (64비트) | [`zipper9-windows-x64.exe`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-windows-x64.exe) | 단독 포터블 무설치 실행 파일 (권장) |
+| **🪟 Windows 11 / 10** | x86_64 (64비트) | [`zipper9-v1.0.1-windows-x64.zip`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-windows-x64.zip) | 실행 파일 및 라이선스 문서 포함 압축본 |
+| **🍎 macOS** | Universal (인텔 & 애플 실리콘) | [`zipper9-v1.0.1-macos.dmg`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-macos.dmg) | macOS 전용 DMG 디스크 이미지 패키지 |
+| **🐧 Linux (Debian / Ubuntu / Mint)** | x86_64 (amd64) | [`zipper9_1.0.1_amd64.deb`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9_1.0.1_amd64.deb) | 데비안/우분투 계열 설치용 .deb 패키지 |
+| **🐧 Linux (라즈베리 파이 4/5 / ARM)** | aarch64 (arm64) | [`zipper9_1.0.1_arm64.deb`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9_1.0.1_arm64.deb) | 64비트 ARM 리눅스 전용 .deb 패키지 |
+| **🐧 Linux (범용 무설치 타르볼)** | x86_64 | [`zipper9-v1.0.1-linux-x86_64.tar.gz`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-linux-x86_64.tar.gz) | 설치 없이 바로 실행하는 x86_64 바이너리 |
+| **🐧 Linux (범용 ARM SBCs)** | aarch64 | [`zipper9-v1.0.1-linux-aarch64.tar.gz`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-linux-aarch64.tar.gz) | 설치 없이 바로 실행하는 ARM64 바이너리 |
+
+---
+
+### 2. 운영체제별 설치 및 실행 가이드
+
+#### 🪟 Windows 11 / 10
+- **단독 포터블 실행 (별도 인스톨러 불필요)**:
+  1. [`zipper9-windows-x64.exe`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-windows-x64.exe) 파일을 다운로드합니다.
+  2. 원하는 폴더(예: `C:\Tools\zipper9\` 또는 바탕화면)로 이동한 뒤 더블클릭하여 바로 실행합니다.
+- **Windows 탐색기 우클릭 메뉴 자동 동기화**:
+  - `zipper9-windows-x64.exe`를 최초 1회 실행하면 Windows 11 모던 1단계 메뉴 및 클래식 우클릭 메뉴(`zipper9으로 압축하기`, `zipper9으로 풀기`)가 자동으로 레지스트리에 등록 및 경로 동기화됩니다.
+  - 새 버전으로 업데이트할 때는 기존 파일 위치에 그대로 덮어쓰기하거나, 새 위치에서 한 번만 더블클릭해 주시면 됩니다.
+
+#### 🍎 macOS (Apple Silicon & Intel)
+- **DMG 패키지 설치 방법**:
+  1. [`zipper9-v1.0.1-macos.dmg`](https://github.com/smin987/zipper9/releases/download/v1.0.1/zipper9-v1.0.1-macos.dmg) 파일을 다운로드합니다.
+  2. DMG 파일을 더블클릭하여 연 후, `zipper9.app`을 **Applications(응용 프로그램)** 폴더로 드래그합니다.
+  3. **최초 실행 시 게이트키퍼(Gatekeeper) 안내**:
+     - 최초 실행 시 *"확인되지 않은 개발자가 배포했기 때문에..."* 경고창이 나타날 경우, **Finder** ➔ **응용 프로그램** 폴더에서 `zipper9.app`을 마우스 우클릭 ➔ **열기**를 선택하고 확인 창에서 **열기**를 눌러주시면 이후 정상 실행됩니다.
+
+#### 🐧 Linux (우분투 / 데비안 / 라즈베리 파이 OS / 기타 리눅스)
+- **데비안 / 우분투 계열 (`.deb` 패키지)**:
+  ```bash
+  # x86_64 (인텔/AMD 64비트)
+  sudo apt install ./zipper9_1.0.1_amd64.deb
+
+  # ARM64 (라즈베리 파이 4/5, 애플 실리콘 가상머신, 클라우드 ARM 서버)
+  sudo apt install ./zipper9_1.0.1_arm64.deb
+  ```
+- **범용 무설치 타르볼 (루트 권한 없이 바로 실행)**:
+  ```bash
+  # 압축 해제 및 실행
+  tar -xzf zipper9-v1.0.1-linux-x86_64.tar.gz
+  cd zipper9
+  ./zipper9
+  ```
+
+---
+
+## 🚀 주요 신규 기능 (v1.0.1)
+
+- **시스템 보호형 압축 파일 아이콘(DefaultIcon) 및 파일 연결 36종 대폭 확장**:
+  - 상단 헤더의 **[압축 아이콘 파일 표시]** 스위치를 켰을 때 전용 아이콘(`archive_icon.ico`)이 적용되는 포맷을 **순수 아카이브 36종으로 대폭 확장**했습니다.
+  - Windows 기본 가상 드라이브 마운트 보존을 위해 `.iso`는 안전하게 제외되었으며, 인스톨러/가상디스크(`.msi`, `.vhd`, `.vhdx`, `.vmdk`, `.sfx.exe`) 역시 고유 동작을 보존하도록 원천 분리했습니다.
+- **광범위한 아카이브·디스크 이미지·시스템 패키지 압축 해제 46종 확장자 전면 등록 지원**:
+  - 표준 압축 포맷(`ZIP`, `7Z`, `RAR`), 리눅스 패키지(`DEB`, `RPM`, `TAR.GZ`, `TAR.XZ`), 최신 초고속 아카이브(`LZ4`, `ZSTD`) 등 총 46종 지원. (*EGG 포맷은 이스트소프트의 상업적 재배포 제한 및 독점 라이선스 문제로 영구 제외*)
+- **ISO 광학 디스크 이미지 UDF 압축 생성 및 3대 규격(ISO 9660, Joliet, UDF) 압축 해제 공식 지원**:
+  - **생성**: 대용량 파일(4GB 초과) 및 유니코드를 무손실 보존하는 **UDF 2.60** 규격 지원.
+  - **해제**: 가상 드라이브 마운트 없이 ISO 내부 파일 목록 즉시 탐색 및 원클릭 추출 지원.
+- **기본 환경설정 개편**:
+  - 신규 설치 시 탐색기 우클릭 메뉴가 기본적으로 **활성화(ON)** 상태로 등록되어 무마찰 즉시 압축/해제 사용 가능.
+  - 초기 기본 언어를 글로벌 표준인 **영어(`EN`)**로 지정 (원클릭으로 한국어 전환 가능).
+- **압축 해제 3단 메트릭 카드 슬림화 및 하단 파일 목록 뷰 대폭 확장**:
+  - 카드 높이를 108px에서 ~38px로 슬림화하여 하단 파일 목록 프리뷰 공간을 대폭 확장.
+- **지능형 아카이브 패키징**:
+  - 일반 파일과 압축 파일이 함께 드롭되면 모든 대상을 단일 아카이브로 패키징 압축.
+- **설정 아코디언 패널 및 GUI 창 하단 동적 축소/확장(Plan B) 탑재**:
+  - `[▼/▶ 설정]` 패널 토글 시 윈도우 높이가 부드럽게 축소(820px ➔ 580px)/확장.
+- **우클릭 즉시 압축/해제 실시간 진행창 (`InstantProgressDialog`) 탑재**:
+  - 실시간 진행률(%), 처리 중인 파일명, 경과 시간 표시 및 불완전 파일 자동 롤백 지원.
+- **ALZ (`.alz`, `.a00`) 아카이브 압축 해제 공식 지원**:
+  - 순수 오픈소스 엔진(`unalz`, zlib/libpng 라이선스) 기반으로 작동하여 **기업 환경에서도 라이선스 단속 위험 없이 완전 무료**로 안전하게 사용 가능.
+- **Linux ARM64 (aarch64) 정식 빌드 및 패키지 지원** (라즈베리 파이 4/5, 애플 실리콘 VM).
+- **Windows 단독 포터블 실행 파일 공식 명칭 표준화 (`zipper9-windows-x64.exe`)**.
+- **앱 내 모던 `[ℹ️ 정보 / 라이선스]` 다이얼로그 탑재**.
+- **스마트 버전 뱃지 및 24시간 논블로킹 GitHub 업데이트 체크 탑재**.
+
+---
+
+## 🛡️ 안정성 및 품질 개선
+
+- **압축 해제 중단/취소 시 불완전 파일 및 잔여 폴더 100% 자동 롤백 클린업**.
+- **비표준/콘솔 롬(Wii/GameCube FST 등) 및 손상된 아카이브 사전 유효성 검증 및 방어 UX 탑재**.
+- **영문 모드(EN) 압축 해제 대시보드 및 파일 목록 완전 다국어화**.
+- **단위 테스트 무한 대기(블로킹) 방어 및 9.7초 초고속 통과**.
+- **암호 불일치/CRC 오류 시 0-Byte 유령 파일 자동 롤백 및 청소**.
+- **우클릭 메뉴 실행 경로 자동 동기화 (Auto-Sync) 기능 탑재**.
+- **아카이브 파일 목록 가독성 개선 (Cascadia Mono 11pt 최적화)**.
+
+---
+
+## 📄 라이선스 정책 (Fair-Code)
+
+본 소프트웨어는 **[zipper9 Fair-Code License Agreement](https://github.com/smin987/zipper9/blob/main/LICENSE)**에 따라 배포됩니다:
+- **컴파일 바이너리**: 개인, 교육기관, 공공기관 및 **일반 기업(상업적 업무 환경) 모두 완전 무료**로 영구 사용하실 수 있습니다.
+- **소스코드**: 학습, 연구, 보안 감사 및 공식 기여(CLA 적용) 목적으로 공개되어 있으며, 영리 기업의 소스코드 수정 및 경쟁 제품 출시는 엄격히 금지됩니다.
+
+---
+
+## 💖 후원 안내 (Sponsorship)
+
+zipper9이 유용하셨다면 개발자를 응원해 주세요! 여러분의 소중한 후원은 성능 최적화, 멀티플랫폼 지원 및 새로운 혁신 기능을 지속적으로 개발하는 데 큰 힘이 됩니다. ☕✨
+
+<div align="center">
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/smin987) &nbsp; [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/smin987) &nbsp; [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/smin987)
+
+</div>
