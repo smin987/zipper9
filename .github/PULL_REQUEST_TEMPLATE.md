@@ -20,7 +20,7 @@
 
 zipper9 is provided as free software and may expand to include dual-licensing or commercial editions in the future to ensure project sustainability.
 
-- [ ] **I have read and fully agree to the Contributor License Agreement (CLA) in [CONTRIBUTING.md](CONTRIBUTING.md).**
+- [ ] **I have read and fully agree to the Contributor License Agreement (CLA) in [CONTRIBUTING.md](https://github.com/smin987/zipper9/blob/main/CONTRIBUTING.md).**
 - [ ] I confirm that this contribution is my original work, and I grant the Project Maintainer (smin987) the unrestricted right to incorporate, distribute, and relicense these contributions under future commercial, dual-licensed, or proprietary editions without separate consent or compensation.
 
 
@@ -49,5 +49,5 @@ zipper9 is provided as free software and may expand to include dual-licensing or
 
 zipper9은 무료 소프트웨어로 배포되며, 향후 프로젝트의 지속 가능성을 위해 듀얼 라이선스 또는 상용 에디션으로 확장될 수 있습니다.
 
-- [ ] **본인은 [CONTRIBUTING.md](CONTRIBUTING.md)에 명시된 기여자 라이선스 계약(CLA) 조항에 완전히 동의합니다.**
+- [ ] **본인은 [CONTRIBUTING.md](https://github.com/smin987/zipper9/blob/main/CONTRIBUTING.md)에 명시된 기여자 라이선스 계약(CLA) 조항에 완전히 동의합니다.**
 - [ ] 본 풀 리퀘스트에 포함된 코드는 본인의 순수 창작물이며, 프로젝트 관리자(smin987)가 향후 해당 코드를 상용 라이선스(Commercial License), 듀얼 라이선스, 또는 유료 Pro/Enterprise 에디션에 포함하여 재라이선싱 및 배포하는 권한을 가짐에 동의합니다.
